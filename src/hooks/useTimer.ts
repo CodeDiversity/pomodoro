@@ -111,7 +111,12 @@ const initialState: TimerState = {
   pausedTimeRemaining: null,
 }
 
-export function useTimer() {
+interface UseTimerOptions {
+  onSessionComplete?: () => void
+}
+
+export function useTimer(options: UseTimerOptions = {}) {
+  const { onSessionComplete } = options
   const [state, dispatch] = useReducer(timerReducer, initialState)
   const [autoStart, setAutoStartState] = useState(false)
   const intervalRef = useRef<number | null>(null)
@@ -218,6 +223,11 @@ export function useTimer() {
       // Session completed - notify user
       notifySessionComplete(state.mode)
 
+      // Call session complete callback for focus sessions
+      if (state.mode === 'focus') {
+        onSessionComplete?.()
+      }
+
       // Auto-advance to next session after a brief delay
       setTimeout(() => {
         dispatch({ type: 'SKIP' })
@@ -233,7 +243,7 @@ export function useTimer() {
 
     // Update previous time ref
     previousTimeRef.current = state.timeRemaining
-  }, [state.timeRemaining, state.mode])
+  }, [state.timeRemaining, state.mode, onSessionComplete])
 
   const start = useCallback(() => {
     dispatch({ type: 'START' })

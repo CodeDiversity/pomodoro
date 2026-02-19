@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import TimerDisplay from './components/TimerDisplay'
 import TimerControls from './components/TimerControls'
 import HelpPanel from './components/HelpPanel'
@@ -11,19 +11,9 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSessionNotes } from './hooks/useSessionNotes'
 import { useSessionManager } from './hooks/useSessionManager'
 import { getTagSuggestions } from './services/sessionStore'
+import { TimerMode } from './types/timer'
 
 function App() {
-  const {
-    state,
-    start,
-    pause,
-    resume,
-    reset,
-    skip,
-    autoStart,
-    setAutoStart,
-  } = useTimer()
-
   // State for summary modal
   const [showSummary, setShowSummary] = useState(false)
   const [completedSession, setCompletedSession] = useState<{
@@ -35,6 +25,14 @@ function App() {
 
   // Tag suggestions state
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([])
+
+  // Timer state ref for session manager
+  const timerStateRef = useRef({
+    mode: 'focus' as TimerMode,
+    isRunning: false,
+    duration: 1500,
+    startTime: null as number | null,
+  })
 
   // Load tag suggestions on mount
   useEffect(() => {
@@ -55,15 +53,15 @@ function App() {
     // Background save - no action needed, status updates automatically
   })
 
-  // Session manager hook
+  // Session manager hook - uses ref for timer state
   const noteState = { noteText, tags, lastSaved, saveStatus }
 
   const sessionManager = useSessionManager(
     {
-      mode: state.mode,
-      isRunning: state.isRunning,
-      duration: state.duration,
-      startTime: state.startTime,
+      mode: timerStateRef.current.mode,
+      isRunning: timerStateRef.current.isRunning,
+      duration: timerStateRef.current.duration,
+      startTime: timerStateRef.current.startTime,
       noteState,
     },
     {
@@ -73,7 +71,7 @@ function App() {
       onSessionSkip: () => {
         // Save incomplete session and show summary
         setCompletedSession({
-          durationString: '25:00', // This will be updated
+          durationString: '25:00',
           noteText: noteText,
           tags: tags,
           startTimestamp: new Date().toISOString(),
@@ -86,6 +84,20 @@ function App() {
       },
     }
   )
+
+  // Handle session complete from timer
+  const handleSessionComplete = async () => {
+    const record = await sessionManager.handleSessionComplete()
+    if (record) {
+      setCompletedSession({
+        durationString: record.durationString,
+        noteText: record.noteText,
+        tags: record.tags,
+        startTimestamp: record.startTimestamp,
+      })
+      setShowSummary(true)
+    }
+  }
 
   // Handle session skip
   const handleSessionSkip = async () => {
@@ -105,6 +117,28 @@ function App() {
   const handleSessionReset = () => {
     sessionManager.handleSessionReset()
   }
+
+  // Timer hook with session completion callback
+  const {
+    state,
+    start,
+    pause,
+    resume,
+    reset,
+    skip,
+    autoStart,
+    setAutoStart,
+  } = useTimer({ onSessionComplete: handleSessionComplete })
+
+  // Update ref when timer state changes
+  useEffect(() => {
+    timerStateRef.current = {
+      mode: state.mode,
+      isRunning: state.isRunning,
+      duration: state.duration,
+      startTime: state.startTime,
+    }
+  }, [state.mode, state.isRunning, state.duration, state.startTime])
 
   // Determine visibility (only during Focus mode)
   const showNotePanel = state.mode === 'focus'
