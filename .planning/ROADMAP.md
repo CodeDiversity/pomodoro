@@ -46,8 +46,8 @@
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 1 - Foundation | Working timer with persistence | TMR-01-12, NOTF-01-03, KEY-01-03, DATA-01-03 | In Progress |
-| 2 - Session Management | Notes and session recording | SESS-01-05, NOTE-01-05 | Pending |
+| 1 - Foundation | Working timer with persistence | TMR-01-12, NOTF-01-03, KEY-01-03, DATA-01-03 | Complete |
+| 2 - Session Management | Notes and session recording | SESS-01-05, NOTE-01-05 | In Progress |
 | 3 - History & Stats | Review sessions and view stats | HIST-01-08, STAT-01-04 | Pending |
 | 4 - Polish & Navigation | Tab navigation interface | NAV-01-02 | Pending |
 
@@ -56,9 +56,18 @@
 ## Phase 1 Plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project Setup & Timer Core (Vite, types, useTimer hook, display)
-- [ ] 01-02-PLAN.md — Persistence & Notifications (IndexedDB, audio beep, browser notifications)
-- [ ] 03-03-PLAN.md — UI Components & Keyboard Shortcuts (controls, shortcuts, help panel)
+- [x] 01-01-PLAN.md — Project Setup & Timer Core (Vite, types, useTimer hook, display)
+- [x] 01-02-PLAN.md — Persistence & Notifications (IndexedDB, audio beep, browser notifications)
+- [x] 01-03-PLAN.md — UI Components & Keyboard Shortcuts (controls, shortcuts, help panel)
+
+---
+
+## Phase 2 Plans
+
+Plans:
+- [ ] 02-01-PLAN.md — IndexedDB Schema & Session Types (session types, extend db, session store)
+- [ ] 02-02-PLAN.md — Note Panel & Tag Input (NotePanel, TagInput, useSessionNotes with 500ms debounce)
+- [ ] 02-03-PLAN.md — Session Triggers & Integration (useSessionManager, SessionSummary, App integration)
 
 ---
 
