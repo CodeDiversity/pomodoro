@@ -13,10 +13,10 @@
 | Attribute | Value |
 |-----------|-------|
 | Phase | 1 - Foundation |
-| Current Plan | 02 |
+| Current Plan | 03 |
 | Total Plans | 4 |
-| Status | Plan 02 Complete |
-| Progress | 40% |
+| Status | Plan 03 Complete |
+| Progress | 60% |
 
 ## Performance Metrics
 
@@ -37,6 +37,9 @@
 4. **Timer Accuracy:** Using timestamp-based approach (Date.now()) for accuracy
 5. **Auto Long Break:** After 4 focus sessions, not configurable per v1 scope
 6. **Mode Colors:** focus=red, shortBreak=orange, longBreak=blue
+7. **Control Layout:** Primary (Play/Pause) prominent, secondary (Reset/Skip) in menu
+8. **Keyboard Shortcuts:** Shown in help panel, not on buttons
+9. **Auto-start:** Off by default, persisted in IndexedDB
 
 ### Research Flags
 
@@ -51,6 +54,7 @@ None currently.
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-19: Phase 1 plan 03 complete - timer controls, keyboard shortcuts, help panel, settings implemented
 - 2026-02-19: Phase 1 plan 02 complete - persistence and notifications implemented
 - 2026-02-19: Phase 1 plan 01 complete - timer core built
 - 2026-02-19: Phase 1 context gathered (timer display, controls, persistence, notifications)
@@ -59,7 +63,7 @@ None currently.
 - 2026-02-19: Project initialized
 
 **Ready For:**
-- Plan 03: Timer controls (start/pause/reset/skip buttons)
+- Plan 04: Final polish and testing
 
 ---
 
