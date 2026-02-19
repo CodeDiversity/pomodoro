@@ -44,14 +44,14 @@
 
 ### History
 
-- [ ] **HIST-01**: History displays list of Focus session records, newest first
-- [ ] **HIST-02**: Each item shows: date/time, actual duration, note preview (truncated), tags
-- [ ] **HIST-03**: Click item opens details drawer/modal
-- [ ] **HIST-04**: Details show: full note, start/end timestamps, duration
-- [ ] **HIST-05**: Details allow editing note and tags
-- [ ] **HIST-06**: Details allow deleting record
-- [ ] **HIST-07**: Filter by date range: Today, Last 7 days, Last 30 days, All
-- [ ] **HIST-08**: Search input filters by text in notes and tags
+- [x] **HIST-01**: History displays list of Focus session records, newest first
+- [x] **HIST-02**: Each item shows: date/time, actual duration, note preview (truncated), tags
+- [x] **HIST-03**: Click item opens details drawer/modal
+- [x] **HIST-04**: Details show: full note, start/end timestamps, duration
+- [x] **HIST-05**: Details allow editing note and tags
+- [x] **HIST-06**: Details allow deleting record
+- [x] **HIST-07**: Filter by date range: Today, Last 7 days, Last 30 days, All
+- [x] **HIST-08**: Search input filters by text in notes and tags
 
 ### Stats
 
@@ -142,14 +142,14 @@
 | NOTE-03 | Phase 2 | Complete |
 | NOTE-04 | Phase 2 | Complete |
 | NOTE-05 | Phase 2 | Complete |
-| HIST-01 | Phase 3 | Pending |
-| HIST-02 | Phase 3 | Pending |
-| HIST-03 | Phase 3 | Pending |
-| HIST-04 | Phase 3 | Pending |
-| HIST-05 | Phase 3 | Pending |
-| HIST-06 | Phase 3 | Pending |
-| HIST-07 | Phase 3 | Pending |
-| HIST-08 | Phase 3 | Pending |
+| HIST-01 | Phase 3 | Complete |
+| HIST-02 | Phase 3 | Complete |
+| HIST-03 | Phase 3 | Complete |
+| HIST-04 | Phase 3 | Complete |
+| HIST-05 | Phase 3 | Complete |
+| HIST-06 | Phase 3 | Complete |
+| HIST-07 | Phase 3 | Complete |
+| HIST-08 | Phase 3 | Complete |
 | STAT-01 | Phase 3 | Pending |
 | STAT-02 | Phase 3 | Pending |
 | STAT-03 | Phase 3 | Pending |
