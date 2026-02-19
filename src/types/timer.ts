@@ -21,3 +21,4 @@ export type TimerAction =
   | { type: 'SKIP' }
   | { type: 'TICK' }
   | { type: 'SET_MODE'; payload: TimerMode }
+  | { type: 'LOAD_STATE'; payload: TimerState }
