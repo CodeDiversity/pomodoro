@@ -71,6 +71,15 @@ Plans:
 
 ---
 
+## Phase 3 Plans
+
+Plans:
+- [ ] 03-01-PLAN.md — History List UI (filters, list, drawer, hooks)
+- [ ] 03-02-PLAN.md — Stats Display (stats cards, calculations)
+- [ ] 03-03-PLAN.md — Integration (App.tsx)
+
+---
+
 ## Coverage Summary
 
 - Total v1 requirements: 38
