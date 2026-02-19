@@ -9,6 +9,10 @@ interface TimerControlsProps {
   onResume: () => void
   onReset: () => void
   onSkip: () => void
+  onSessionSkip?: () => void
+  onSessionReset?: () => void
+  showManualSave?: boolean
+  onManualSave?: () => void
 }
 
 const Container = styled.div`
@@ -33,6 +37,24 @@ const PrimaryButton = styled.button`
 
   &:hover {
     background-color: #444;
+  }
+`
+
+const SecondaryButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background-color: #e74c3c;
+  color: white;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #c0392b;
   }
 `
 
@@ -96,6 +118,10 @@ export default function TimerControls({
   onResume,
   onReset,
   onSkip,
+  onSessionSkip,
+  onSessionReset,
+  showManualSave,
+  onManualSave,
 }: TimerControlsProps) {
   const [showMenu, setShowMenu] = useState(false)
 
@@ -117,12 +143,29 @@ export default function TimerControls({
     getPrimaryButtonAction()()
   }
 
+  const handleReset = () => {
+    onSessionReset?.()
+    onReset()
+  }
+
+  const handleSkip = () => {
+    onSessionSkip?.()
+    onSkip()
+  }
+
   return (
     <Container>
       <PrimaryButton onClick={handlePrimaryClick} aria-label={getPrimaryButtonLabel()}>
         {isRunning ? <Icon>⏸</Icon> : <Icon>▶</Icon>}
         <span>{getPrimaryButtonLabel()}</span>
       </PrimaryButton>
+
+      {showManualSave && onManualSave && (
+        <SecondaryButton onClick={onManualSave} aria-label="Save session">
+          <Icon>💾</Icon>
+          <span>Save</span>
+        </SecondaryButton>
+      )}
 
       <MenuContainer>
         <MenuToggle onClick={() => setShowMenu(!showMenu)} aria-label="More options">
@@ -133,7 +176,7 @@ export default function TimerControls({
           <Menu>
             <MenuItem
               onClick={() => {
-                onReset()
+                handleReset()
                 setShowMenu(false)
               }}
             >
@@ -141,7 +184,7 @@ export default function TimerControls({
             </MenuItem>
             <MenuItem
               onClick={() => {
-                onSkip()
+                handleSkip()
                 setShowMenu(false)
               }}
             >
