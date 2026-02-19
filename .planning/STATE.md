@@ -5,7 +5,7 @@
 ## Project Reference
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
-- **Current Phase:** 1 - Foundation
+- **Current Phase:** 01
 - **Next Step:** Execute remaining foundation plans
 
 ## Current Position
