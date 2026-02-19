@@ -1,4 +1,102 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import styled from 'styled-components'
+
+const Container = styled.div`
+  position: relative;
+`
+
+const ToggleButton = styled.button`
+  width: 28px;
+  height: 28px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e5e5e5;
+  border-radius: 50%;
+  background-color: white;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`
+
+const Panel = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 0.5rem;
+  background-color: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  min-width: 200px;
+  z-index: 20;
+`
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+`
+
+const Title = styled.span`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+  padding: 0;
+
+  &:hover {
+    color: #666;
+  }
+`
+
+const ShortcutList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`
+
+const ShortcutItem = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+`
+
+const Kbd = styled.kbd`
+  font-family: monospace;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  background-color: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  color: #333;
+`
+
+const Description = styled.span`
+  font-size: 0.8125rem;
+  color: #666;
+`
 
 export default function HelpPanel() {
   const [isOpen, setIsOpen] = useState(false)
@@ -9,126 +107,32 @@ export default function HelpPanel() {
   ]
 
   return (
-    <div style={containerStyle}>
-      <button
+    <Container>
+      <ToggleButton
         onClick={() => setIsOpen(!isOpen)}
-        style={toggleButtonStyle}
         aria-label={isOpen ? 'Close help' : 'Open help'}
       >
         ?
-      </button>
+      </ToggleButton>
 
       {isOpen && (
-        <div style={panelStyle}>
-          <div style={headerStyle}>
-            <span style={titleStyle}>Keyboard Shortcuts</span>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={closeButtonStyle}
-              aria-label="Close help"
-            >
+        <Panel>
+          <Header>
+            <Title>Keyboard Shortcuts</Title>
+            <CloseButton onClick={() => setIsOpen(false)} aria-label="Close help">
               ×
-            </button>
-          </div>
-          <ul style={listStyle}>
+            </CloseButton>
+          </Header>
+          <ShortcutList>
             {shortcuts.map((shortcut) => (
-              <li key={shortcut.key} style={listItemStyle}>
-                <kbd style={kbdStyle}>{shortcut.key}</kbd>
-                <span style={descriptionStyle}>{shortcut.description}</span>
-              </li>
+              <ShortcutItem key={shortcut.key}>
+                <Kbd>{shortcut.key}</Kbd>
+                <Description>{shortcut.description}</Description>
+              </ShortcutItem>
             ))}
-          </ul>
-        </div>
+          </ShortcutList>
+        </Panel>
       )}
-    </div>
+    </Container>
   )
-}
-
-const containerStyle: React.CSSProperties = {
-  position: 'relative',
-}
-
-const toggleButtonStyle: React.CSSProperties = {
-  width: '28px',
-  height: '28px',
-  fontSize: '0.875rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  border: '1px solid #e5e5e5',
-  borderRadius: '50%',
-  backgroundColor: 'white',
-  color: '#666',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const panelStyle: React.CSSProperties = {
-  position: 'absolute',
-  bottom: '100%',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  marginBottom: '0.5rem',
-  backgroundColor: 'white',
-  border: '1px solid #e5e5e5',
-  borderRadius: '8px',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  padding: '0.75rem',
-  minWidth: '200px',
-  zIndex: 20,
-}
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '0.5rem',
-  paddingBottom: '0.5rem',
-  borderBottom: '1px solid #f0f0f0',
-}
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  fontWeight: 600,
-  color: '#333',
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-}
-
-const closeButtonStyle: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  fontSize: '1.25rem',
-  cursor: 'pointer',
-  color: '#999',
-  lineHeight: 1,
-  padding: 0,
-}
-
-const listStyle: React.CSSProperties = {
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-}
-
-const listItemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.75rem',
-  padding: '0.25rem 0',
-}
-
-const kbdStyle: React.CSSProperties = {
-  fontFamily: 'monospace',
-  fontSize: '0.75rem',
-  padding: '0.125rem 0.375rem',
-  backgroundColor: '#f5f5f5',
-  border: '1px solid #e5e5e5',
-  borderRadius: '4px',
-  color: '#333',
-}
-
-const descriptionStyle: React.CSSProperties = {
-  fontSize: '0.8125rem',
-  color: '#666',
 }

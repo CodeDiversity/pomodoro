@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { TimerMode } from '../types/timer'
 import { MODE_LABELS, MODE_COLORS, SESSIONS_BEFORE_LONG_BREAK } from '../constants/timer'
 
@@ -15,6 +16,44 @@ function formatTime(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
 }
 
+const DisplayContainer = styled.div<{ $backgroundColor: string }>`
+  background-color: ${(props) => props.$backgroundColor};
+  padding: 3rem 4rem;
+  border-radius: 16px;
+  text-align: center;
+  color: white;
+  min-width: 320px;
+`
+
+const ModeBadge = styled.div`
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+`
+
+const TimerText = styled.div`
+  font-size: 5rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-bottom: 1rem;
+`
+
+const SessionCounter = styled.div`
+  font-size: 1rem;
+  opacity: 0.9;
+`
+
+const RunningIndicator = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+`
+
 export default function TimerDisplay({
   timeRemaining,
   mode,
@@ -26,66 +65,13 @@ export default function TimerDisplay({
   const formattedTime = formatTime(timeRemaining)
 
   return (
-    <div
-      style={{
-        backgroundColor,
-        padding: '3rem 4rem',
-        borderRadius: '16px',
-        textAlign: 'center',
-        color: 'white',
-        minWidth: '320px',
-      }}
-    >
-      {/* Mode Badge */}
-      <div
-        style={{
-          display: 'inline-block',
-          padding: '0.5rem 1rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: '20px',
-          marginBottom: '1rem',
-          fontSize: '0.9rem',
-          fontWeight: 500,
-        }}
-      >
-        {modeLabel}
-      </div>
-
-      {/* Timer Display - Hero Element */}
-      <div
-        style={{
-          fontSize: '5rem',
-          fontWeight: 'bold',
-          fontVariantNumeric: 'tabular-nums',
-          lineHeight: 1,
-          marginBottom: '1rem',
-        }}
-      >
-        {formattedTime}
-      </div>
-
-      {/* Session Counter */}
-      <div
-        style={{
-          fontSize: '1rem',
-          opacity: 0.9,
-        }}
-      >
+    <DisplayContainer $backgroundColor={backgroundColor}>
+      <ModeBadge>{modeLabel}</ModeBadge>
+      <TimerText>{formattedTime}</TimerText>
+      <SessionCounter>
         Session {sessionCount} of {SESSIONS_BEFORE_LONG_BREAK}
-      </div>
-
-      {/* Running Indicator */}
-      {isRunning && (
-        <div
-          style={{
-            marginTop: '0.5rem',
-            fontSize: '0.85rem',
-            opacity: 0.8,
-          }}
-        >
-          Running...
-        </div>
-      )}
-    </div>
+      </SessionCounter>
+      {isRunning && <RunningIndicator>Running...</RunningIndicator>}
+    </DisplayContainer>
   )
 }

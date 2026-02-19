@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import styled from 'styled-components'
 
 interface TimerControlsProps {
   isRunning: boolean
@@ -9,6 +10,83 @@ interface TimerControlsProps {
   onReset: () => void
   onSkip: () => void
 }
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`
+
+const PrimaryButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background-color: #333;
+  color: white;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #444;
+  }
+`
+
+const Icon = styled.span`
+  font-size: 0.875rem;
+`
+
+const MenuContainer = styled.div`
+  position: relative;
+`
+
+const MenuToggle = styled.button`
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #666;
+  line-height: 1;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`
+
+const Menu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  background-color: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  overflow: hidden;
+`
+
+const MenuItem = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: #333;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`
 
 export default function TimerControls({
   isRunning,
@@ -40,119 +118,38 @@ export default function TimerControls({
   }
 
   return (
-    <div style={containerStyle}>
-      {/* Primary Control: Play/Pause */}
-      <button
-        onClick={handlePrimaryClick}
-        style={primaryButtonStyle}
-        aria-label={getPrimaryButtonLabel()}
-      >
-        {isRunning ? (
-          <span style={iconStyle}>⏸</span>
-        ) : (
-          <span style={iconStyle}>▶</span>
-        )}
+    <Container>
+      <PrimaryButton onClick={handlePrimaryClick} aria-label={getPrimaryButtonLabel()}>
+        {isRunning ? <Icon>⏸</Icon> : <Icon>▶</Icon>}
         <span>{getPrimaryButtonLabel()}</span>
-      </button>
+      </PrimaryButton>
 
-      {/* Secondary Controls Menu */}
-      <div style={menuContainerStyle}>
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          style={menuToggleStyle}
-          aria-label="More options"
-        >
+      <MenuContainer>
+        <MenuToggle onClick={() => setShowMenu(!showMenu)} aria-label="More options">
           ⋮
-        </button>
+        </MenuToggle>
 
         {showMenu && (
-          <div style={menuStyle}>
-            <button
+          <Menu>
+            <MenuItem
               onClick={() => {
                 onReset()
                 setShowMenu(false)
               }}
-              style={menuItemStyle}
             >
               Reset
-            </button>
-            <button
+            </MenuItem>
+            <MenuItem
               onClick={() => {
                 onSkip()
                 setShowMenu(false)
               }}
-              style={menuItemStyle}
             >
               Skip
-            </button>
-          </div>
+            </MenuItem>
+          </Menu>
         )}
-      </div>
-    </div>
+      </MenuContainer>
+    </Container>
   )
-}
-
-const containerStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-}
-
-const primaryButtonStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
-  fontWeight: 500,
-  cursor: 'pointer',
-  border: 'none',
-  borderRadius: '8px',
-  backgroundColor: '#333',
-  color: 'white',
-  transition: 'background-color 0.2s',
-}
-
-const iconStyle: React.CSSProperties = {
-  fontSize: '0.875rem',
-}
-
-const menuContainerStyle: React.CSSProperties = {
-  position: 'relative',
-}
-
-const menuToggleStyle: React.CSSProperties = {
-  padding: '0.5rem 0.75rem',
-  fontSize: '1.25rem',
-  cursor: 'pointer',
-  border: 'none',
-  borderRadius: '8px',
-  backgroundColor: 'transparent',
-  color: '#666',
-  lineHeight: 1,
-}
-
-const menuStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: '100%',
-  right: 0,
-  marginTop: '0.25rem',
-  backgroundColor: 'white',
-  border: '1px solid #e5e5e5',
-  borderRadius: '8px',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  zIndex: 10,
-  overflow: 'hidden',
-}
-
-const menuItemStyle: React.CSSProperties = {
-  display: 'block',
-  width: '100%',
-  padding: '0.5rem 1rem',
-  fontSize: '0.875rem',
-  textAlign: 'left',
-  cursor: 'pointer',
-  border: 'none',
-  backgroundColor: 'transparent',
-  color: '#333',
 }
