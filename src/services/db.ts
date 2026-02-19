@@ -1,9 +1,10 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
 import { TimerState, TimerMode } from '../types/timer'
+import { SessionRecord, TagData } from '../types/session'
 import { DEFAULT_STATE } from '../constants/timer'
 
 const DB_NAME = 'pomodoro-timer'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const STORE_NAME = 'timerState'
 const STATE_KEY = 'current'
 const SCHEMA_VERSION = 1
@@ -16,6 +17,15 @@ interface PomodoroDBSchema extends DBSchema {
   settings: {
     key: string
     value: SettingsData
+  }
+  sessions: {
+    key: string                    // session UUID
+    value: SessionRecord
+    indexes: { 'by-date': number } // index for sorting by createdAt
+  }
+  tags: {
+    key: string                    // tag value
+    value: TagData
   }
 }
 
@@ -55,15 +65,28 @@ export async function initDB(): Promise<IDBPDatabase<PomodoroDBSchema>> {
 
   try {
     dbInstance = await openDB<PomodoroDBSchema>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // Create timerState store
+      upgrade(db, oldVersion) {
+        // Create timerState store (v1)
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         }
 
-        // Create settings store
+        // Create settings store (v1)
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings', { keyPath: 'id' })
+        }
+
+        // Create sessions store (v2)
+        if (oldVersion < 2) {
+          if (!db.objectStoreNames.contains('sessions')) {
+            const sessionsStore = db.createObjectStore('sessions', { keyPath: 'id' })
+            sessionsStore.createIndex('by-date', 'createdAt')
+          }
+
+          // Create tags store (v2)
+          if (!db.objectStoreNames.contains('tags')) {
+            db.createObjectStore('tags', { keyPath: 'value' })
+          }
         }
       },
       blocked() {
