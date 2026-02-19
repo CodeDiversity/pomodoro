@@ -75,7 +75,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — History List UI (filters, list, drawer, hooks)
-- [ ] 03-02-PLAN.md — Stats Display (stats cards, calculations)
+- [x] 03-02-PLAN.md — Stats Display (stats cards, calculations)
 - [ ] 03-03-PLAN.md — Integration (App.tsx)
 
 ---
