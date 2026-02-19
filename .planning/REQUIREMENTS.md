@@ -28,19 +28,19 @@
 
 ### Session Notes
 
-- [ ] **NOTE-01**: Text input available during Focus sessions only
-- [ ] **NOTE-02**: Notes autosave while timer runs (debounced, 500ms)
-- [ ] **NOTE-03**: Note maximum length: 2000 characters
-- [ ] **NOTE-04**: Tags input allows comma-separated tags
-- [ ] **NOTE-05**: Maximum 10 tags, each max 20 characters, alphanumeric + dash only
+- [x] **NOTE-01**: Text input available during Focus sessions only
+- [x] **NOTE-02**: Notes autosave while timer runs (debounced, 500ms)
+- [x] **NOTE-03**: Note maximum length: 2000 characters
+- [x] **NOTE-04**: Tags input allows comma-separated tags
+- [x] **NOTE-05**: Maximum 10 tags, each max 20 characters, alphanumeric + dash only
 
 ### Session Records
 
 - [ ] **SESS-01**: On Focus session end (timer hits 0 or Skip), save session record
-- [ ] **SESS-02**: Session record includes: id (uuid), start timestamp, end timestamp
-- [ ] **SESS-03**: Session record includes: planned duration seconds, actual duration seconds
-- [ ] **SESS-04**: Session record includes: mode (Focus only for history)
-- [ ] **SESS-05**: Session record includes: note text, tags array
+- [x] **SESS-02**: Session record includes: id (uuid), start timestamp, end timestamp
+- [x] **SESS-03**: Session record includes: planned duration seconds, actual duration seconds
+- [x] **SESS-04**: Session record includes: mode (Focus only for history)
+- [x] **SESS-05**: Session record includes: note text, tags array
 
 ### History
 
@@ -133,15 +133,15 @@
 | DATA-02 | Phase 1 | Pending |
 | DATA-03 | Phase 1 | Pending |
 | SESS-01 | Phase 2 | Pending |
-| SESS-02 | Phase 2 | Pending |
-| SESS-03 | Phase 2 | Pending |
-| SESS-04 | Phase 2 | Pending |
-| SESS-05 | Phase 2 | Pending |
-| NOTE-01 | Phase 2 | Pending |
-| NOTE-02 | Phase 2 | Pending |
-| NOTE-03 | Phase 2 | Pending |
-| NOTE-04 | Phase 2 | Pending |
-| NOTE-05 | Phase 2 | Pending |
+| SESS-02 | Phase 2 | Complete |
+| SESS-03 | Phase 2 | Complete |
+| SESS-04 | Phase 2 | Complete |
+| SESS-05 | Phase 2 | Complete |
+| NOTE-01 | Phase 2 | Complete |
+| NOTE-02 | Phase 2 | Complete |
+| NOTE-03 | Phase 2 | Complete |
+| NOTE-04 | Phase 2 | Complete |
+| NOTE-05 | Phase 2 | Complete |
 | HIST-01 | Phase 3 | Pending |
 | HIST-02 | Phase 3 | Pending |
 | HIST-03 | Phase 3 | Pending |
