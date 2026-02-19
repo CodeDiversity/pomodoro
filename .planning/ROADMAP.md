@@ -66,7 +66,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — IndexedDB Schema & Session Types (session types, extend db, session store)
-- [ ] 02-02-PLAN.md — Note Panel & Tag Input (NotePanel, TagInput, useSessionNotes with 500ms debounce)
+- [x] 02-02-PLAN.md — Note Panel & Tag Input (NotePanel, TagInput, useSessionNotes with 500ms debounce)
 - [ ] 02-03-PLAN.md — Session Triggers & Integration (useSessionManager, SessionSummary, App integration)
 
 ---
