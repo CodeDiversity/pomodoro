@@ -6,14 +6,53 @@ import Settings from './components/Settings'
 import NotePanel from './components/NotePanel'
 import TagInput from './components/TagInput'
 import SessionSummary from './components/SessionSummary'
+import { HistoryList } from './components/history/HistoryList'
+import { HistoryDrawer } from './components/history/HistoryDrawer'
+import { StatsGrid } from './components/stats/StatsGrid'
 import { useTimer } from './hooks/useTimer'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSessionNotes } from './hooks/useSessionNotes'
 import { useSessionManager } from './hooks/useSessionManager'
+import { useSessionHistory } from './hooks/useSessionHistory'
 import { getTagSuggestions } from './services/sessionStore'
 import { TimerMode } from './types/timer'
+import { SessionRecord } from './types/session'
+
+type ViewMode = 'timer' | 'history' | 'stats'
 
 function App() {
+  // View mode state
+  const [viewMode, setViewMode] = useState<ViewMode>('timer')
+
+  // History state
+  const {
+    sessions,
+    filteredSessions,
+    dateFilter,
+    searchQuery,
+    setDateFilter,
+    setSearchQuery,
+    isLoading: historyLoading,
+    refetch,
+  } = useSessionHistory()
+
+  const [selectedSession, setSelectedSession] = useState<SessionRecord | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  const handleSessionClick = (session: SessionRecord) => {
+    setSelectedSession(session)
+    setIsDrawerOpen(true)
+  }
+
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false)
+    setSelectedSession(null)
+  }
+
+  const handleSessionDelete = () => {
+    refetch()
+  }
+
   // State for summary modal
   const [showSummary, setShowSummary] = useState(false)
   const [completedSession, setCompletedSession] = useState<{
@@ -156,7 +195,7 @@ function App() {
 
   useKeyboardShortcuts({
     onToggle: handleToggle,
-    enabled: true,
+    enabled: viewMode === 'timer',
   })
 
   return (
@@ -165,7 +204,7 @@ function App() {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: viewMode === 'timer' ? 'center' : 'flex-start',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       padding: '1rem',
     }}>
@@ -184,42 +223,130 @@ function App() {
         />
       </div>
 
-      <TimerDisplay
-        timeRemaining={state.timeRemaining}
-        mode={state.mode}
-        sessionCount={state.sessionCount}
-        isRunning={state.isRunning}
-      />
-
-      <div style={{ marginTop: '2rem' }}>
-        <TimerControls
-          isRunning={state.isRunning}
-          startTime={state.startTime}
-          onStart={start}
-          onPause={pause}
-          onResume={resume}
-          onReset={reset}
-          onSkip={skip}
-          onSessionSkip={handleSessionSkip}
-          onSessionReset={handleSessionReset}
-        />
+      {/* Navigation buttons */}
+      <div style={{
+        position: 'absolute',
+        top: '1rem',
+        left: '1rem',
+        display: 'flex',
+        gap: '0.5rem',
+      }}>
+        <button
+          onClick={() => setViewMode('timer')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'timer' ? '2px solid #3498db' : '1px solid #ccc',
+            borderRadius: '6px',
+            background: viewMode === 'timer' ? '#3498db' : '#fff',
+            color: viewMode === 'timer' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          Timer
+        </button>
+        <button
+          onClick={() => setViewMode('history')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'history' ? '2px solid #3498db' : '1px solid #ccc',
+            borderRadius: '6px',
+            background: viewMode === 'history' ? '#3498db' : '#fff',
+            color: viewMode === 'history' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          History
+        </button>
+        <button
+          onClick={() => setViewMode('stats')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'stats' ? '2px solid #3498db' : '1px solid #ccc',
+            borderRadius: '6px',
+            background: viewMode === 'stats' ? '#3498db' : '#fff',
+            color: viewMode === 'stats' ? '#fff' : '#333',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          Stats
+        </button>
       </div>
 
-      <NotePanel
-        isVisible={showNotePanel}
-        noteText={noteText}
-        onNoteChange={handleNoteChange}
-        saveStatus={saveStatus}
-        lastSaved={lastSaved}
-        maxLength={maxNoteLength}
-      />
+      {/* Timer View */}
+      {viewMode === 'timer' && (
+        <>
+          <TimerDisplay
+            timeRemaining={state.timeRemaining}
+            mode={state.mode}
+            sessionCount={state.sessionCount}
+            isRunning={state.isRunning}
+          />
 
-      <TagInput
-        isVisible={showNotePanel}
-        tags={tags}
-        suggestions={tagSuggestions}
-        onTagsChange={handleTagsChange}
-      />
+          <div style={{ marginTop: '2rem' }}>
+            <TimerControls
+              isRunning={state.isRunning}
+              startTime={state.startTime}
+              onStart={start}
+              onPause={pause}
+              onResume={resume}
+              onReset={reset}
+              onSkip={skip}
+              onSessionSkip={handleSessionSkip}
+              onSessionReset={handleSessionReset}
+            />
+          </div>
+
+          <NotePanel
+            isVisible={showNotePanel}
+            noteText={noteText}
+            onNoteChange={handleNoteChange}
+            saveStatus={saveStatus}
+            lastSaved={lastSaved}
+            maxLength={maxNoteLength}
+          />
+
+          <TagInput
+            isVisible={showNotePanel}
+            tags={tags}
+            suggestions={tagSuggestions}
+            onTagsChange={handleTagsChange}
+          />
+        </>
+      )}
+
+      {/* History View */}
+      {viewMode === 'history' && (
+        <>
+          <div style={{ marginTop: '3rem', width: '100%' }}>
+            <HistoryList
+              sessions={sessions}
+              filteredSessions={filteredSessions}
+              dateFilter={dateFilter}
+              searchQuery={searchQuery}
+              isLoading={historyLoading}
+              onDateFilterChange={setDateFilter}
+              onSearchChange={setSearchQuery}
+              onSessionClick={handleSessionClick}
+            />
+          </div>
+          <HistoryDrawer
+            session={selectedSession}
+            isOpen={isDrawerOpen}
+            onClose={handleDrawerClose}
+            onDelete={handleSessionDelete}
+          />
+        </>
+      )}
+
+      {/* Stats View */}
+      {viewMode === 'stats' && (
+        <div style={{ marginTop: '3rem', width: '100%', maxWidth: '600px' }}>
+          <StatsGrid dateFilter="7days" />
+        </div>
+      )}
 
       <SessionSummary
         isVisible={showSummary}

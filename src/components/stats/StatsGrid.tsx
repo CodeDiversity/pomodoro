@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { DateFilter } from '../../utils/dateUtils'
-import { Stats } from '../../utils/statsUtils'
 import { formatDuration } from '../../utils/statsUtils'
 import { getAllSessions } from '../../services/sessionStore'
 import { SessionRecord } from '../../types/session'
