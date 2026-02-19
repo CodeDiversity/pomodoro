@@ -8,6 +8,16 @@ import {
   getDefaultState,
 } from './db'
 
+export interface AppSettings {
+  autoStart: boolean
+}
+
+const DEFAULT_SETTINGS: AppSettings = {
+  autoStart: false,
+}
+
+const SETTINGS_KEY = 'current'
+
 const DEBOUNCE_MS = 2000
 const DB_KEY = 'current'
 
@@ -140,5 +150,55 @@ export async function clearTimerState(): Promise<void> {
     await db.delete('timerState', DB_KEY)
   } catch (error) {
     console.error('Failed to clear timer state:', error)
+  }
+}
+
+/**
+ * Save app settings to IndexedDB
+ */
+export async function saveSettings(settings: AppSettings): Promise<void> {
+  try {
+    if (!isIndexedDBAvailable()) {
+      console.warn('IndexedDB not available, skipping settings save')
+      return
+    }
+
+    const db = await initDB()
+    await db.put('settings', {
+      id: SETTINGS_KEY,
+      focusDuration: 25 * 60,
+      shortBreakDuration: 5 * 60,
+      longBreakDuration: 15 * 60,
+      autoStart: settings.autoStart,
+      version: 1,
+    })
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+  }
+}
+
+/**
+ * Load app settings from IndexedDB
+ */
+export async function loadSettings(): Promise<AppSettings> {
+  try {
+    if (!isIndexedDBAvailable()) {
+      console.warn('IndexedDB not available, using default settings')
+      return DEFAULT_SETTINGS
+    }
+
+    const db = await initDB()
+    const stored = await db.get('settings', SETTINGS_KEY)
+
+    if (!stored) {
+      return DEFAULT_SETTINGS
+    }
+
+    return {
+      autoStart: stored.autoStart ?? DEFAULT_SETTINGS.autoStart,
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error)
+    return DEFAULT_SETTINGS
   }
 }

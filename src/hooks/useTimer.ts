@@ -1,7 +1,7 @@
-import { useReducer, useEffect, useCallback, useRef } from 'react'
+import { useReducer, useEffect, useCallback, useRef, useState } from 'react'
 import { TimerState, TimerAction, TimerMode } from '../types/timer'
 import { DURATIONS, SESSIONS_BEFORE_LONG_BREAK } from '../constants/timer'
-import { loadTimerState, saveTimerState, saveTimerStateImmediate } from '../services/persistence'
+import { loadTimerState, saveTimerState, saveTimerStateImmediate, loadSettings, saveSettings } from '../services/persistence'
 import { notifySessionComplete, requestPermission } from '../services/notifications'
 
 function timerReducer(state: TimerState, action: TimerAction): TimerState {
@@ -113,19 +113,26 @@ const initialState: TimerState = {
 
 export function useTimer() {
   const [state, dispatch] = useReducer(timerReducer, initialState)
+  const [autoStart, setAutoStartState] = useState(false)
   const intervalRef = useRef<number | null>(null)
   const isInitializedRef = useRef(false)
   const previousTimeRef = useRef<number>(state.timeRemaining)
+  const autoStartRef = useRef(false)
 
-  // Load persisted state on mount
+  // Load persisted state and settings on mount
   useEffect(() => {
     let mounted = true
 
     async function loadState() {
       try {
-        const loadedState = await loadTimerState()
+        const [loadedState, settings] = await Promise.all([
+          loadTimerState(),
+          loadSettings(),
+        ])
         if (mounted) {
           dispatch({ type: 'LOAD_STATE', payload: loadedState })
+          setAutoStartState(settings.autoStart)
+          autoStartRef.current = settings.autoStart
           isInitializedRef.current = true
         }
       } catch (error) {
@@ -214,6 +221,13 @@ export function useTimer() {
       // Auto-advance to next session after a brief delay
       setTimeout(() => {
         dispatch({ type: 'SKIP' })
+
+        // Auto-start next session if enabled
+        if (autoStartRef.current) {
+          setTimeout(() => {
+            dispatch({ type: 'START' })
+          }, 100)
+        }
       }, 100)
     }
 
@@ -245,6 +259,12 @@ export function useTimer() {
     dispatch({ type: 'SET_MODE', payload: mode })
   }, [])
 
+  const setAutoStart = useCallback((value: boolean) => {
+    setAutoStartState(value)
+    autoStartRef.current = value
+    saveSettings({ autoStart: value })
+  }, [])
+
   return {
     state,
     start,
@@ -253,5 +273,7 @@ export function useTimer() {
     reset,
     skip,
     setMode,
+    autoStart,
+    setAutoStart,
   }
 }
