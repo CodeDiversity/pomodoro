@@ -1,5 +1,9 @@
 import TimerDisplay from './components/TimerDisplay'
+import TimerControls from './components/TimerControls'
+import HelpPanel from './components/HelpPanel'
+import Settings from './components/Settings'
 import { useTimer } from './hooks/useTimer'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 function App() {
   const {
@@ -9,7 +13,25 @@ function App() {
     resume,
     reset,
     skip,
+    autoStart,
+    setAutoStart,
   } = useTimer()
+
+  // Set up keyboard shortcuts
+  const handleToggle = () => {
+    if (state.isRunning) {
+      pause()
+    } else if (state.startTime !== null) {
+      resume()
+    } else {
+      start()
+    }
+  }
+
+  useKeyboardShortcuts({
+    onToggle: handleToggle,
+    enabled: true,
+  })
 
   return (
     <div style={{
@@ -19,7 +41,23 @@ function App() {
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: 'system-ui, -apple-system, sans-serif',
+      padding: '1rem',
     }}>
+      {/* Top right: Help and Settings */}
+      <div style={{
+        position: 'absolute',
+        top: '1rem',
+        right: '1rem',
+        display: 'flex',
+        gap: '0.5rem',
+      }}>
+        <HelpPanel />
+        <Settings
+          autoStart={autoStart}
+          onAutoStartChange={setAutoStart}
+        />
+      </div>
+
       <TimerDisplay
         timeRemaining={state.timeRemaining}
         mode={state.mode}
@@ -27,29 +65,19 @@ function App() {
         isRunning={state.isRunning}
       />
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-        {!state.isRunning ? (
-          <button onClick={state.startTime ? resume : start} style={buttonStyle}>
-            {state.startTime ? 'Resume' : 'Start'}
-          </button>
-        ) : (
-          <button onClick={pause} style={buttonStyle}>Pause</button>
-        )}
-        <button onClick={reset} style={buttonStyle}>Reset</button>
-        <button onClick={skip} style={buttonStyle}>Skip</button>
+      <div style={{ marginTop: '2rem' }}>
+        <TimerControls
+          isRunning={state.isRunning}
+          startTime={state.startTime}
+          onStart={start}
+          onPause={pause}
+          onResume={resume}
+          onReset={reset}
+          onSkip={skip}
+        />
       </div>
     </div>
   )
-}
-
-const buttonStyle = {
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
-  cursor: 'pointer',
-  border: 'none',
-  borderRadius: '8px',
-  backgroundColor: '#333',
-  color: 'white',
 }
 
 export default App
