@@ -202,8 +202,6 @@ function App() {
           onSkip={skip}
           onSessionSkip={handleSessionSkip}
           onSessionReset={handleSessionReset}
-          showManualSave={state.mode === 'focus' && state.isRunning}
-          onManualSave={sessionManager.handleManualSave}
         />
       </div>
 
