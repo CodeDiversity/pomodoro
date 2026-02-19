@@ -5,18 +5,18 @@
 ## Project Reference
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
-- **Current Phase:** 01
-- **Next Step:** Execute remaining foundation plans
+- **Current Phase:** 02
+- **Next Step:** Plan Phase 2 - Session Management
 
 ## Current Position
 
 | Attribute | Value |
 |-----------|-------|
-| Phase | 1 - Foundation |
-| Current Plan | 03 |
-| Total Plans | 4 |
-| Status | Plan 03 Complete |
-| Progress | 60% |
+| Phase | 2 - Session Management |
+| Current Plan | 00 |
+| Total Plans | TBD |
+| Status | Context Gathered |
+| Progress | Phase 1 Complete |
 
 ## Performance Metrics
 
@@ -40,6 +40,10 @@
 7. **Control Layout:** Primary (Play/Pause) prominent, secondary (Reset/Skip) in menu
 8. **Keyboard Shortcuts:** Shown in help panel, not on buttons
 9. **Auto-start:** Off by default, persisted in IndexedDB
+10. **Note Input UI:** Collapsible panel, plain text, open-ended placeholder, show save status
+11. **Tag Input:** Chip/pill interface, autocomplete, both removal methods, show counter
+12. **Session Save:** Both periodic and end-of-session, manual save button, discard incomplete, save & show summary
+13. **Session Data:** Full timestamp, completed/mode/start status, duration in both formats, unique ID
 
 ### Research Flags
 
@@ -54,6 +58,7 @@ None currently.
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-19: Phase 2 context gathered (note input, tag input, session save triggers, session data structure)
 - 2026-02-19: Phase 1 plan 03 complete - timer controls, keyboard shortcuts, help panel, settings implemented
 - 2026-02-19: Phase 1 plan 02 complete - persistence and notifications implemented
 - 2026-02-19: Phase 1 plan 01 complete - timer core built
@@ -63,7 +68,7 @@ None currently.
 - 2026-02-19: Project initialized
 
 **Ready For:**
-- Plan 04: Final polish and testing
+- Phase 2: Session Management (plan and execute)
 
 ---
 
