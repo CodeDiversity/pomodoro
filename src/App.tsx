@@ -15,6 +15,7 @@ import { useSessionNotes } from './hooks/useSessionNotes'
 import { useSessionManager } from './hooks/useSessionManager'
 import { useSessionHistory } from './hooks/useSessionHistory'
 import { getTagSuggestions } from './services/sessionStore'
+import { loadSettings, saveSettings } from './services/persistence'
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 
@@ -92,6 +93,13 @@ function App() {
   // Tag suggestions state
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([])
 
+  // Custom durations state
+  const [customDurations, setCustomDurationsState] = useState<{
+    focus: number
+    shortBreak: number
+    longBreak: number
+  } | null>(null)
+
   // Timer state ref for session manager
   const timerStateRef = useRef({
     mode: 'focus' as TimerMode,
@@ -104,6 +112,32 @@ function App() {
   useEffect(() => {
     getTagSuggestions().then(setTagSuggestions)
   }, [])
+
+  // Load custom durations from settings on mount
+  useEffect(() => {
+    loadSettings().then((settings) => {
+      setCustomDurationsState({
+        focus: settings.focusDuration,
+        shortBreak: settings.shortBreakDuration,
+        longBreak: settings.longBreakDuration,
+      })
+    })
+  }, [])
+
+  // Handle saving custom durations
+  const handleSaveDurations = async (durations: { focus: number; shortBreak: number; longBreak: number }) => {
+    // Persist to IndexedDB
+    await saveSettings({
+      autoStart,
+      focusDuration: durations.focus,
+      shortBreakDuration: durations.shortBreak,
+      longBreakDuration: durations.longBreak,
+    })
+    // Apply to timer (this updates timer display and resets if running)
+    setCustomDurations(durations)
+    // Update local state
+    setCustomDurationsState(durations)
+  }
 
   // Session notes hook
   const {
@@ -194,6 +228,7 @@ function App() {
     skip,
     autoStart,
     setAutoStart,
+    setCustomDurations,
   } = useTimer({ onSessionComplete: handleSessionComplete })
 
   // Update ref when timer state changes
@@ -247,6 +282,8 @@ function App() {
         <Settings
           autoStart={autoStart}
           onAutoStartChange={setAutoStart}
+          customDurations={customDurations || undefined}
+          onSaveDurations={handleSaveDurations}
         />
       </div>
 
