@@ -29,7 +29,10 @@
 5. Custom durations are saved to IndexedDB and restored on page refresh (DUR-06)
 6. Timer uses custom durations when set (DUR-08 - timer resets to new duration)
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+- [ ] 05-01-PLAN.md - Data layer & timer integration
+- [ ] 05-02-PLAN.md - Settings UI
 
 ---
 
@@ -55,7 +58,7 @@
 
 | Phase | Goal | Requirements | Success Criteria | Plans Complete | Status | Completed |
 |-------|------|--------------|------------------|----------------|--------|-----------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 0/1 | Not started | - |
+| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Planning complete | - |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | 3 criteria | 0/1 | Not started | - |
 
 ---
