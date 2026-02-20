@@ -6,7 +6,7 @@ const MAX_TAGS = 10
 
 const Container = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
 `
 
 const TagsContainer = styled.div`

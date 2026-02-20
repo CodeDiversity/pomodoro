@@ -18,7 +18,34 @@ import { getTagSuggestions } from './services/sessionStore'
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 
+import styled from 'styled-components'
+
 type ViewMode = 'timer' | 'history' | 'stats'
+
+const TabBar = styled.div`
+  display: flex;
+  gap: 0.25rem;
+  background: #f5f5f5;
+  padding: 0.25rem;
+  border-radius: 8px;
+`
+
+const Tab = styled.button<{ $active: boolean }>`
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: ${props => props.$active ? 'white' : 'transparent'};
+  color: ${props => props.$active ? '#333' : '#666'};
+  font-weight: ${props => props.$active ? '500' : '400'};
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: ${props => props.$active ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'};
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.$active ? 'white' : '#eeeeee'};
+  }
+`
 
 function App() {
   // View mode state
@@ -206,7 +233,7 @@ function App() {
       alignItems: 'center',
       justifyContent: viewMode === 'timer' ? 'center' : 'flex-start',
       fontFamily: 'system-ui, -apple-system, sans-serif',
-      padding: '1rem',
+      padding: '0.5rem',
     }}>
       {/* Top right: Help and Settings */}
       <div style={{
@@ -223,57 +250,27 @@ function App() {
         />
       </div>
 
-      {/* Navigation buttons */}
-      <div style={{
-        position: 'absolute',
-        top: '1rem',
-        left: '1rem',
-        display: 'flex',
-        gap: '0.5rem',
-      }}>
-        <button
+      {/* Navigation tabs */}
+      <TabBar>
+        <Tab
+          $active={viewMode === 'timer'}
           onClick={() => setViewMode('timer')}
-          style={{
-            padding: '8px 16px',
-            border: viewMode === 'timer' ? '2px solid #3498db' : '1px solid #ccc',
-            borderRadius: '6px',
-            background: viewMode === 'timer' ? '#3498db' : '#fff',
-            color: viewMode === 'timer' ? '#fff' : '#333',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
         >
           Timer
-        </button>
-        <button
+        </Tab>
+        <Tab
+          $active={viewMode === 'history'}
           onClick={() => setViewMode('history')}
-          style={{
-            padding: '8px 16px',
-            border: viewMode === 'history' ? '2px solid #3498db' : '1px solid #ccc',
-            borderRadius: '6px',
-            background: viewMode === 'history' ? '#3498db' : '#fff',
-            color: viewMode === 'history' ? '#fff' : '#333',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
         >
           History
-        </button>
-        <button
+        </Tab>
+        <Tab
+          $active={viewMode === 'stats'}
           onClick={() => setViewMode('stats')}
-          style={{
-            padding: '8px 16px',
-            border: viewMode === 'stats' ? '2px solid #3498db' : '1px solid #ccc',
-            borderRadius: '6px',
-            background: viewMode === 'stats' ? '#3498db' : '#fff',
-            color: viewMode === 'stats' ? '#fff' : '#333',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-          }}
         >
           Stats
-        </button>
-      </div>
+        </Tab>
+      </TabBar>
 
       {/* Timer View */}
       {viewMode === 'timer' && (
@@ -285,7 +282,7 @@ function App() {
             isRunning={state.isRunning}
           />
 
-          <div style={{ marginTop: '2rem' }}>
+          <div style={{ marginTop: '1rem' }}>
             <TimerControls
               isRunning={state.isRunning}
               startTime={state.startTime}
@@ -320,7 +317,7 @@ function App() {
       {/* History View */}
       {viewMode === 'history' && (
         <>
-          <div style={{ marginTop: '3rem', width: '100%' }}>
+          <div style={{ marginTop: '1.5rem', width: '100%' }}>
             <HistoryList
               sessions={sessions}
               filteredSessions={filteredSessions}
@@ -343,7 +340,7 @@ function App() {
 
       {/* Stats View */}
       {viewMode === 'stats' && (
-        <div style={{ marginTop: '3rem', width: '100%', maxWidth: '600px' }}>
+        <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '600px' }}>
           <StatsGrid dateFilter="7days" />
         </div>
       )}

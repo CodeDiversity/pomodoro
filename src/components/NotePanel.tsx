@@ -2,8 +2,8 @@ import styled from 'styled-components'
 
 const Panel = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
-  margin-top: 1rem;
-  padding: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background: #fafafa;

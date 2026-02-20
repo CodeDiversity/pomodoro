@@ -68,8 +68,8 @@
 
 ### Navigation
 
-- [ ] **NAV-01**: Tab-based navigation: Timer | History | Stats
-- [ ] **NAV-02**: Active tab visually indicated
+- [x] **NAV-01**: Tab-based navigation: Timer | History | Stats
+- [x] **NAV-02**: Active tab visually indicated
 
 ### Data Persistence
 
@@ -154,8 +154,8 @@
 | STAT-02 | Phase 3 | Pending |
 | STAT-03 | Phase 3 | Pending |
 | STAT-04 | Phase 3 | Pending |
-| NAV-01 | Phase 4 | Pending |
-| NAV-02 | Phase 4 | Pending |
+| NAV-01 | Phase 4 | Complete |
+| NAV-02 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 45 total

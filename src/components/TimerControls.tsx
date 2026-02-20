@@ -16,7 +16,7 @@ interface TimerControlsProps {
 const Container = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 `
 
 const PrimaryButton = styled.button`
