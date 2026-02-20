@@ -1,13 +1,13 @@
 # Project State: Pomodoro Timer
 
-**Last Updated:** 2026-02-19
+**Last Updated:** 2026-02-20
 
 ## Project Reference
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
 - **Current Phase:** Phase 5 - Custom Durations Core
-- **Next Step:** Plan Phase 5
+- **Next Step:** Plan 05-02 - Settings UI for custom durations
 
 ## Current Position
 
@@ -15,17 +15,24 @@
 |-----------|-------|
 | Milestone | v1.1 Custom Durations |
 | Phase | 5 of 6 (Custom Durations Core) |
-| Plan | 0 of 1 |
-| Status | Context gathered |
+| Plan | 1 of 1 (COMPLETED) |
+| Status | Plan complete |
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## v1.1 Phase Summary
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Context gathered |
+| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Plan complete |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | Pending |
+
+---
+
+## Decisions Made
+
+- Used action-based approach for updating custom durations rather than direct state mutation
+- Applied custom durations on load only when different from defaults to avoid unnecessary resets
 
 ---
 
@@ -51,13 +58,14 @@ Progress: [░░░░░░░░░░] 0%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-20: Plan 05-01 completed - Data layer and timer integration for custom durations
 - 2026-02-19: Phase 5 context gathered - Input style, validation, apply timing, save strategy decided
 - 2026-02-19: v1.0 completed and shipped
 - 2026-02-19: Roadmap created for v1.1 Custom Durations (2 phases)
 
 **Ready For:**
-- `/gsd:plan-phase 5` - Plan Phase 5: Custom Durations Core
+- Plan 05-02: Settings UI for custom durations
 
 ---
 
-*State updated: 2026-02-19*
+*State updated: 2026-02-20*
