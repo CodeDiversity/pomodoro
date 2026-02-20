@@ -10,6 +10,8 @@
 - [ ] **Phase 5: Custom Durations Core** - Data layer, timer integration, Settings UI
 - [ ] **Phase 6: Presets & Polish** - Presets, confirmation dialogs, reset to defaults
 
+**Phase 5 Status:** COMPLETE
+
 ---
 
 ### Phase 5: Custom Durations Core
@@ -32,7 +34,7 @@
 **Plans:** 2 plans
 
 - [x] 05-01-PLAN.md - Data layer & timer integration
-- [ ] 05-02-PLAN.md - Settings UI
+- [x] 05-02-PLAN.md - Settings UI
 
 ---
 
@@ -58,7 +60,7 @@
 
 | Phase | Goal | Requirements | Success Criteria | Plans Complete | Status | Completed |
 |-------|------|--------------|------------------|----------------|--------|-----------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 1/2 | In progress | - |
+| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | 3 criteria | 0/1 | Not started | - |
 
 ---
@@ -67,11 +69,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DUR-01: Custom Focus duration (1-60 min) | Phase 5 | Pending |
-| DUR-02: Custom Short Break duration (1-30 min) | Phase 5 | Pending |
-| DUR-03: Custom Long Break duration (1-60 min) | Phase 5 | Pending |
+| DUR-01: Custom Focus duration (1-60 min) | Phase 5 | Implemented (plan 02) |
+| DUR-02: Custom Short Break duration (1-30 min) | Phase 5 | Implemented (plan 02) |
+| DUR-03: Custom Long Break duration (1-60 min) | Phase 5 | Implemented (plan 02) |
 | DUR-04: Preset duration options | Phase 6 | Pending |
-| DUR-05: Duration validation bounds | Phase 5 | Pending |
+| DUR-05: Duration validation bounds | Phase 5 | Implemented (plan 02) |
 | DUR-06: Duration persistence | Phase 5 | Implemented (plan 01) |
 | DUR-07: Confirmation when timer running | Phase 6 | Pending |
 | DUR-08: Timer resets to new duration | Phase 5 | Implemented (plan 01) |

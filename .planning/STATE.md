@@ -7,7 +7,7 @@
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
 - **Current Phase:** Phase 5 - Custom Durations Core
-- **Next Step:** Plan 05-02 - Settings UI for custom durations
+- **Next Step:** Phase 6 - Presets & Polish
 
 ## Current Position
 
@@ -16,7 +16,7 @@
 | Milestone | v1.1 Custom Durations |
 | Phase | 5 of 6 (Custom Durations Core) |
 | Plan | 1 of 1 (COMPLETED) |
-| Status | Plan complete |
+| Status | Phase complete |
 
 Progress: [██████████] 100%
 
@@ -58,13 +58,13 @@ Progress: [██████████] 100%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-20: Plan 05-02 completed - Settings UI with duration inputs and validation
 - 2026-02-20: Plan 05-01 completed - Data layer and timer integration for custom durations
 - 2026-02-19: Phase 5 context gathered - Input style, validation, apply timing, save strategy decided
 - 2026-02-19: v1.0 completed and shipped
-- 2026-02-19: Roadmap created for v1.1 Custom Durations (2 phases)
 
 **Ready For:**
-- Plan 05-02: Settings UI for custom durations
+- Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
 
 ---
 
