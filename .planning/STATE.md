@@ -16,7 +16,7 @@
 | Milestone | v1.1 Custom Durations |
 | Phase | 5 of 6 (Custom Durations Core) |
 | Plan | 0 of 1 |
-| Status | Ready to plan |
+| Status | Context gathered |
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -24,7 +24,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Ready to plan |
+| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Context gathered |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | Pending |
 
 ---
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-19: Phase 5 context gathered - Input style, validation, apply timing, save strategy decided
 - 2026-02-19: v1.0 completed and shipped
 - 2026-02-19: Roadmap created for v1.1 Custom Durations (2 phases)
 
