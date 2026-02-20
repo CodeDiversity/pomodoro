@@ -22,3 +22,4 @@ export type TimerAction =
   | { type: 'TICK' }
   | { type: 'SET_MODE'; payload: TimerMode }
   | { type: 'LOAD_STATE'; payload: TimerState }
+  | { type: 'SET_CUSTOM_DURATIONS'; payload: { focus: number; shortBreak: number; longBreak: number } }

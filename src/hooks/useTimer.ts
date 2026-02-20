@@ -96,6 +96,28 @@ function timerReducer(state: TimerState, action: TimerAction): TimerState {
       // Used to load persisted state
       return action.payload
 
+    case 'SET_CUSTOM_DURATIONS': {
+      // Determine the duration for the current mode
+      const { focus, shortBreak, longBreak } = action.payload
+      const durationMap = {
+        focus,
+        shortBreak,
+        longBreak,
+      }
+      const newDuration = durationMap[state.mode]
+
+      // When timer is running, reset it to new duration (DUR-08)
+      // When timer is idle, just update the timer display
+      return {
+        ...state,
+        duration: newDuration,
+        timeRemaining: newDuration,
+        isRunning: false,
+        startTime: null,
+        pausedTimeRemaining: null,
+      }
+    }
+
     default:
       return state
   }
@@ -130,14 +152,37 @@ export function useTimer(options: UseTimerOptions = {}) {
 
     async function loadState() {
       try {
-        const [loadedState, settings] = await Promise.all([
-          loadTimerState(),
-          loadSettings(),
-        ])
+        // Load settings first
+        const settings = await loadSettings()
+
+        // Load timer state
+        const loadedState = await loadTimerState()
+
         if (mounted) {
           dispatch({ type: 'LOAD_STATE', payload: loadedState })
           setAutoStartState(settings.autoStart)
           autoStartRef.current = settings.autoStart
+
+          // Apply custom durations if they exist (different from defaults)
+          const defaultFocus = 25 * 60
+          const defaultShortBreak = 5 * 60
+          const defaultLongBreak = 15 * 60
+
+          const hasCustomFocus = settings.focusDuration !== defaultFocus
+          const hasCustomShortBreak = settings.shortBreakDuration !== defaultShortBreak
+          const hasCustomLongBreak = settings.longBreakDuration !== defaultLongBreak
+
+          if (hasCustomFocus || hasCustomShortBreak || hasCustomLongBreak) {
+            dispatch({
+              type: 'SET_CUSTOM_DURATIONS',
+              payload: {
+                focus: settings.focusDuration,
+                shortBreak: settings.shortBreakDuration,
+                longBreak: settings.longBreakDuration,
+              },
+            })
+          }
+
           isInitializedRef.current = true
         }
       } catch (error) {
@@ -272,7 +317,24 @@ export function useTimer(options: UseTimerOptions = {}) {
   const setAutoStart = useCallback((value: boolean) => {
     setAutoStartState(value)
     autoStartRef.current = value
-    saveSettings({ autoStart: value })
+    saveSettings({
+      autoStart: value,
+      focusDuration: state.duration,
+      shortBreakDuration: 5 * 60,
+      longBreakDuration: 15 * 60,
+    })
+  }, [state.duration])
+
+  const setCustomDurations = useCallback((durations: { focus: number; shortBreak: number; longBreak: number }) => {
+    // Dispatch to reducer to update timer state
+    dispatch({ type: 'SET_CUSTOM_DURATIONS', payload: durations })
+    // Persist to IndexedDB
+    saveSettings({
+      autoStart: autoStartRef.current,
+      focusDuration: durations.focus,
+      shortBreakDuration: durations.shortBreak,
+      longBreakDuration: durations.longBreak,
+    })
   }, [])
 
   return {
@@ -285,5 +347,6 @@ export function useTimer(options: UseTimerOptions = {}) {
     setMode,
     autoStart,
     setAutoStart,
+    setCustomDurations,
   }
 }
