@@ -10,10 +10,16 @@ import {
 
 export interface AppSettings {
   autoStart: boolean
+  focusDuration: number
+  shortBreakDuration: number
+  longBreakDuration: number
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   autoStart: false,
+  focusDuration: 25 * 60,
+  shortBreakDuration: 5 * 60,
+  longBreakDuration: 15 * 60,
 }
 
 const SETTINGS_KEY = 'current'
@@ -166,9 +172,9 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
     const db = await initDB()
     await db.put('settings', {
       id: SETTINGS_KEY,
-      focusDuration: 25 * 60,
-      shortBreakDuration: 5 * 60,
-      longBreakDuration: 15 * 60,
+      focusDuration: settings.focusDuration,
+      shortBreakDuration: settings.shortBreakDuration,
+      longBreakDuration: settings.longBreakDuration,
       autoStart: settings.autoStart,
       version: 1,
     })
@@ -196,6 +202,9 @@ export async function loadSettings(): Promise<AppSettings> {
 
     return {
       autoStart: stored.autoStart ?? DEFAULT_SETTINGS.autoStart,
+      focusDuration: stored.focusDuration ?? DEFAULT_SETTINGS.focusDuration,
+      shortBreakDuration: stored.shortBreakDuration ?? DEFAULT_SETTINGS.shortBreakDuration,
+      longBreakDuration: stored.longBreakDuration ?? DEFAULT_SETTINGS.longBreakDuration,
     }
   } catch (error) {
     console.error('Failed to load settings:', error)
