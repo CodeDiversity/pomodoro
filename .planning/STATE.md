@@ -6,7 +6,7 @@
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
-- **Current Phase:** Phase 5 - Custom Durations Core
+- **Current Phase:** 05
 - **Next Step:** Phase 6 - Presets & Polish
 
 ## Current Position
