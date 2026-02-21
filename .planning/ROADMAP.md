@@ -3,13 +3,12 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-02-19)
-- 🚧 **v1.1 Custom Durations** — Phases 5-6 (in progress)
+- ✅ **v1.1 Custom Durations** — Phases 5-05.1 (shipped 2026-02-21)
 
 ## Phases
 
 - [x] **Phase 5: Custom Durations Core** - Data layer, timer integration, Settings UI
 - [x] **Phase 05.1: Modernize UI** - Design system and component modernization (INSERTED)
-- [ ] **Phase 6: Presets & Polish** - Presets, confirmation dialogs, reset to defaults
 
 **Phase 5 Status:** COMPLETE
 **Phase 05.1 Status:** COMPLETE (2026-02-21)
@@ -53,22 +52,6 @@
 - [x] 05.1-03-PLAN.md - Settings and navigation (Settings, App tabs, HelpPanel)
 - [x] 05.1-04-PLAN.md - Modal and history components (SessionSummary, HistoryList, HistoryItem)
 
-### Phase 6: Presets & Polish
-
-**Goal:** Users can quickly select preset configurations and get confirmation when changing active timers
-
-**Depends on:** Phase 5
-
-**Requirements:** DUR-04, DUR-07, DUR-09
-
-**Success Criteria** (what must be TRUE):
-
-1. User can select from preset duration options (Classic: 25/5/15, Extended: 50/10/30, Quick: 15/3/10) (DUR-04)
-2. Changing duration while timer is running prompts for confirmation dialog (DUR-07)
-3. User can reset all durations to default values (25/5/15) with one action (DUR-09)
-
-**Plans:** TBD
-
 ---
 
 ## Progress Table
@@ -77,7 +60,6 @@
 |-------|------|--------------|------------------|----------------|--------|-----------|
 | 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
 | 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
-| 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | 3 criteria | 0/1 | Not started | - |
 
 ---
 
@@ -88,14 +70,13 @@
 | DUR-01: Custom Focus duration (1-60 min) | Phase 5 | Implemented (plan 02) |
 | DUR-02: Custom Short Break duration (1-30 min) | Phase 5 | Implemented (plan 02) |
 | DUR-03: Custom Long Break duration (1-60 min) | Phase 5 | Implemented (plan 02) |
-| DUR-04: Preset duration options | Phase 6 | Pending |
 | DUR-05: Duration validation bounds | Phase 5 | Implemented (plan 02) |
 | DUR-06: Duration persistence | Phase 5 | Implemented (plan 01) |
-| DUR-07: Confirmation when timer running | Phase 6 | Pending |
 | DUR-08: Timer resets to new duration | Phase 5 | Implemented (plan 01) |
-| DUR-09: Reset to defaults | Phase 6 | Pending |
 
-**Total:** 9/9 requirements mapped
+**Removed:** DUR-04, DUR-07, DUR-09 (with Phase 6)
+
+**Total:** 6/6 requirements implemented
 
 ---
 

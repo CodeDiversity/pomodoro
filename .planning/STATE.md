@@ -5,28 +5,26 @@
 ## Project Reference
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
-- **Current Milestone:** v1.1 Custom Durations
-- **Current Phase:** 05.1 (Design System)
-- **Next Step:** Plan 05.1-05 (remaining UI modernization)
+- **Current Milestone:** v2.0 UI Redesign
+- **Current Phase:** Not started (defining requirements)
+- **Next Step:** v1.1 complete, ready for v2.0 redesign or new features
 
 ## Current Position
 
 | Attribute | Value |
 |-----------|-------|
-| Milestone | v1.1 Custom Durations |
-| Phase | 05.1 of 05.1 (UI Modernization) |
-| Plan | 04 of 04 (COMPLETED) |
-| Status | Plan complete |
+| Milestone | v2.0 UI Redesign |
+| Phase | — (defining requirements) |
+| Plan | — |
+| Status | Defining requirements |
 
-Progress: [████████████] 100%
+Progress: [............] 0%
 
-## v1.1 Phase Summary
+## v2.0 Phase Summary
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Complete |
-| 05.1 - UI Modernization | Modernize notes and buttons | N/A | In Progress |
-| 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | Pending |
+| Phase 6 (Presets) was removed from v1.1 roadmap | - | - | - |
 
 ---
 
@@ -79,6 +77,7 @@ Progress: [████████████] 100%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: **Session resumed** - Project context restored
 - 2026-02-21: Quick task 5 completed - Reduced TimerDisplay whitespace for more compact UI
 - 2026-02-21: Quick task 4 completed - Notes section now has Google Keep aesthetic
 - 2026-02-21: Plan 05.1-04 completed - Modernized SessionSummary, HistoryList, and HistoryItem with consistent design system
@@ -104,7 +103,7 @@ Progress: [████████████] 100%
 
 **Ready For:**
 - Phase 05.1 complete - All UI modernization done
-- Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
+- v1.1 shipped - all features complete
 
 ---
 
