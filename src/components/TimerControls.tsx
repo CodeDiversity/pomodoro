@@ -15,8 +15,9 @@ interface TimerControlsProps {
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 16px;
 `
 
@@ -55,12 +56,12 @@ const PrimaryButton = styled.button`
   }
 `
 
-const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
+const SecondaryButton = styled.button`
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background-color: transparent;
-  border: 1px solid #E0E0E0;
+  background-color: #F5F5F5;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -68,7 +69,7 @@ const IconButton = styled.button`
   transition: all ${transitions.normal};
 
   &:hover:not(:disabled) {
-    background-color: #F5F5F5;
+    background-color: #E8E8E8;
   }
 
   &:focus-visible {
@@ -82,10 +83,6 @@ const IconButton = styled.button`
   }
 `
 
-const SecondaryButtonsRow = styled.div`
-  display: flex;
-  gap: 12px;
-`
 
 // SVG Icons (20x20, stroke-width 2)
 const PlayIcon = () => (
@@ -102,14 +99,14 @@ const PauseIcon = () => (
 )
 
 const SkipIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="5 4 15 12 5 20 5 4" />
     <line x1="19" y1="5" x2="19" y2="19" />
   </svg>
 )
 
 const ResetIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 4 23 10 17 10" />
     <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
   </svg>
@@ -150,6 +147,14 @@ export default function TimerControls({
 
   return (
     <Container>
+      <SecondaryButton
+        onClick={handleReset}
+        aria-label="Reset timer"
+        title="Reset timer"
+      >
+        <ResetIcon />
+      </SecondaryButton>
+
       <PrimaryButton
         onClick={handlePrimaryClick}
         aria-label={isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'}
@@ -157,22 +162,13 @@ export default function TimerControls({
         {isRunning ? <PauseIcon /> : <PlayIcon />}
       </PrimaryButton>
 
-      <SecondaryButtonsRow>
-        <IconButton
-          onClick={handleSkip}
-          aria-label="Skip session"
-          title="Skip session"
-        >
-          <SkipIcon />
-        </IconButton>
-        <IconButton
-          onClick={handleReset}
-          aria-label="Reset timer"
-          title="Reset timer"
-        >
-          <ResetIcon />
-        </IconButton>
-      </SecondaryButtonsRow>
+      <SecondaryButton
+        onClick={handleSkip}
+        aria-label="Skip session"
+        title="Skip session"
+      >
+        <SkipIcon />
+      </SecondaryButton>
     </Container>
   )
 }
