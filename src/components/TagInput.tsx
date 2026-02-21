@@ -8,6 +8,8 @@ const MAX_TAGS = 10
 const Container = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
   margin-top: ${spacing.sm};
+  padding-top: ${spacing.sm};
+  border-top: 1px solid #f0f0f0;
   position: relative;
 `
 
@@ -21,18 +23,18 @@ const TagsContainer = styled.div`
 const Chip = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: ${spacing.xs};
-  padding: ${spacing.xs} ${spacing.sm};
+  gap: 4px;
+  padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  color: white;
-  background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%);
-  border-radius: 16px;
-  transition: transform ${transitions.fast}, box-shadow ${transitions.fast};
+  color: ${colors.text};
+  background: #f0f0f0;
+  border-radius: 4px;
+  transition: background-color ${transitions.fast}, transform ${transitions.fast};
 
   &:hover {
+    background: #e8e8e8;
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 `
 
@@ -44,49 +46,49 @@ const RemoveButton = styled.button`
   height: 16px;
   padding: 0;
   margin-left: 2px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1;
-  color: white;
+  color: ${colors.textMuted};
   background: transparent;
   border: none;
-  border-radius: ${radii.full};
+  border-radius: 50%;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity ${transitions.fast};
+  transition: background-color ${transitions.fast}, color ${transitions.fast};
 
   &:hover {
-    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+    color: ${colors.text};
   }
 
   &:focus-visible {
-    outline: 2px solid white;
+    outline: 2px solid ${colors.primary};
     outline-offset: 1px;
   }
 `
 
 const Input = styled.input`
   width: 100%;
-  padding: ${spacing.sm} ${spacing.md};
-  border: 1px solid ${colors.border};
-  border-radius: ${radii.md};
-  font-size: 0.9rem;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
   box-sizing: border-box;
-  transition: border-color ${transitions.fast}, box-shadow ${transitions.fast};
-  background-color: ${colors.background};
+  transition: background-color ${transitions.fast}, box-shadow ${transitions.fast};
+  background-color: transparent;
   color: ${colors.text};
 
   &::placeholder {
-    color: ${colors.textMuted};
+    color: #999;
   }
 
   &:focus {
     outline: none;
-    border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    background-color: rgba(231, 76, 60, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.2);
   }
 
   &:disabled {
-    background: ${colors.surface};
+    background: transparent;
     cursor: not-allowed;
   }
 `
