@@ -1,154 +1,187 @@
 # Project Research Summary
 
-**Project:** Pomodoro Timer Web Application
-**Domain:** Productivity / Time Management Web App
-**Researched:** 2026-02-19
+**Project:** Pomodoro Timer — Redux Toolkit Migration
+**Domain:** React State Management Migration (useReducer to Redux Toolkit)
+**Researched:** 2026-02-21
 **Confidence:** HIGH
 
 ## Executive Summary
 
-This is a Pomodoro Timer productivity web application that helps users manage work sessions using the Pomodoro Technique (25-minute focus intervals with short and long breaks). Research confirms the standard approach: React + TypeScript + Vite with localStorage persistence, organized through custom hooks and a container/presentational component pattern.
+This research covers the migration of an existing Pomodoro Timer application from React's `useReducer` pattern to Redux Toolkit (RTK) for centralized state management. The application currently uses a well-structured hook-based architecture with `useTimer`, `useSessionNotes`, `useSessionManager`, and `useSessionHistory` hooks, backed by IndexedDB persistence. The migration aims to centralize scattered state logic while maintaining the existing component API surface and IndexedDB persistence layer.
 
-The recommended approach prioritizes a local-first architecture with no backend required. Key differentiators from competitors are session notes and basic statistics, both stored locally. The most critical risks are timer accuracy in background tabs and browser autoplay restrictions for audio notifications. These must be addressed in the foundation phase to avoid user-facing bugs.
+Based on research, the recommended approach is an **incremental migration** using Redux Toolkit 2.5+ with React-Redux 9.2+. The architecture should use slice-based organization mirroring existing hook boundaries (timer, session, history, ui), with persistence handled via custom middleware rather than Redux Persist. This preserves the existing IndexedDB service layer while gaining RTK's benefits: centralized state, time-travel debugging, and structured async handling via thunks. The bundle impact is approximately +16KB gzipped, which is acceptable for the debugging and maintainability benefits.
+
+Key risks include timer drift in background tabs (addressed by using timestamps rather than tick counting), stale closures in React effects (mitigated by proper dependency arrays and functional updates), and over-migrating state that should remain local (avoided by keeping ephemeral UI state in useState). The migration should maintain existing hook APIs as a compatibility layer, switching internal implementations to Redux without requiring component changes.
 
 ## Key Findings
 
 ### Recommended Stack
 
-**Core technologies:**
-- React 19.x (or 18.3.x LTS) — UI framework, industry standard for 2025/2026
-- TypeScript 5.x — Type safety catches timer logic bugs early
-- Vite 7.x — Fast dev server, native ES modules, instant HMR
-- localStorage — No backend needed, sufficient for MVP session storage
+The stack research confirms Redux Toolkit 2.5+ is the optimal choice for this migration. It includes Immer for immutable updates, Reselect for memoized selectors, and Redux Thunk for async logic out of the box. React-Redux 9.2+ is required for React 18 compatibility and uses the native `useSyncExternalStore` hook for concurrent features.
 
-**Supporting libraries:**
-- styled-components 6.x — Theming built-in for dark mode, scoped styles
-- Vitest 4.x — Vite-native testing, zero config, fast execution
+**Core technologies:**
+- **@reduxjs/toolkit ^2.5.0**: State management — Latest stable with RTK 2.0 improvements, ESM-first, better TypeScript inference
+- **react-redux ^9.2.0**: React bindings — Native `useSyncExternalStore` for React 18 concurrent features, requires React 18+
+- **@types/react-redux ^7.1.34**: Type definitions — TypeScript support for hooks and APIs
+- **Custom persistence middleware**: IndexedDB sync — Full control over existing `idb` layer, no additional dependencies vs Redux Persist
+
+**Avoid:** Redux Persist (adds dependencies, less control), RTK Query (designed for HTTP APIs, not local IndexedDB), standalone redux-thunk (included in RTK).
 
 ### Expected Features
 
+From the feature landscape analysis, the migration should focus on table stakes first, then differentiators.
+
 **Must have (table stakes):**
-- Timer with countdown display (MM:SS) — Core functionality
-- Focus/Short Break/Long Break modes — 25/5/15 minute defaults
-- Start/Pause/Reset controls — User must have full control
-- Audio notifications — Alert on session end (browser autoplay policies apply)
-- Session history — List of completed sessions stored in localStorage
-- Dark mode — Project requirement, reduces eye strain
+- **createSlice for timer state** — Core RTK abstraction; direct migration from existing reducer
+- **configureStore setup** — Required store initialization with DevTools
+- **Typed hooks (useAppDispatch, useAppSelector)** — TypeScript best practice, essential for type safety
+- **Persistence thunks** — Async IndexedDB operations with pending/fulfilled/rejected states
+- **Component migration** — Replace useTimer hook internals with dispatch/selectors
 
 **Should have (competitive):**
-- Session notes (per session) — Key differentiator vs Pomofocus, Forest
-- Basic statistics — Daily/weekly focus time, productivity trends
-- Tab navigation — Timer | History | Stats views
-- Visual progress indicator — Progress ring/bar showing session progress
+- **Centralized async state tracking** — Loading/error states for all async ops
+- **Memoized selectors (createSelector)** — Optimized derived data for stats, filtered lists
+- **Time-travel debugging** — Debug state changes across timer ticks
 
 **Defer (v2+):**
-- Cloud sync / account system — Adds backend complexity
-- Task linking — Requires separate task management
-- PWA/offline support — Nice to have after validation
-- Data export — JSON/CSV export for later
+- **createEntityAdapter** — Overkill for current session volume; add only if performance becomes issue
+- **RTK Query** — Only if adding cloud sync or external API
+- **Complex middleware chain** — Analytics, error reporting when needed
 
 ### Architecture Approach
 
-The recommended architecture follows a layered pattern: UI Layer (views) -> Component Layer -> Hook Layer (custom hooks) -> Data Layer (localStorage service). Custom hooks encapsulate business logic (useTimer, useSessions, useStats), keeping components thin and testable. The container/presentational pattern separates state management from rendering.
+The recommended architecture uses a **slice-based organization** that mirrors existing hook boundaries, making migration incremental. Each slice (timer, session, history, ui) corresponds to a logical domain previously managed by its own hook.
 
 **Major components:**
-1. TimerView — Main timer screen, manages timer state via useTimer hook
-2. HistoryView — Session history list with filtering, uses useSessions
-3. StatsView — Aggregated statistics, uses useStats for computations
-4. TabNavigation — Top-level navigation between views
+1. **timerSlice** — Timer state (mode, duration, timeRemaining, isRunning, sessionCount) + timer actions (start, pause, resume, tick, skip)
+2. **sessionSlice** — Current session notes (noteText, tags, saveStatus) + active session tracking
+3. **historySlice** — Session history list + filters (dateFilter, searchQuery) + loading states
+4. **uiSlice** — UI state (viewMode, modals, drawer) previously in App.tsx component state
+5. **persistenceMiddleware** — Custom middleware for IndexedDB sync with debouncing
+6. **Hook compatibility layer** — Existing hooks (useTimer, useSessionNotes, etc.) maintain same API but use Redux internally
+
+State shape keeps session history data in IndexedDB (not Redux), fetched via thunks when needed. This prevents Redux bloat and leverages the existing IndexedDB service layer.
 
 ### Critical Pitfalls
 
-1. **Timer drift in background tabs** — Browsers throttle setInterval, causing 25-min sessions to take 30+ minutes. Avoid by using timestamps (Date.now()) instead of tick counting.
+From the pitfalls research, these are the top risks to address:
 
-2. **React stale closures** — setInterval in useEffect captures initial state. Avoid by using functional updates: `setTime(prev => prev - 1)`.
+1. **Timer drift in background tabs** — Browsers throttle `setInterval` to ~1000ms in inactive tabs. **Avoid by:** Using timestamps (Date.now()) to calculate remaining time rather than decrementing counters; recalculate on tab focus using Page Visibility API.
 
-3. **Losing timer state on refresh** — No persistence means mid-session refresh loses progress. Avoid by persisting startTime/duration to localStorage.
+2. **React stale closures with useEffect timers** — Timer callbacks capture initial state and never see updates. **Avoid by:** Use functional state updates (`setTime(prev => prev - 1)`), include all dependencies in effect arrays, or use refs for mutable values.
 
-4. **Audio notification fails** — Browser autoplay policies block audio without user interaction. Avoid by requiring click before playing, preload audio on first interaction.
+3. **Losing timer state on page refresh** — Timer state exists only in memory. **Avoid by:** Persist timer state to IndexedDB on every tick (debounced), restore on app load. The persistence middleware handles this automatically.
 
-5. **localStorage data corruption** — 5-10MB limit, JSON corruption possible. Avoid with try-catch wrappers, size limits (1000 sessions max).
+4. **Audio notification fails to play** — Browser autoplay policies block audio without user interaction. **Avoid by:** Preload audio on first user click, handle promise rejection with visual fallback.
+
+5. **localStorage quota limits and corruption** — 5-10MB limit, can be corrupted by malformed JSON. **Avoid by:** The app already uses IndexedDB (higher limits), but wrap all storage access in try-catch and validate data before reading.
 
 ## Implications for Roadmap
 
 Based on research, suggested phase structure:
 
 ### Phase 1: Foundation
-**Rationale:** Core timer and persistence are prerequisites for everything else. All other features depend on accurate timer state.
-**Delivers:** Types, theme setup, localStorage service, useTimer hook with timestamp-based accuracy, TimerDisplay, TimerControls, SessionTypeSelector
-**Addresses:** Timer core features, audio notifications, persistence
-**Avoids:** Timer drift pitfall, stale closure pitfall, refresh state loss pitfall
+**Rationale:** Core Redux infrastructure must be in place before any slices can be created. This establishes the store, typed hooks, and provider setup.
+**Delivers:** Working Redux store with DevTools, typed hooks (useAppDispatch, useAppSelector), persistence middleware skeleton
+**Addresses:** configureStore setup, typed hooks
+**Avoids:** None (setup phase)
+**Research flag:** None needed — standard patterns, well-documented
 
-### Phase 2: Session Management
-**Rationale:** Sessions must be recorded before history or stats can exist. This is the bridge between timer and data.
-**Delivers:** useSessions hook, session storage, auto-save on timer complete, session notes
-**Addresses:** Session history, session notes (differentiator)
-**Avoids:** localStorage corruption pitfall (with proper error handling)
+### Phase 2: Timer Slice Migration
+**Rationale:** The timer is the highest-impact component and the most complex state. Migrating it first validates the architecture before tackling other slices.
+**Delivers:** timerSlice with all current timer actions, persistence middleware for timer state, useTimer hook connected to Redux
+**Addresses:** createSlice for timer state, persistence thunks, component migration
+**Avoids:** Timer drift (use timestamps), stale closures (proper effect dependencies), state refresh loss (persistence middleware)
+**Research flag:** None needed — patterns are well-established
 
-### Phase 3: History & Stats
-**Rationale:** History and stats both depend on session data being stored. They can be developed in parallel or combined.
-**Delivers:** HistoryList, SessionCard, FilterBar, HistoryView, useStats, StatsChart, StatsSummary
-**Addresses:** Session history display, filtering, basic statistics
-**Avoids:** History performance issues with size limits
+### Phase 3: UI Slice Migration
+**Rationale:** UI state (viewMode, modals, drawer) is simpler than timer/session state and provides immediate value for component integration testing.
+**Delivers:** uiSlice, App.tsx connected to Redux, modal and drawer state centralized
+**Addresses:** UI state centralization
+**Avoids:** None
+**Research flag:** None needed — straightforward slice
 
-### Phase 4: Polish & Navigation
-**Rationale:** Tab navigation and dark mode are standalone features that enhance the entire app.
-**Delivers:** TabNavigation, ThemeContext, dark mode integration, final integration testing
-**Addresses:** Dark mode, tab navigation
-**Avoids:** UX pitfalls (no pause, no visual distinction between modes)
+### Phase 4: Session Slice Migration
+**Rationale:** Session notes and active session tracking are tightly coupled. Migrating them together maintains consistency.
+**Delivers:** sessionSlice, useSessionNotes and useSessionManager connected to Redux, session thunks for async operations
+**Addresses:** Session notes state, tag management, async session save
+**Avoids:** None
+**Research flag:** Low — need to decide: keep note draft in local state or Redux? (Recommendation: keep local, only save final note)
+
+### Phase 5: History Slice Migration
+**Rationale:** History depends on session completion, so it comes after session slice. Filtering and search logic moves to selectors.
+**Delivers:** historySlice, useSessionHistory connected to Redux, memoized selectors for filtered sessions
+**Addresses:** History state, filtering, search
+**Avoids:** Storing derived data (use createSelector for filteredSessions)
+**Research flag:** Low — selector optimization strategies if performance issues arise
+
+### Phase 6: Cleanup and Optimization
+**Rationale:** Remove legacy hook implementations, add tests, verify DevTools integration.
+**Delivers:** Clean codebase with old useReducer removed, slice tests, performance audit
+**Addresses:** Testing strategy, performance optimization
+**Avoids:** None
+**Research flag:** None — verification phase
 
 ### Phase Ordering Rationale
 
-- Foundation first because timer accuracy is the core value proposition
-- Session management second because all downstream features (history, stats) depend on recorded sessions
-- History/Stats third because they require session data to exist
-- Polish last because navigation and theming are orthogonal to core functionality
+- **Dependencies:** Foundation must come first (store setup). Timer is most complex and highest-impact, so it validates the approach early. UI is simpler and provides quick wins. Session and History depend on the patterns established in Timer.
+- **Grouping:** Timer is standalone. UI is standalone. Session and History are related but History depends on Session completion events.
+- **Pitfall avoidance:** Timer phase specifically addresses timer drift, stale closures, and persistence. History phase addresses derived data anti-pattern via selectors.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 1 (Foundation):** Timer accuracy testing — need to verify timestamp approach works across browsers
-- **Phase 1 (Foundation):** Audio notification — need to test autoplay behavior across Chrome, Safari, Firefox
+- **Phase 4 (Session):** Decision needed on local vs Redux state for note drafts. May need quick spike to determine UX impact.
+- **Phase 5 (History):** If session volume grows beyond ~1000, may need pagination research. Current research suggests this is future-proofing only.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 2 (Session Management):** localStorage CRUD is well-documented, standard patterns
-- **Phase 3 (History & Stats):** List virtualization if needed — standard approach, can research if performance issues arise
+- **Phase 1 (Foundation):** Well-documented Redux Toolkit setup patterns
+- **Phase 2 (Timer):** Timer slice patterns are direct translation from existing reducer
+- **Phase 3 (UI):** Simple state slice, standard RTK patterns
+- **Phase 6 (Cleanup):** Verification and removal of legacy code
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Version numbers verified from official sources (Feb 2026) |
-| Features | MEDIUM | Feature priorities based on competitor analysis and industry standards |
-| Architecture | HIGH | Standard React patterns, well-documented in official docs |
-| Pitfalls | MEDIUM | Common pitfalls identified from MDN and React documentation |
+| Stack | HIGH | Official Redux Toolkit docs, React-Redux v9.2 release notes, npm registry confirms versions |
+| Features | HIGH | Official RTK usage guide, existing codebase analysis confirms mapping |
+| Architecture | HIGH | Redux Style Guide, existing hook boundaries provide clear slice boundaries |
+| Pitfalls | MEDIUM | MDN docs on timer throttling, React useEffect patterns well-documented; some edge cases may emerge during implementation |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Browser notification support:** Safari has limited support — need to verify behavior during implementation
-- **Timer precision testing:** Actual drift measurements needed across browsers
-- **localStorage size estimates:** How many sessions before hitting quota? Need real-world testing
+1. **Timer interval management:** Decision needed on keeping interval in hook vs middleware. Research recommends keeping in hook (useTimer) and dispatching ticks to Redux — this needs validation during Phase 2 planning.
+
+2. **Error handling for persistence:** How to display persistence errors from rejected thunks? Needs UI design decision during Phase 2.
+
+3. **Testing strategy:** Component tests will need Provider wrapper. Exact mocking approach for slices needs definition during Phase 6.
+
+4. **Bundle impact validation:** ~16KB gzipped addition should be verified with actual build after Phase 2.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- React Documentation — State, Lifecycle, Hooks API
-- Vite Official Site — Confirmed v7.3.1 as latest stable
-- MDN Web Docs — setInterval, localStorage, Page Visibility API, Notifications API
-- styled-components GitHub — Confirmed v6.3.10 (Feb 2026)
+- [Redux Toolkit TypeScript Usage Guide](https://redux-toolkit.js.org/usage/usage-with-typescript) — Official TypeScript patterns
+- [Redux Toolkit 2.0 Migration Guide](https://redux-toolkit.js.org/usage/migrating-rtk-2) — Breaking changes and new features
+- [React-Redux v9.2.0 Release](https://github.com/reduxjs/react-redux/releases/tag/v9.2.0) — React 18/19 compatibility
+- [Redux Style Guide](https://redux.js.org/style-guide/) — Architecture patterns
+- [npm @reduxjs/toolkit](https://www.npmjs.com/package/@reduxjs/toolkit) — v2.5.0 current
+- [npm react-redux](https://www.npmjs.com/package/react-redux) — v9.2.0 current
 
 ### Secondary (MEDIUM confidence)
-- Pomofocus (https://pomofocus.io/) — Feature analysis, competitor benchmark
-- Forest App (https://www.forestapp.cc/) — Gamification approach analysis
-- Zapier — "The 6 best Pomodoro timer apps" — Industry feature landscape
-- Overreacted — React timer patterns with useEffect
+- [Redux Essentials Tutorial](https://redux.js.org/tutorials/essentials/) — Async logic, performance patterns
+- [MDN: setInterval](https://developer.mozilla.org/en-US/docs/Web/API/setInterval) — Timer accuracy and throttling
+- [MDN: localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) — Storage limitations
+- [MDN: Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API) — Notification requirements
+- Existing codebase: `/Users/dev/Documents/youtube/pomodoro/src/hooks/*.ts`, `/Users/dev/Documents/youtube/pomodoro/src/services/persistence.ts`
 
 ### Tertiary (LOW confidence)
-- Community Reddit threads — User complaints about existing Pomodoro apps (needs validation)
+- None — all sources are official documentation or direct codebase analysis
 
 ---
 
-*Research completed: 2026-02-19*
+*Research completed: 2026-02-21*
 *Ready for roadmap: yes*

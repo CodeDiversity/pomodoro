@@ -1,291 +1,534 @@
-# Stack Research: Google Keep/Calendar Aesthetic Styling
+# Stack Research: Redux Toolkit Migration
 
-**Domain:** CSS/Styling Additions for UI Redesign
+**Domain:** Redux Toolkit State Management for React 18 + TypeScript + Vite
 **Researched:** 2026-02-21
 **Confidence:** HIGH
 
 ## Summary
 
-The current stack (React 18 + styled-components 6.x) is sufficient for the Google Keep/Calendar aesthetic. No new styling libraries are required. The key is enhancing the existing theme system with:
+For migrating from `useReducer` to Redux Toolkit in an existing React 18 + TypeScript + Vite + styled-components app:
 
-1. **Layered shadow system** for realistic elevation
-2. **Motion library** for smooth interactions
-3. **CSS backdrop-filter** for glassmorphism (native, no library needed)
+1. **Core packages:** Redux Toolkit 2.5+ and React-Redux 9.2+ (React 18 required)
+2. **Persistence:** Custom middleware preferred over Redux Persist for IndexedDB control
+3. **TypeScript:** Modern `.withTypes<>()` pattern for type-safe hooks
+4. **No RTK Query needed:** Existing IndexedDB persistence layer is sufficient
 
 ---
 
-## Recommended Additions
+## Recommended Stack Additions
 
-### 1. Motion Library: Framer Motion
+### Core Redux Packages
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| framer-motion | 11.x | Animation library | Industry standard for React animations. Provides smooth layout transitions, card hover effects, and gesture-based interactions that define the Google aesthetic. |
+| @reduxjs/toolkit | ^2.5.0 | State management | Latest stable with RTK 2.0 improvements. Includes Immer, Reselect, Redux Thunk. ESM-first, better TypeScript inference. |
+| react-redux | ^9.2.0 | React bindings | Native `useSyncExternalStore` for React 18 concurrent features. Requires React 18+. |
+| @types/react-redux | ^7.1.34 | Type definitions | TypeScript support for hooks and APIs. |
 
-**Why Framer Motion for Google aesthetic:**
-- Google Keep cards have smooth scale/shadow transitions on hover
-- Calendar events animate when resizing/moving
-- Layout animations when cards reorder (masonry effect)
-- Shared element transitions between views
-
+**Installation:**
 ```bash
-npm install framer-motion
+npm install @reduxjs/toolkit@^2.5.0 react-redux@^9.2.0
+npm install -D @types/react-redux@^7.1.34
 ```
 
-**Use Cases:**
-- Card hover: `scale(1.02)` with shadow elevation change
-- Page transitions: Fade + slide for modal/drawer
-- List reordering: Smooth FLIP animations
-- Button press: Subtle scale feedback
+### Version Compatibility Matrix
+
+| Package | Version | React Requirement | Notes |
+|---------|---------|-------------------|-------|
+| @reduxjs/toolkit | 2.5.x | React 18+ | ESM/CJS dual package, ES2020 output |
+| react-redux | 9.2.x | **React 18 required** | Uses native `useSyncExternalStore`, no legacy shim |
+| redux (core) | 5.0.x | - | Improved TypeScript types |
+| reselect | 5.1.x | - | `weakMapMemoize` default, better performance |
+
+**Critical:** React-Redux v9+ requires React 18 as minimum. The app already uses React 18.3.1, so this is compatible.
 
 ---
 
-### 2. No New Styling Library Needed
+## Migration Strategy: useReducer to Redux Toolkit
 
-The existing **styled-components 6.x** is fully capable. The aesthetic is achieved through:
+### Current State Architecture
 
-| Technique | Implementation | Google Keep Reference |
-|-----------|----------------|----------------------|
-| **Layered shadows** | Multiple box-shadows with increasing blur | Cards float with soft, diffused shadows |
-| **Elevation system** | 4-6 shadow levels (flat, hover, raised, modal) | Floating action button vs flat cards |
-| **Larger border-radius** | 12px-16px for cards, 24px for buttons | Rounded, friendly appearance |
-| **Backdrop blur** | Native CSS `backdrop-filter: blur()` | Modal overlays, search bar |
-| **Micro-interactions** | Scale, shadow, color on hover/focus | Button feedback, card lift |
+```
+Current (useReducer pattern):
+- useTimer.ts: timerReducer + useReducer hook
+- useSessionManager.ts: Session management logic
+- useSessionNotes.ts: Local state for notes
+- useSessionHistory.ts: Local state for history/filters
+- persistence.ts: IndexedDB save/load
+```
+
+### Target Redux Architecture
+
+```
+Target (Redux Toolkit pattern):
+src/
+├── store/
+│   ├── index.ts              # Store configuration
+│   ├── hooks.ts              # Typed useAppDispatch/useAppSelector
+│   └── middleware/
+│       └── persistence.ts    # Custom IndexedDB middleware
+├── slices/
+│   ├── timerSlice.ts         # Timer state + actions
+│   ├── settingsSlice.ts      # App settings
+│   └── uiSlice.ts            # UI state (drawer, viewMode)
+└── hooks/                    # (kept for non-state logic)
+    ├── useSessionManager.ts  # Business logic only
+    └── useKeyboardShortcuts.ts
+```
+
+### Slice Design Mapping
+
+| Current Hook/Reducer | Redux Slice | State Shape |
+|---------------------|-------------|-------------|
+| `useTimer` reducer | `timerSlice` | `mode`, `timeRemaining`, `isRunning`, `duration`, `sessionCount`, `startTime`, `pausedTimeRemaining` |
+| `useSessionNotes` | `notesSlice` | `noteText`, `tags`, `saveStatus`, `lastSaved` |
+| `useSessionHistory` filters | `uiSlice` | `dateFilter`, `searchQuery`, `viewMode`, `isDrawerOpen` |
+| Settings from persistence | `settingsSlice` | `autoStart`, `focusDuration`, `shortBreakDuration`, `longBreakDuration` |
+
+**Session history data stays in IndexedDB**, not Redux. Use thunks to fetch/filter.
 
 ---
 
-## Enhanced Theme Tokens
+## TypeScript Setup (Modern Pattern)
 
-Add these to `/src/components/ui/theme.ts`:
-
-### Shadow System (Layered)
+### Store Configuration with Type Inference
 
 ```typescript
-export const shadows = {
-  // Flat - no shadow, just border
-  flat: 'none',
-  // Subtle - for content on surface
-  subtle: '0 1px 2px rgba(0,0,0,0.05)',
-  // Low - cards at rest (Google Keep default)
-  low: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-  // Medium - cards elevated on hover
-  medium: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
-  // High - modals, dropdowns
-  high: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
-  // Highest - dialogs, sidebars
-  highest: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
-} as const;
+// src/store/index.ts
+import { configureStore } from '@reduxjs/toolkit'
+import timerReducer from '../slices/timerSlice'
+import settingsReducer from '../slices/settingsSlice'
+import notesReducer from '../slices/notesSlice'
+import uiReducer from '../slices/uiSlice'
+import { persistenceMiddleware } from './middleware/persistence'
+
+export const store = configureStore({
+  reducer: {
+    timer: timerReducer,
+    settings: settingsReducer,
+    notes: notesReducer,
+    ui: uiReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore non-serializable values (Date objects, etc.)
+        ignoredActions: ['timer/tick'],
+        ignoredPaths: ['timer.startTime'],
+      },
+    }).concat(persistenceMiddleware),
+  devTools: process.env.NODE_ENV !== 'production',
+})
+
+// Infer types from store itself (no manual maintenance)
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 ```
 
-### Border Radius Expansion
+### Typed Hooks (React-Redux 9+ Pattern)
 
 ```typescript
-export const radii = {
-  sm: '4px',
-  md: '8px',
-  lg: '12px',      // Increased from 12px
-  xl: '16px',      // Cards
-  full: '9999px',  // Pills, FAB
-} as const;
+// src/store/hooks.ts
+import { useDispatch, useSelector, useStore } from 'react-redux'
+import type { RootState, AppDispatch, AppStore } from './index'
+
+// Modern .withTypes<> pattern (React-Redux 9+)
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+export const useAppSelector = useSelector.withTypes<RootState>()
+export const useAppStore = useStore.withTypes<AppStore>()
 ```
 
-### Color Palette Adjustments
+### Slice Example: Timer
 
 ```typescript
-export const colors = {
-  // Keep the existing but add:
-  surfaceElevated: '#ffffff',     // Cards stand out from background
-  backdrop: 'rgba(255,255,255,0.72)', // Glassmorphism base
-  // Shadow tints for colored cards (if needed)
-  shadowTint: 'rgba(0,0,0,0.15)',
-} as const;
+// src/slices/timerSlice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { RootState } from '../store'
+import type { TimerMode } from '../types/timer'
+import { DURATIONS } from '../constants/timer'
+
+export interface TimerState {
+  mode: TimerMode
+  duration: number
+  timeRemaining: number
+  isRunning: boolean
+  sessionCount: number
+  startTime: number | null
+  pausedTimeRemaining: number | null
+}
+
+const initialState: TimerState = {
+  mode: 'focus',
+  duration: DURATIONS.focus,
+  timeRemaining: DURATIONS.focus,
+  isRunning: false,
+  sessionCount: 1,
+  startTime: null,
+  pausedTimeRemaining: null,
+}
+
+export const timerSlice = createSlice({
+  name: 'timer',
+  initialState,
+  reducers: {
+    start: (state) => {
+      state.isRunning = true
+      state.startTime = Date.now()
+      state.pausedTimeRemaining = null
+    },
+    pause: (state) => {
+      state.isRunning = false
+      state.pausedTimeRemaining = state.timeRemaining
+      state.startTime = null
+    },
+    resume: (state) => {
+      state.isRunning = true
+      state.startTime = Date.now()
+    },
+    reset: (state) => {
+      state.timeRemaining = state.duration
+      state.isRunning = false
+      state.startTime = null
+      state.pausedTimeRemaining = null
+    },
+    tick: (state) => {
+      if (state.startTime) {
+        const elapsed = Math.floor((Date.now() - state.startTime) / 1000)
+        state.timeRemaining = Math.max(0, state.duration - elapsed)
+      }
+    },
+    setMode: (state, action: PayloadAction<TimerMode>) => {
+      state.mode = action.payload
+      state.duration = DURATIONS[action.payload]
+      state.timeRemaining = DURATIONS[action.payload]
+      state.isRunning = false
+      state.startTime = null
+      state.pausedTimeRemaining = null
+    },
+    skipSession: (state) => {
+      // Logic from existing SKIP action
+      const isFocusMode = state.mode === 'focus'
+      if (isFocusMode) {
+        if (state.sessionCount >= 4) {
+          state.mode = 'longBreak'
+          state.sessionCount = 1
+        } else {
+          state.mode = 'shortBreak'
+        }
+      } else {
+        state.mode = 'focus'
+        if (state.mode === 'shortBreak') {
+          state.sessionCount += 1
+        }
+      }
+      state.duration = DURATIONS[state.mode]
+      state.timeRemaining = DURATIONS[state.mode]
+      state.isRunning = false
+      state.startTime = null
+      state.pausedTimeRemaining = null
+    },
+    setCustomDurations: (state, action: PayloadAction<{
+      focus: number
+      shortBreak: number
+      longBreak: number
+    }>) => {
+      const durationMap = {
+        focus: action.payload.focus,
+        shortBreak: action.payload.shortBreak,
+        longBreak: action.payload.longBreak,
+      }
+      state.duration = durationMap[state.mode]
+      state.timeRemaining = durationMap[state.mode]
+      state.isRunning = false
+      state.startTime = null
+      state.pausedTimeRemaining = null
+    },
+    // For loading persisted state
+    hydrate: (state, action: PayloadAction<TimerState>) => {
+      return action.payload
+    },
+  },
+})
+
+export const {
+  start,
+  pause,
+  resume,
+  reset,
+  tick,
+  setMode,
+  skipSession,
+  setCustomDurations,
+  hydrate,
+} = timerSlice.actions
+
+// Selectors
+export const selectTimer = (state: RootState) => state.timer
+export const selectIsRunning = (state: RootState) => state.timer.isRunning
+export const selectTimeRemaining = (state: RootState) => state.timer.timeRemaining
+export const selectCurrentMode = (state: RootState) => state.timer.mode
+
+export default timerSlice.reducer
 ```
 
 ---
 
-## CSS Techniques for Google Aesthetic
+## Persistence Approach: Custom Middleware vs Redux Persist
 
-### 1. Card Effect (Native CSS)
+### Recommendation: Custom Middleware
 
-```css
-/* Google Keep card - no border, shadow only */
-.keep-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  transition: all 0.2s ease;
-}
+**Why custom over Redux Persist:**
 
-.keep-card:hover {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-  transform: translateY(-2px);
-}
-```
+| Factor | Redux Persist | Custom Middleware |
+|--------|---------------|-------------------|
+| IndexedDB control | Limited (needs adapter) | Full control via existing `idb` |
+| Debouncing | Manual implementation | Already implemented in codebase |
+| Bundle size | +8KB with adapter | 0 additional deps |
+| Migration complexity | New API to learn | Reuse existing persistence.ts |
+| Versioned schema | Manual | Already implemented |
+| Granular control | Limited | Full (save while running vs immediate) |
 
-### 2. Glassmorphism (Native CSS)
-
-```css
-/* Modal backdrop */
-.glass-overlay {
-  backdrop-filter: blur(8px);
-  background: rgba(255,255,255,0.72);
-}
-
-/* Search bar */
-.search-bar {
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.9);
-}
-```
-
-### 3. FAB (Floating Action Button)
-
-```css
-.fab {
-  border-radius: 16px;  /* More rounded */
-  box-shadow: 0 3px 5px rgba(0,0,0,0.2), 0 3px 10px rgba(0,0,0,0.15);
-}
-
-.fab:hover {
-  box-shadow: 0 6px 10px rgba(0,0,0,0.2), 0 8px 25px rgba(0,0,0,0.15);
-}
-```
-
----
-
-## Migration Pattern
-
-### Phase 1: Theme Updates (No new dependencies)
-
-1. Update `theme.ts` with enhanced shadows and radii
-2. Replace all `border` usage on cards with shadows only
-3. Increase border-radius on cards and buttons
-
-### Phase 2: Motion Integration
-
-1. Install `framer-motion`
-2. Add hover animations to cards
-3. Add page transition to modals/drawers
-
-### Phase 3: Polish
-
-1. Add backdrop-filter to overlays
-2. Fine-tune shadow values
-3. Add micro-interactions to buttons
-
----
-
-## Installation
-
-```bash
-# Add motion library
-npm install framer-motion
-
-# Optional: If you want typed variants
-npm install -D @types/framer-motion
-```
-
----
-
-## Alternatives Considered
-
-| Recommended | Alternative | Why Not |
-|-------------|-------------|---------|
-| Native CSS backdrop-filter | blurhash or react-blur | Native CSS is well-supported (2024+) |
-| Framer Motion | react-spring | Framer Motion has better React 18/19 support and easier API |
-| styled-components | Emotion | Same runtime, styled-components has better theme provider |
-
----
-
-## Component Examples
-
-### Keep-Style Card Component
+### Custom Persistence Middleware
 
 ```typescript
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { shadows, radii, spacing } from './theme';
+// src/store/middleware/persistence.ts
+import { Middleware } from '@reduxjs/toolkit'
+import type { RootState } from '../index'
+import { saveTimerState, saveTimerStateImmediate, saveSettings } from '../../services/persistence'
 
-const KeepCard = styled(motion.div)`
-  background: white;
-  border-radius: ${radii.lg};
-  padding: ${spacing.lg};
-  box-shadow: ${shadows.low};
-  cursor: pointer;
-`;
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
+const DEBOUNCE_MS = 2000
 
-export function SessionCard({ children, onClick }) {
-  return (
-    <KeepCard
-      whileHover={{
-        scale: 1.02,
-        boxShadow: shadows.medium,
-        y: -2
-      }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-      onClick={onClick}
-    >
-      {children}
-    </KeepCard>
-  );
-}
-```
+export const persistenceMiddleware: Middleware<{}, RootState> =
+  (store) => (next) => (action) => {
+    const result = next(action)
+    const state = store.getState()
+    const { type } = action as { type: string }
 
-### Keep-Style Input
+    // Persist timer state
+    if (type.startsWith('timer/')) {
+      const timerState = state.timer
 
-```typescript
-const KeepInput = styled.input`
-  background: transparent;
-  border: none;
-  border-radius: ${radii.lg};
-  padding: ${spacing.md} ${spacing.lg};
-  box-shadow: ${shadows.subtle};
+      // Clear pending debounced save
+      if (saveTimeout) {
+        clearTimeout(saveTimeout)
+      }
 
-  &:focus {
-    box-shadow: ${shadows.low}, 0 0 0 2px rgba(66, 133, 244, 0.5);
+      // Immediate save for pause/stop/reset
+      if (
+        type === 'timer/pause' ||
+        type === 'timer/reset' ||
+        type === 'timer/setMode'
+      ) {
+        saveTimerStateImmediate(timerState)
+      } else if (timerState.isRunning) {
+        // Debounced save while running
+        saveTimeout = setTimeout(() => {
+          saveTimerState(timerState)
+        }, DEBOUNCE_MS)
+      }
+    }
+
+    // Persist settings
+    if (type.startsWith('settings/')) {
+      saveSettings(state.settings)
+    }
+
+    return result
   }
-`;
+```
+
+### State Hydration Pattern
+
+```typescript
+// src/store/hydration.ts
+import { store } from './index'
+import { hydrate as hydrateTimer } from '../slices/timerSlice'
+import { hydrate as hydrateSettings } from '../slices/settingsSlice'
+import { loadTimerState, loadSettings } from '../services/persistence'
+
+export async function hydrateStore(): Promise<void> {
+  const [timerState, settings] = await Promise.all([
+    loadTimerState(),
+    loadSettings(),
+  ])
+
+  store.dispatch(hydrateTimer(timerState))
+  store.dispatch(hydrateSettings(settings))
+}
 ```
 
 ---
 
-## Version Compatibility
+## Integration with Existing React 18 Patterns
 
-| Package | Current | Compatible With |
-|---------|---------|-----------------|
-| framer-motion | 11.x | React 16.8+, React 18, React 19 |
-| styled-components | 6.3.10 | React 16.3+, framer-motion |
-| Vite | 6.x | All above |
+### Provider Setup
+
+```typescript
+// src/main.tsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { Provider } from 'react-redux'
+import { store } from './store'
+import { hydrateStore } from './store/hydration'
+import App from './App'
+
+// Hydrate store before rendering
+await hydrateStore()
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>,
+)
+```
+
+### Component Usage Pattern
+
+```typescript
+// Before (useReducer)
+function TimerView() {
+  const { state, start, pause, setMode } = useTimer()
+  // ...
+}
+
+// After (Redux Toolkit)
+import { useAppSelector, useAppDispatch } from '../store/hooks'
+import { start, pause, setMode, selectTimer, selectIsRunning } from '../slices/timerSlice'
+
+function TimerView() {
+  const dispatch = useAppDispatch()
+  const timer = useAppSelector(selectTimer)
+  const isRunning = useAppSelector(selectIsRunning)
+
+  const handleStart = () => dispatch(start())
+  const handlePause = () => dispatch(pause())
+  const handleSetMode = (mode: TimerMode) => dispatch(setMode(mode))
+  // ...
+}
+```
+
+### Keeping Business Logic in Hooks
+
+Not all logic moves to Redux. Keep complex orchestration in hooks:
+
+```typescript
+// src/hooks/useTimerOrchestration.ts
+import { useEffect, useRef } from 'react'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { tick, skipSession, selectTimer, selectIsRunning } from '../slices/timerSlice'
+
+export function useTimerOrchestration(onComplete?: () => void) {
+  const dispatch = useAppDispatch()
+  const timer = useAppSelector(selectTimer)
+  const isRunning = useAppSelector(selectIsRunning)
+  const intervalRef = useRef<number | null>(null)
+  const previousTimeRef = useRef(timer.timeRemaining)
+
+  // Handle tick interval
+  useEffect(() => {
+    if (isRunning && timer.startTime) {
+      intervalRef.current = window.setInterval(() => {
+        dispatch(tick())
+      }, 1000)
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isRunning, timer.startTime, dispatch])
+
+  // Handle completion
+  useEffect(() => {
+    const wasRunning = previousTimeRef.current > 0
+    const isNowComplete = timer.timeRemaining === 0
+
+    if (wasRunning && isNowComplete) {
+      onComplete?.()
+      setTimeout(() => {
+        dispatch(skipSession())
+      }, 100)
+    }
+
+    previousTimeRef.current = timer.timeRemaining
+  }, [timer.timeRemaining, timer.mode, dispatch, onComplete])
+}
+```
 
 ---
 
-## Rationale Summary
+## What NOT to Add
 
-**Why no new styling library:**
-- styled-components is already in the stack and handles the aesthetic well
-- Google Keep look is achieved through design tokens, not new tools
+| Avoid | Why | Alternative |
+|-------|-----|-------------|
+| Redux Persist | Adds deps, less control than custom middleware | Custom persistence middleware (already have IndexedDB layer) |
+| RTK Query | No server state, IndexedDB is client-only | Keep existing IndexedDB service layer |
+| redux-thunk (standalone) | Included in RTK | Use `createAsyncThunk` or built-in thunk |
+| redux-devtools (standalone) | Included in RTK `configureStore` | Already enabled via `devTools: true` |
+| reselect (standalone) | Included in RTK | Import from `@reduxjs/toolkit` |
+| Immer (standalone) | Included in RTK | Mutative syntax in slices just works |
+| Multiple stores | Anti-pattern, breaks DevTools | Single store with slice composition |
+| Normalized state for sessions | Overkill for local app | Keep in IndexedDB, fetch as needed |
 
-**Why Framer Motion:**
-- Essential for the smooth, "alive" feel of Google apps
-- Cards lift on hover, modals fade in, lists reorder smoothly
-- Easy to add incrementally
+---
 
-**Why native backdrop-filter:**
-- Browser support is excellent (96%+)
-- No library overhead for simple blur effects
-- Works perfectly with styled-components
+## Migration Checklist
+
+### Phase 1: Setup
+- [ ] Install `@reduxjs/toolkit`, `react-redux`, `@types/react-redux`
+- [ ] Create `src/store/index.ts` with store configuration
+- [ ] Create `src/store/hooks.ts` with typed hooks
+- [ ] Create `src/store/middleware/persistence.ts`
+- [ ] Create `src/store/hydration.ts`
+- [ ] Add Provider to `main.tsx`
+
+### Phase 2: Slices (one at a time)
+- [ ] Create `settingsSlice` (simplest, no UI deps)
+- [ ] Create `timerSlice` (migrates useTimer reducer)
+- [ ] Create `notesSlice` (migrates useSessionNotes state)
+- [ ] Create `uiSlice` (migrates view/filter state)
+
+### Phase 3: Component Migration
+- [ ] Update TimerView to use Redux
+- [ ] Update Settings component
+- [ ] Update NoteEditor component
+- [ ] Update HistoryView filters
+
+### Phase 4: Cleanup
+- [ ] Remove useReducer from useTimer
+- [ ] Remove local state from useSessionNotes
+- [ ] Remove local state from useSessionHistory
+- [ ] Verify persistence still works
+- [ ] Verify DevTools integration
+
+---
+
+## Bundle Impact
+
+| Package | Size (gzipped) |
+|---------|----------------|
+| @reduxjs/toolkit | ~11KB |
+| react-redux | ~5KB |
+| **Total** | **~16KB** |
+
+**Removed:**
+- useReducer complexity (no size change, but simpler mental model)
 
 ---
 
 ## Sources
 
-- [Framer Motion Documentation](https://www.framer.com/motion/) — v11.x API reference
-- [Google Material Design 3 — Elevation](https://m3.material.io/foundations/elevation) — Shadow system principles
-- [MDN — backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter) — Native browser support
-- [Google Keep Design Analysis](https://material.io/design/material-studies/keeps-notes.html) — Card design reference
+- [Redux Toolkit TypeScript Usage Guide](https://redux-toolkit.js.org/usage/usage-with-typescript) — Official TypeScript patterns
+- [Redux Toolkit 2.0 Migration Guide](https://redux-toolkit.js.org/usage/migrating-rtk-2) — Breaking changes and new features
+- [React-Redux v9.2.0 Release](https://github.com/reduxjs/react-redux/releases/tag/v9.2.0) — React 18/19 compatibility
+- [npm @reduxjs/toolkit](https://www.npmjs.com/package/@reduxjs/toolkit) — v2.5.0 current
+- [npm react-redux](https://www.npmjs.com/package/react-redux) — v9.2.0 current
 
 ---
 
-*Research for: Pomodoro Timer UI Redesign (Google Keep/Calendar Aesthetic)*
+*Research for: Pomodoro Timer v2.1 Redux Toolkit Migration*
 *Researched: 2026-02-21*
