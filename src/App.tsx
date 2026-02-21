@@ -9,6 +9,7 @@ import SessionSummary from './components/SessionSummary'
 import { HistoryList } from './components/history/HistoryList'
 import { HistoryDrawer } from './components/history/HistoryDrawer'
 import { StatsGrid } from './components/stats/StatsGrid'
+import Sidebar from './components/Sidebar'
 import { useTimer } from './hooks/useTimer'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSessionNotes } from './hooks/useSessionNotes'
@@ -22,36 +23,52 @@ import { SessionRecord } from './types/session'
 import styled from 'styled-components'
 import { colors, radii, shadows, transitions } from './components/ui/theme'
 
-type ViewMode = 'timer' | 'history' | 'stats'
+type ViewMode = 'timer' | 'history' | 'stats' | 'settings'
 
-const TabBar = styled.div`
+const AppContainer = styled.div`
   display: flex;
-  gap: 0.25rem;
-  background: ${colors.surface};
-  padding: 0.25rem;
-  border-radius: ${radii.lg};
-  box-shadow: ${shadows.sm};
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
 `
 
-const Tab = styled.button<{ $active: boolean }>`
-  padding: 10px 20px;
-  border: none;
-  border-radius: ${radii.md};
-  background: ${props => props.$active ? colors.background : 'transparent'};
-  color: ${props => props.$active ? colors.text : colors.textMuted};
-  font-weight: ${props => props.$active ? '600' : '400'};
-  font-size: 0.9rem;
-  cursor: pointer;
-  box-shadow: ${props => props.$active ? shadows.md : 'none'};
-  transition: all ${transitions.normal};
+const MainContent = styled.main`
+  flex: 1;
+  margin-left: 240px;
+  background: #F8F9FA;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`
 
-  &:hover {
-    background: ${props => props.$active ? colors.background : colors.surface};
-  }
+const ContentArea = styled.div`
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+`
 
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+const TopBar = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  gap: 0.5rem;
+`
+
+const SettingsPlaceholder = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  color: ${colors.textMuted};
+
+  h2 {
+    color: ${colors.text};
+    margin-bottom: 8px;
   }
 `
 
@@ -275,127 +292,105 @@ function App() {
   })
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: viewMode === 'timer' ? 'center' : 'flex-start',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      padding: '0.5rem',
-    }}>
-      {/* Top right: Help and Settings */}
-      <div style={{
-        position: 'absolute',
-        top: '1rem',
-        right: '1rem',
-        display: 'flex',
-        gap: '0.5rem',
-      }}>
-        <HelpPanel />
-        <Settings
-          autoStart={autoStart}
-          onAutoStartChange={setAutoStart}
-          customDurations={customDurations || undefined}
-          onSaveDurations={handleSaveDurations}
-        />
-      </div>
+    <AppContainer>
+      <Sidebar activeView={viewMode} onViewChange={setViewMode} />
 
-      {/* Navigation tabs */}
-      <TabBar>
-        <Tab
-          $active={viewMode === 'timer'}
-          onClick={() => setViewMode('timer')}
-        >
-          Timer
-        </Tab>
-        <Tab
-          $active={viewMode === 'history'}
-          onClick={() => setViewMode('history')}
-        >
-          History
-        </Tab>
-        <Tab
-          $active={viewMode === 'stats'}
-          onClick={() => setViewMode('stats')}
-        >
-          Stats
-        </Tab>
-      </TabBar>
-
-      {/* Timer View */}
-      {viewMode === 'timer' && (
-        <>
-          <TimerDisplay
-            timeRemaining={state.timeRemaining}
-            mode={state.mode}
-            sessionCount={state.sessionCount}
-            isRunning={state.isRunning}
+      <MainContent>
+        {/* Top right: Help and Settings */}
+        <TopBar>
+          <HelpPanel />
+          <Settings
+            autoStart={autoStart}
+            onAutoStartChange={setAutoStart}
+            customDurations={customDurations || undefined}
+            onSaveDurations={handleSaveDurations}
           />
+        </TopBar>
 
-          <div style={{ marginTop: '1rem' }}>
-            <TimerControls
-              isRunning={state.isRunning}
-              startTime={state.startTime}
-              onStart={start}
-              onPause={pause}
-              onResume={resume}
-              onReset={reset}
-              onSkip={skip}
-              onSessionSkip={handleSessionSkip}
-              onSessionReset={handleSessionReset}
-            />
-          </div>
+        <ContentArea>
+          {/* Timer View */}
+          {viewMode === 'timer' && (
+            <>
+              <TimerDisplay
+                timeRemaining={state.timeRemaining}
+                mode={state.mode}
+                sessionCount={state.sessionCount}
+                isRunning={state.isRunning}
+              />
 
-          <NotePanel
-            isVisible={showNotePanel}
-            noteText={noteText}
-            onNoteChange={handleNoteChange}
-            saveStatus={saveStatus}
-            lastSaved={lastSaved}
-            maxLength={maxNoteLength}
-          />
+              <div style={{ marginTop: '1rem' }}>
+                <TimerControls
+                  isRunning={state.isRunning}
+                  startTime={state.startTime}
+                  onStart={start}
+                  onPause={pause}
+                  onResume={resume}
+                  onReset={reset}
+                  onSkip={skip}
+                  onSessionSkip={handleSessionSkip}
+                  onSessionReset={handleSessionReset}
+                />
+              </div>
 
-          <TagInput
-            isVisible={showNotePanel}
-            tags={tags}
-            suggestions={tagSuggestions}
-            onTagsChange={handleTagsChange}
-          />
-        </>
-      )}
+              <NotePanel
+                isVisible={showNotePanel}
+                noteText={noteText}
+                onNoteChange={handleNoteChange}
+                saveStatus={saveStatus}
+                lastSaved={lastSaved}
+                maxLength={maxNoteLength}
+              />
 
-      {/* History View */}
-      {viewMode === 'history' && (
-        <>
-          <div style={{ marginTop: '1.5rem', width: '100%' }}>
-            <HistoryList
-              sessions={sessions}
-              filteredSessions={filteredSessions}
-              dateFilter={dateFilter}
-              searchQuery={searchQuery}
-              isLoading={historyLoading}
-              onDateFilterChange={setDateFilter}
-              onSearchChange={setSearchQuery}
-              onSessionClick={handleSessionClick}
-            />
-          </div>
-          <HistoryDrawer
-            session={selectedSession}
-            isOpen={isDrawerOpen}
-            onClose={handleDrawerClose}
-            onDelete={handleSessionDelete}
-            onSave={refetch}
-          />
-        </>
-      )}
+              <TagInput
+                isVisible={showNotePanel}
+                tags={tags}
+                suggestions={tagSuggestions}
+                onTagsChange={handleTagsChange}
+              />
+            </>
+          )}
 
-      {/* Stats View */}
-      {viewMode === 'stats' && (
-        <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '600px' }}>
-          <StatsGrid dateFilter="7days" />
-        </div>
-      )}
+          {/* History View */}
+          {viewMode === 'history' && (
+            <>
+              <div style={{ width: '100%', maxWidth: '800px' }}>
+                <HistoryList
+                  sessions={sessions}
+                  filteredSessions={filteredSessions}
+                  dateFilter={dateFilter}
+                  searchQuery={searchQuery}
+                  isLoading={historyLoading}
+                  onDateFilterChange={setDateFilter}
+                  onSearchChange={setSearchQuery}
+                  onSessionClick={handleSessionClick}
+                />
+              </div>
+              <HistoryDrawer
+                session={selectedSession}
+                isOpen={isDrawerOpen}
+                onClose={handleDrawerClose}
+                onDelete={handleSessionDelete}
+                onSave={refetch}
+              />
+            </>
+          )}
+
+          {/* Stats View */}
+          {viewMode === 'stats' && (
+            <div style={{ width: '100%', maxWidth: '800px' }}>
+              <StatsGrid dateFilter="7days" />
+            </div>
+          )}
+
+          {/* Settings View */}
+          {viewMode === 'settings' && (
+            <SettingsPlaceholder>
+              <h2>Settings</h2>
+              <p>Use the settings button in the top bar to access timer settings.</p>
+            </SettingsPlaceholder>
+          )}
+        </ContentArea>
+      </MainContent>
 
       <SessionSummary
         isVisible={showSummary}
@@ -408,7 +403,7 @@ function App() {
           getTagSuggestions().then(setTagSuggestions)
         }}
       />
-    </div>
+    </AppContainer>
   )
 }
 
