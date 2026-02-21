@@ -150,6 +150,7 @@ function DurationInput({ label, value, onChange, min, max }: DurationInputProps)
 
 // Page container for settings view
 const PageContainer = styled.div`
+  position: relative;
   background: white;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -443,7 +444,7 @@ const ResetButton = styled.button`
 `
 
 const Toast = styled.div<{ $visible: boolean }>`
-  position: fixed;
+  position: absolute;
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(${props => props.$visible ? '0' : '20px'});
