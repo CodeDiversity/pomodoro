@@ -2,24 +2,29 @@
 
 ## What This Is
 
-A responsive Pomodoro timer web app with session notes, history tracking, and basic stats. Built with React 18 + TypeScript + Vite, using IndexedDB for persistence. Designed with dark mode aesthetic and tab-based navigation.
+A responsive Pomodoro timer web app with session notes, history tracking, and stats. Built with React 18 + TypeScript + Vite, using IndexedDB for persistence. Features a modern light-mode aesthetic with blue accents, sidebar navigation, and split-pane timer view.
 
 ## Core Value
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current Milestone: v2.0 UI Redesign
+## Current State: v2.0 Shipped
 
-**Goal:** Full redesign of entire app with Google Keep/Calendar aesthetic - clean, minimal, rounded corners, soft shadows.
+**Last Milestone:** v2.0 UI Redesign — SHIPPED 2026-02-21
 
-**Target features:**
-- Google Keep/Calendar visual style across all screens
-- Redesigned Timer screen with cleaner display and controls
-- Redesigned Notes section with integrated note panel
-- Redesigned History view with modern list and filters
-- Redesigned Stats dashboard
-- Redesigned Settings panel
-- Consistent design system (colors, shadows, border-radius, spacing)
+**What shipped:**
+- Custom timer durations with validation and persistence
+- Complete visual redesign with light mode and blue (#136dec) accents
+- Sidebar navigation replacing tab-based layout
+- Split-pane timer view with circular progress ring
+- Polished modal UX for Settings, Help, and Session Summary
+- Card-based history view with date grouping
+
+**Next Milestone Goals:**
+- v2.1 Performance optimizations
+- Additional stats visualizations (weekly charts, streaks)
+- Export functionality for session history
+- Sound customization options
 
 ## Requirements
 
@@ -41,14 +46,20 @@ A focused productivity timer that helps users track work sessions with notes, an
 - Audible alert on session end — v1.0
 - Browser notifications (if permitted) — v1.0
 - Timer state persistence across refreshes — v1.0
-- Customizable timer durations — v1.1
-- Preset duration options — v1.1
-- Custom duration input with validation — v1.1
-- UI Modernization (Phase 05.1) — v1.1
+- Customizable timer durations (1-60min focus, 1-30min short break, 1-60min long break) — v2.0
+- Settings UI with real-time validation — v2.0
+- Light mode aesthetic with blue accents — v2.0
+- Sidebar navigation — v2.0
+- Split-pane timer view with circular progress — v2.0
+- Modal-based Settings and Help — v2.0
+- Celebratory session completion UI — v2.0
 
 ### Active
 
-- [ ] v2.0 UI Redesign with Google Keep aesthetic
+- [ ] Weekly stats visualization (bar charts)
+- [ ] Daily streak counter
+- [ ] Export history as CSV
+- [ ] Custom notification sounds
 
 ### Out of Scope
 
@@ -59,19 +70,22 @@ A focused productivity timer that helps users track work sessions with notes, an
 | Drag-and-drop functionality | Not needed |
 | Mobile app | Web-only |
 | OAuth or third-party integrations | Not needed |
+| Sync across browser tabs | Not required |
+| Custom session count before long break | Keep fixed at 4 for simplicity |
 
 ## Context
 
 - Tech stack: React 18, TypeScript, Vite, styled-components
 - Persistence: IndexedDB with versioned schema
-- ~3,800 lines of code (TypeScript + CSS)
+- ~6,363 lines of TypeScript code
 - v1.0 shipped: 2026-02-19
+- v2.0 shipped: 2026-02-21
 
 ## Constraints
 
-- **Tech Stack**: React 18 + TypeScript + Vite — modern, fast dev experience
-- **Styling**: styled-components — minimal deps, component-scoped styles
-- **Persistence**: IndexedDB with versioned schema + migration stub
+- **Tech Stack**: React 18 + TypeScript + Vite
+- **Styling**: styled-components with centralized theme tokens
+- **Persistence**: IndexedDB with versioned schema
 - **State Management**: React hooks + useReducer for timer state
 - **Testing**: Vitest for pure function unit tests
 - **Validation**: Note max 2000 chars, max 10 tags, each max 20 chars (alphanumeric + dash)
@@ -81,16 +95,20 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Dark mode UI | User preference — coding environment feel | ✅ Shipped in v1.0 |
-| Tab-based navigation | Simple, familiar pattern | ✅ Shipped in v1.0 |
-| Gentle beep audio | Pleasant alert without jarring | ✅ Shipped in v1.0 |
-| useReducer for timer | Predictable state transitions | ✅ Shipped in v1.0 |
-| IndexedDB v1 schema | Simple versioning for future migrations | ✅ Shipped in v1.0 |
-| Timestamp-based timer | Accurate timing across refreshes | ✅ Shipped in v1.0 |
-| Slide-out drawer | Non-blocking history details | ✅ Shipped in v1.0 |
-| Standard duration bounds | Focus 1-60, Short Break 1-30, Long Break 1-60 | ✅ Shipped in v1.1 |
-| Google Keep aesthetic | Clean, minimal, rounded corners, soft shadows | — In Progress |
+| Dark mode UI | User preference — coding environment feel | ✅ v1.0, replaced in v2.0 |
+| Tab-based navigation | Simple, familiar pattern | ✅ v1.0, replaced by sidebar in v2.0 |
+| Gentle beep audio | Pleasant alert without jarring | ✅ v1.0, still active |
+| useReducer for timer | Predictable state transitions | ✅ v1.0, still active |
+| IndexedDB v1 schema | Simple versioning for migrations | ✅ v1.0, still active |
+| Timestamp-based timer | Accurate timing across refreshes | ✅ v1.0, still active |
+| Slide-out drawer | Non-blocking history details | ✅ v1.0, still active |
+| Standard duration bounds | Industry-standard pomodoro ranges | ✅ v2.0 |
+| Light mode with blue accents | Clean, professional aesthetic | ✅ v2.0 |
+| Sidebar navigation | Better space utilization | ✅ v2.0 |
+| Modal pattern for settings | Consistent UX, cleaner layout | ✅ v2.0 |
+| Circular progress ring | Visual appeal, clear progress indication | ✅ v2.0 |
+| Split-pane timer layout | Efficient use of screen real estate | ✅ v2.0 |
 
 ---
 
-*Last updated: 2026-02-21 after v2.0 milestone started*
+*Last updated: 2026-02-21 after v2.0 milestone completion*
