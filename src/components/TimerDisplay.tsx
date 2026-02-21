@@ -18,11 +18,11 @@ function formatTime(seconds: number): string {
 
 const DisplayContainer = styled.div<{ $backgroundColor: string }>`
   background-color: ${(props) => props.$backgroundColor};
-  padding: 3rem 4rem;
+  padding: 1.5rem 2.5rem;
   border-radius: 16px;
   text-align: center;
   color: white;
-  min-width: 320px;
+  min-width: 280px;
 `
 
 const ModeBadge = styled.div`
@@ -30,17 +30,17 @@ const ModeBadge = styled.div`
   padding: 0.5rem 1rem;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-size: 0.9rem;
   font-weight: 500;
 `
 
 const TimerText = styled.div`
-  font-size: 5rem;
+  font-size: 3.5rem;
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 `
 
 const SessionCounter = styled.div`
