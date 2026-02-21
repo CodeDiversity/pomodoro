@@ -218,9 +218,10 @@ interface HistoryDrawerProps {
   isOpen: boolean
   onClose: () => void
   onDelete: () => void
+  onSave?: () => void
 }
 
-export function HistoryDrawer({ session, isOpen, onClose, onDelete }: HistoryDrawerProps) {
+export function HistoryDrawer({ session, isOpen, onClose, onDelete, onSave }: HistoryDrawerProps) {
   const [noteText, setNoteText] = useState('')
   const [tagsInput, setTagsInput] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -250,6 +251,7 @@ export function HistoryDrawer({ session, isOpen, onClose, onDelete }: HistoryDra
               tags: newTags,
             }
             await saveSession(updatedSession)
+            onSave?.()
           } catch (error) {
             console.error('Failed to save session:', error)
           } finally {

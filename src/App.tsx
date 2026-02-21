@@ -378,6 +378,7 @@ function App() {
             isOpen={isDrawerOpen}
             onClose={handleDrawerClose}
             onDelete={handleSessionDelete}
+            onSave={refetch}
           />
         </>
       )}
