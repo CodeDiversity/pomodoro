@@ -1,19 +1,29 @@
 import { configureStore } from '@reduxjs/toolkit';
+import timerReducer from '../features/timer/timerSlice';
+import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 
 /**
  * Redux Store Configuration
  *
  * This is the central Redux store for the Pomodoro Timer application.
- * Currently initialized with an empty reducer object - slices will be added
- * incrementally in subsequent phases:
- * - Phase 8: timerSlice
+ * Configured with timer slice and persistence middleware:
+ * - Phase 8: timerSlice for timer state management
  * - Phase 9: uiSlice, sessionSlice
  * - Phase 10: historySlice
  * - Phase 11: settingsSlice
  */
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    timer: timerReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types (timestamps are numbers, not Date objects)
+        ignoredActions: ['timer/start', 'timer/resume'],
+      },
+    }).prepend(timerPersistenceMiddleware),
   // Redux DevTools are enabled automatically in development by configureStore
   // No additional configuration needed for default DevTools setup
 });
