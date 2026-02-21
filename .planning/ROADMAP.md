@@ -8,11 +8,11 @@
 ## Phases
 
 - [x] **Phase 5: Custom Durations Core** - Data layer, timer integration, Settings UI
-- [ ] **Phase 05.1: Modernize UI** - Design system and component modernization (INSERTED)
+- [x] **Phase 05.1: Modernize UI** - Design system and component modernization (INSERTED)
 - [ ] **Phase 6: Presets & Polish** - Presets, confirmation dialogs, reset to defaults
 
 **Phase 5 Status:** COMPLETE
-**Phase 05.1 Status:** IN PROGRESS
+**Phase 05.1 Status:** COMPLETE (2026-02-21)
 
 ---
 
@@ -76,7 +76,7 @@
 | Phase | Goal | Requirements | Success Criteria | Plans Complete | Status | Completed |
 |-------|------|--------------|------------------|----------------|--------|-----------|
 | 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
-| 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | In Progress | - |
+| 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | 3 criteria | 0/1 | Not started | - |
 
 ---
