@@ -241,6 +241,13 @@ function App() {
     }
   }, [state.mode, state.isRunning, state.duration, state.startTime])
 
+  // Refresh history when switching to history tab
+  useEffect(() => {
+    if (viewMode === 'history') {
+      refetch()
+    }
+  }, [viewMode, refetch])
+
   // Determine visibility (only during Focus mode)
   const showNotePanel = state.mode === 'focus'
 
