@@ -16,11 +16,20 @@ const TagsContainer = styled.div`
   margin-bottom: ${spacing.sm};
 `
 
+const TagsSectionLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: ${colors.textMuted};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+`
+
 const Pill = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
+  padding: 4px 10px 4px 12px;
   font-size: 0.85rem;
   font-weight: 500;
   color: #0066FF;
@@ -38,21 +47,23 @@ const RemoveButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   padding: 0;
-  margin-left: 6px;
-  font-size: 12px;
+  margin-left: 4px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1;
   color: #0066FF;
-  background: transparent;
+  background: rgba(0, 102, 255, 0.15);
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: background-color ${transitions.fast};
+  transition: all ${transitions.fast};
 
   &:hover {
-    background: rgba(0, 102, 255, 0.1);
+    background: rgba(0, 102, 255, 0.25);
+    color: #0052CC;
   }
 
   &:focus-visible {
@@ -180,10 +191,11 @@ export default function TagInput({
 
   return (
     <Container $isVisible={isVisible}>
+      <TagsSectionLabel>TAGS</TagsSectionLabel>
       <TagsContainer>
         {tags.map((tag, i) => (
           <Pill key={i}>
-            {tag}
+            #{tag}
             <RemoveButton onClick={() => removeTag(i)} aria-label={`Remove ${tag} tag`}>×</RemoveButton>
           </Pill>
         ))}
