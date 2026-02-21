@@ -6,25 +6,26 @@
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
-- **Current Phase:** 05
-- **Next Step:** Phase 6 - Presets & Polish
+- **Current Phase:** 05.1 (Design System)
+- **Next Step:** Plan 05.1-02 (Modernize buttons)
 
 ## Current Position
 
 | Attribute | Value |
 |-----------|-------|
 | Milestone | v1.1 Custom Durations |
-| Phase | 5 of 6 (Custom Durations Core) |
-| Plan | 1 of 1 (COMPLETED) |
-| Status | Phase complete |
+| Phase | 05.1 of 05.1 (UI Modernization) |
+| Plan | 01 of 04 (COMPLETED) |
+| Status | Plan complete |
 
-Progress: [██████████] 100%
+Progress: [██░░░░░░░░░] 10%
 
 ## v1.1 Phase Summary
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Plan complete |
+| 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | Complete |
+| 05.1 - UI Modernization | Modernize notes and buttons | N/A | In Progress |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | Pending |
 
 ---
@@ -34,7 +35,17 @@ Progress: [██████████] 100%
 - Used action-based approach for updating custom durations rather than direct state mutation
 - Applied custom durations on load only when different from defaults to avoid unnecessary resets
 
+### Phase 05.1 Decisions
+- Used styled-components for all UI components (consistent with existing codebase)
+- Kept existing red (#e74c3c) accent color from research findings
+- All interactive elements include focus-visible rings for accessibility
+- Components import from centralized theme.ts for consistency
+
 ---
+
+## Roadmap Evolution
+
+- Phase 05.1 inserted after Phase 5: Modernize notes and buttons for better UX and professional look (URGENT)
 
 ## Previous Milestone Context (v1.0)
 
@@ -58,6 +69,7 @@ Progress: [██████████] 100%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: Plan 05.1-01 completed - Design system foundation with shared UI components
 - 2026-02-21: Quick task 3 completed - Fix saved notes not showing on click
 - 2026-02-21: Quick task 2 completed - Fixed history tab refresh and added DB reset
 - 2026-02-20: Plan 05-02 completed - Settings UI with duration inputs and validation
@@ -74,6 +86,7 @@ Progress: [██████████] 100%
 | 3 | Fix saved notes not showing on click | 2026-02-21 | 5ef5b91 | [3-fix-saved-notes-not-showing-on-click](./quick/3-fix-saved-notes-not-showing-on-click/) |
 
 **Ready For:**
+- Plan 05.1-02 - Modernize buttons (replace inline buttons with shared Button component)
 - Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
 
 ---
