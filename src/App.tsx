@@ -40,11 +40,11 @@ const MainContent = styled.main`
 
 const ContentArea = styled.div`
   flex: 1;
-  padding: 0 24px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   overflow-y: auto;
   height: calc(100vh - 65px);
 `
