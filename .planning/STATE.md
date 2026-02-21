@@ -21,33 +21,33 @@
 
 ## Current Position
 
-**Phase:** 07-redux-foundation
+**Phase:** 08-timer-slice-migration
 **Current Plan:** 01 (Complete)
-**Next Plan:** 02 (if exists) or Phase 8
-**Status:** Plan 07-01 complete - Redux infrastructure ready
+**Next Plan:** Complete
+**Status:** Plan 08-01 complete - Timer migrated to Redux
 
-### Phase 7 Status
+### Phase 8 Status
 
-**Plan 07-01: COMPLETE**
+**Plan 08-01: COMPLETE**
 
-**Goal:** Core Redux infrastructure in place with DevTools integration and typed hooks
-
-**Requirements:** REDUX-01, REDUX-02 (2 requirements) - COMPLETE
+**Goal:** Migrate timer from useReducer to Redux Toolkit with custom persistence middleware
 
 **Success Criteria:**
-- [x] App renders with Redux Provider without errors
-- [x] Redux DevTools extension shows store state and actions
-- [x] Components can import and use useAppDispatch and useAppSelector with full TypeScript inference
-- [x] Store hot-reloads in development without losing state
+- [x] Timer slice created with all required Redux actions (start, pause, resume, tick, skip, reset, setMode, setCustomDurations, loadState)
+- [x] Custom persistence middleware implements 2000ms debouncing while running
+- [x] useTimer hook API remains unchanged (backward compatible)
+- [x] Timer accuracy preserved using timestamps, not tick counting
+- [x] Background tab visibility changes handled correctly
+- [x] TypeScript compiles and build succeeds
 
 ---
 
 ## Progress Bar
 
 ```
-Milestone v2.1: [██░░░░░░░░░░░░░░░░] 12%
+Milestone v2.1: [████░░░░░░░░░░░░░░░] 20%
 Phase 7:  [██████████] 100% - Redux Foundation (Plan 1 of 1 complete)
-Phase 8:  [░░░░░░░░░░] 0% - Timer Slice Migration
+Phase 8:  [██████████] 100% - Timer Slice Migration (Plan 1 of 1 complete)
 Phase 9:  [░░░░░░░░░░] 0% - UI + Session Slices
 Phase 10: [░░░░░░░░░░] 0% - History + Selectors
 Phase 11: [░░░░░░░░░░] 0% - Settings Modernization
@@ -69,12 +69,15 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export
 | 2026-02-21 | Maintain hook API compatibility | No component changes required during migration |
 | 2026-02-21 | Incremental slice migration | Lower risk, validates architecture early |
 | 2026-02-21 | RTK 2.0+ .withTypes<>() syntax | Modern typed hooks pattern, better type inference |
+| 2026-02-21 | Timestamp-based timer accuracy | Use Date.now() for tick calculation, not incrementing counter |
+| 2026-02-21 | Interval in hook (not middleware) | Simpler, more testable, easier to control lifecycle |
+| 2026-02-21 | Middleware handles persistence | Decouples persistence from UI logic, cleaner separation |
 
 ### Technical Debt
 
 | Item | Phase to Address | Notes |
 |------|------------------|-------|
-| useReducer timer logic | 8 | Will be replaced by timerSlice |
+| useReducer timer logic | 8 | COMPLETE - Replaced by timerSlice |
 | useState UI state in App.tsx | 9 | Will migrate to uiSlice |
 | Direct IndexedDB calls in hooks | 8-10 | Will move to thunks/middleware |
 
@@ -82,7 +85,7 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export
 
 | Question | Blocking | Next Step |
 |----------|----------|-----------|
-| Keep interval in hook or middleware? | No | Research recommends hook, validate in Phase 8 |
+| Keep interval in hook or middleware? | No | RESOLVED - Interval in hook (validated in Phase 8) |
 | Error handling for persistence failures? | No | Design UI during Phase 8 |
 | Note drafts: local state or Redux? | No | Decision needed in Phase 9 |
 
@@ -94,15 +97,15 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Session resumed
-**Resumed at:** 2026-02-21
-**Next Action:** Begin Phase 8 - Timer Slice Migration
+**Last Action:** Completed Phase 8 Plan 01 - Timer Slice Migration
+**Completed at:** 2026-02-21
+**Next Action:** Begin Phase 9 - UI + Session Slices
 
 ### Phase Queue
 
 1. Phase 7: Redux Foundation — COMPLETE (Plan 07-01 done)
-2. Phase 8: Timer Slice Migration — waiting on 7
-3. Phase 9: UI + Session Slices — waiting on 8
+2. Phase 8: Timer Slice Migration — COMPLETE (Plan 08-01 done)
+3. Phase 9: UI + Session Slices — next
 4. Phase 10: History + Selectors — waiting on 9
 5. Phase 11: Settings Modernization — waiting on 9
 6. Phase 12: Stats Visualization — waiting on 10
@@ -130,4 +133,4 @@ None currently.
 
 ---
 
-*Ready for: Phase 8 - Timer Slice Migration*
+*Ready for: Phase 9 - UI + Session Slices*
