@@ -54,6 +54,7 @@ Progress: [............] 0%
 ## Roadmap Evolution
 
 - Phase 05.1 inserted after Phase 5: Modernize notes and buttons for better UX and professional look (URGENT)
+- Phase 6 added: redesign
 
 ## Previous Milestone Context (v1.0)
 

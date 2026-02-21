@@ -8,17 +8,18 @@ A responsive Pomodoro timer web app with session notes, history tracking, and ba
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current Milestone: v1.1 Custom Durations
+## Current Milestone: v2.0 UI Redesign
 
-**Goal:** Allow users to customize timer durations to fit their personal workflow.
+**Goal:** Full redesign of entire app with Google Keep/Calendar aesthetic - clean, minimal, rounded corners, soft shadows.
 
 **Target features:**
-- Customizable Focus duration (1-60 minutes)
-- Customizable Short Break duration (1-30 minutes)
-- Customizable Long Break duration (1-60 minutes)
-- Preset duration options (e.g., 25/5/15, 50/10/30)
-- Custom input for manual duration entry
-- Persist settings in IndexedDB
+- Google Keep/Calendar visual style across all screens
+- Redesigned Timer screen with cleaner display and controls
+- Redesigned Notes section with integrated note panel
+- Redesigned History view with modern list and filters
+- Redesigned Stats dashboard
+- Redesigned Settings panel
+- Consistent design system (colors, shadows, border-radius, spacing)
 
 ## Requirements
 
@@ -40,12 +41,14 @@ A focused productivity timer that helps users track work sessions with notes, an
 - Audible alert on session end — v1.0
 - Browser notifications (if permitted) — v1.0
 - Timer state persistence across refreshes — v1.0
+- Customizable timer durations — v1.1
+- Preset duration options — v1.1
+- Custom duration input with validation — v1.1
+- UI Modernization (Phase 05.1) — v1.1
 
 ### Active
 
-- [ ] Customizable timer durations (Focus/Short Break/Long Break)
-- [ ] Preset duration options
-- [ ] Custom duration input with validation
+- [ ] v2.0 UI Redesign with Google Keep aesthetic
 
 ### Out of Scope
 
@@ -85,8 +88,9 @@ A focused productivity timer that helps users track work sessions with notes, an
 | IndexedDB v1 schema | Simple versioning for future migrations | ✅ Shipped in v1.0 |
 | Timestamp-based timer | Accurate timing across refreshes | ✅ Shipped in v1.0 |
 | Slide-out drawer | Non-blocking history details | ✅ Shipped in v1.0 |
-| Standard duration bounds | Focus 1-60, Short Break 1-30, Long Break 1-60 | — Pending |
+| Standard duration bounds | Focus 1-60, Short Break 1-30, Long Break 1-60 | ✅ Shipped in v1.1 |
+| Google Keep aesthetic | Clean, minimal, rounded corners, soft shadows | — In Progress |
 
 ---
 
-*Last updated: 2026-02-19 after v1.0 milestone*
+*Last updated: 2026-02-21 after v2.0 milestone started*

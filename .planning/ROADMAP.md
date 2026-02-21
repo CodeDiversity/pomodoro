@@ -78,6 +78,15 @@
 
 **Total:** 6/6 requirements implemented
 
+### Phase 6: redesign
+
+**Goal:** [To be planned]
+**Depends on:** Phase 5
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 6 to break down)
+
 ---
 
 *Roadmap for v1.1 Custom Durations*

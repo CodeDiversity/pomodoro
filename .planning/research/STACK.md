@@ -1,128 +1,291 @@
-# Stack Research
+# Stack Research: Google Keep/Calendar Aesthetic Styling
 
-**Domain:** Pomodoro Timer Web Application
-**Researched:** 2026-02-19
+**Domain:** CSS/Styling Additions for UI Redesign
+**Researched:** 2026-02-21
 **Confidence:** HIGH
 
-## Recommended Stack
+## Summary
 
-### Core Technologies
+The current stack (React 18 + styled-components 6.x) is sufficient for the Google Keep/Calendar aesthetic. No new styling libraries are required. The key is enhancing the existing theme system with:
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| React | 19.x (or 18.3.x LTS) | UI Framework | Current stable (19.2.4 released Jan 2026). React 18 is also fully supported and widely used. Use 19.x for new projects, 18.3.x if stability is priority. |
-| TypeScript | 5.x | Type Safety | Standard for React projects. Provides excellent IDE support and catches errors at compile time. |
-| Vite | 7.x | Build Tool | Latest stable (v7.3.1). Native ES modules, instant server start, optimized builds. Industry standard for React in 2025/2026. |
-| localStorage | Browser API | Persistence | No backend required. Sufficient for session notes, history, timer settings. Simple key-value storage. |
+1. **Layered shadow system** for realistic elevation
+2. **Motion library** for smooth interactions
+3. **CSS backdrop-filter** for glassmorphism (native, no library needed)
 
-### Supporting Libraries
+---
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| styled-components | 6.x | CSS-in-JS Styling | Latest stable (v6.3.10). Full React 18/19 support. Theme provider for dark mode. Server-side rendering support if needed later. |
-| Vitest | 4.x | Unit Testing | Latest stable (v4.0.17). Vite-native testing framework. Zero-config with Vite. Fast execution. |
+## Recommended Additions
 
-### Development Tools
+### 1. Motion Library: Framer Motion
 
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| ESLint + Prettier | Code Quality | Standard linting and formatting for TypeScript/React. Use `@typescript-eslint/eslint-plugin` and `eslint-config-prettier`. |
-| @types/react | TypeScript Types | Official type definitions. Required for TypeScript support. |
-| @types/react-dom | TypeScript Types | Required if using React DOM rendering. |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| framer-motion | 11.x | Animation library | Industry standard for React animations. Provides smooth layout transitions, card hover effects, and gesture-based interactions that define the Google aesthetic. |
+
+**Why Framer Motion for Google aesthetic:**
+- Google Keep cards have smooth scale/shadow transitions on hover
+- Calendar events animate when resizing/moving
+- Layout animations when cards reorder (masonry effect)
+- Shared element transitions between views
+
+```bash
+npm install framer-motion
+```
+
+**Use Cases:**
+- Card hover: `scale(1.02)` with shadow elevation change
+- Page transitions: Fade + slide for modal/drawer
+- List reordering: Smooth FLIP animations
+- Button press: Subtle scale feedback
+
+---
+
+### 2. No New Styling Library Needed
+
+The existing **styled-components 6.x** is fully capable. The aesthetic is achieved through:
+
+| Technique | Implementation | Google Keep Reference |
+|-----------|----------------|----------------------|
+| **Layered shadows** | Multiple box-shadows with increasing blur | Cards float with soft, diffused shadows |
+| **Elevation system** | 4-6 shadow levels (flat, hover, raised, modal) | Floating action button vs flat cards |
+| **Larger border-radius** | 12px-16px for cards, 24px for buttons | Rounded, friendly appearance |
+| **Backdrop blur** | Native CSS `backdrop-filter: blur()` | Modal overlays, search bar |
+| **Micro-interactions** | Scale, shadow, color on hover/focus | Button feedback, card lift |
+
+---
+
+## Enhanced Theme Tokens
+
+Add these to `/src/components/ui/theme.ts`:
+
+### Shadow System (Layered)
+
+```typescript
+export const shadows = {
+  // Flat - no shadow, just border
+  flat: 'none',
+  // Subtle - for content on surface
+  subtle: '0 1px 2px rgba(0,0,0,0.05)',
+  // Low - cards at rest (Google Keep default)
+  low: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+  // Medium - cards elevated on hover
+  medium: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+  // High - modals, dropdowns
+  high: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+  // Highest - dialogs, sidebars
+  highest: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+} as const;
+```
+
+### Border Radius Expansion
+
+```typescript
+export const radii = {
+  sm: '4px',
+  md: '8px',
+  lg: '12px',      // Increased from 12px
+  xl: '16px',      // Cards
+  full: '9999px',  // Pills, FAB
+} as const;
+```
+
+### Color Palette Adjustments
+
+```typescript
+export const colors = {
+  // Keep the existing but add:
+  surfaceElevated: '#ffffff',     // Cards stand out from background
+  backdrop: 'rgba(255,255,255,0.72)', // Glassmorphism base
+  // Shadow tints for colored cards (if needed)
+  shadowTint: 'rgba(0,0,0,0.15)',
+} as const;
+```
+
+---
+
+## CSS Techniques for Google Aesthetic
+
+### 1. Card Effect (Native CSS)
+
+```css
+/* Google Keep card - no border, shadow only */
+.keep-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition: all 0.2s ease;
+}
+
+.keep-card:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  transform: translateY(-2px);
+}
+```
+
+### 2. Glassmorphism (Native CSS)
+
+```css
+/* Modal backdrop */
+.glass-overlay {
+  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.72);
+}
+
+/* Search bar */
+.search-bar {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.9);
+}
+```
+
+### 3. FAB (Floating Action Button)
+
+```css
+.fab {
+  border-radius: 16px;  /* More rounded */
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2), 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.fab:hover {
+  box-shadow: 0 6px 10px rgba(0,0,0,0.2), 0 8px 25px rgba(0,0,0,0.15);
+}
+```
+
+---
+
+## Migration Pattern
+
+### Phase 1: Theme Updates (No new dependencies)
+
+1. Update `theme.ts` with enhanced shadows and radii
+2. Replace all `border` usage on cards with shadows only
+3. Increase border-radius on cards and buttons
+
+### Phase 2: Motion Integration
+
+1. Install `framer-motion`
+2. Add hover animations to cards
+3. Add page transition to modals/drawers
+
+### Phase 3: Polish
+
+1. Add backdrop-filter to overlays
+2. Fine-tune shadow values
+3. Add micro-interactions to buttons
+
+---
 
 ## Installation
 
 ```bash
-# Core - Create Vite project with React TypeScript
-npm create vite@latest pomodoro-timer -- --template react-ts
+# Add motion library
+npm install framer-motion
 
-# Core dependencies
-npm install react react-dom
-
-# Supporting libraries
-npm install styled-components
-
-# Dev dependencies
-npm install -D typescript @types/react @types/react-dom vite
-npm install -D vitest @testing-library/react @testing-library/jest-dom
-npm install -D eslint @typescript-eslint/eslint-plugin eslint-plugin-react-hooks
+# Optional: If you want typed variants
+npm install -D @types/framer-motion
 ```
-
-## Alternatives Considered
-
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| React + Vite | Next.js | If you need SSR, routing, or API routes in the future. Overkill for a simple Pomodoro app. |
-| styled-components | CSS Modules + CSS Variables | If team prefers no runtime overhead or is concerned about styled-components runtime cost. |
-| styled-components | Tailwind CSS | If rapid prototyping is priority. However, styled-components provides better theming for dark mode. |
-| Vitest | Jest | Vitest is now the standard for Vite projects. Jest requires more configuration. |
-| localStorage | IndexedDB | If storing large amounts of historical session data. localStorage is sufficient for typical usage. |
-
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| Create React App (CRA) | Deprecated, slow builds, no longer maintained | Vite (standard now) |
-| Class components | Hooks are standard in React 16.8+ | Functional components with hooks |
-| Enzyme | Deprecated, not compatible with React 18+ | React Testing Library |
-| Redux (full) | Overkill for localStorage-based state | React Context + useState/useReducer |
-| jQuery | Unnecessary in React ecosystem | React components |
-
-## Stack Patterns by Variant
-
-**If you need offline support:**
-- Add Service Worker via Vite PWA plugin
-- Use IndexedDB (via idb library) for larger data
-
-**If you need mobile app:**
-- Consider React Native or Capacitor.js
-- The same React + TypeScript + styled-components stack transfers well
-
-**If you need cloud sync later:**
-- Add Supabase or Firebase
-- Keep localStorage as offline cache
-- Architecture supports this addition
-
-## Version Compatibility
-
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| Vite 7.x | React 18.x, React 19.x | Works with both versions |
-| Vitest 4.x | Vite 5.x, 6.x, 7.x | Full Vite compatibility |
-| styled-components 6.x | React 16.3+, React 18, React 19 | Full modern React support |
-| TypeScript 5.x | React 18+, Vite 5+ | Standard compatibility |
-
-## Rationale Summary
-
-**Why React + Vite + TypeScript:**
-- Industry standard in 2025/2026 for web apps
-- Vite provides excellent DX (fast dev server, instant HMR)
-- TypeScript catches bugs early, especially valuable for timer logic
-
-**Why styled-components:**
-- Theming support built-in (perfect for dark mode toggle)
-- Scoped styles by default
-- Dynamic styling based on props (timer state, theme)
-
-**Why localStorage:**
-- No backend needed for MVP
-- Synchronous API is simple for small data
-- Persists across sessions
-
-**Why Vitest:**
-- Native Vite integration, zero config
-- Compatible with Jest syntax (easy migration)
-- Faster than Jest
-
-## Sources
-
-- [Vite Official Site](https://vite.dev/) — Confirmed v7.3.1 as latest stable
-- [Vitest Official Site](https://vitest.dev/) — Confirmed v4.0.17 as latest stable
-- [styled-components GitHub](https://github.com/styled-components/styled-components) — Confirmed v6.3.10 as latest stable (Feb 2026)
-- [React GitHub](https://github.com/facebook/react) — Confirmed React 19.2.4 as latest stable (Jan 2026)
-- [Vite GitHub](https://github.com/vitejs/vite) — Confirmed create-vite@8.3.0 (Feb 2026)
 
 ---
 
-*Stack research for: Pomodoro Timer Web Application*
-*Researched: 2026-02-19*
+## Alternatives Considered
+
+| Recommended | Alternative | Why Not |
+|-------------|-------------|---------|
+| Native CSS backdrop-filter | blurhash or react-blur | Native CSS is well-supported (2024+) |
+| Framer Motion | react-spring | Framer Motion has better React 18/19 support and easier API |
+| styled-components | Emotion | Same runtime, styled-components has better theme provider |
+
+---
+
+## Component Examples
+
+### Keep-Style Card Component
+
+```typescript
+import styled from 'styled-components';
+import { motion } from 'framer-motion';
+import { shadows, radii, spacing } from './theme';
+
+const KeepCard = styled(motion.div)`
+  background: white;
+  border-radius: ${radii.lg};
+  padding: ${spacing.lg};
+  box-shadow: ${shadows.low};
+  cursor: pointer;
+`;
+
+export function SessionCard({ children, onClick }) {
+  return (
+    <KeepCard
+      whileHover={{
+        scale: 1.02,
+        boxShadow: shadows.medium,
+        y: -2
+      }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
+    >
+      {children}
+    </KeepCard>
+  );
+}
+```
+
+### Keep-Style Input
+
+```typescript
+const KeepInput = styled.input`
+  background: transparent;
+  border: none;
+  border-radius: ${radii.lg};
+  padding: ${spacing.md} ${spacing.lg};
+  box-shadow: ${shadows.subtle};
+
+  &:focus {
+    box-shadow: ${shadows.low}, 0 0 0 2px rgba(66, 133, 244, 0.5);
+  }
+`;
+```
+
+---
+
+## Version Compatibility
+
+| Package | Current | Compatible With |
+|---------|---------|-----------------|
+| framer-motion | 11.x | React 16.8+, React 18, React 19 |
+| styled-components | 6.3.10 | React 16.3+, framer-motion |
+| Vite | 6.x | All above |
+
+---
+
+## Rationale Summary
+
+**Why no new styling library:**
+- styled-components is already in the stack and handles the aesthetic well
+- Google Keep look is achieved through design tokens, not new tools
+
+**Why Framer Motion:**
+- Essential for the smooth, "alive" feel of Google apps
+- Cards lift on hover, modals fade in, lists reorder smoothly
+- Easy to add incrementally
+
+**Why native backdrop-filter:**
+- Browser support is excellent (96%+)
+- No library overhead for simple blur effects
+- Works perfectly with styled-components
+
+---
+
+## Sources
+
+- [Framer Motion Documentation](https://www.framer.com/motion/) — v11.x API reference
+- [Google Material Design 3 — Elevation](https://m3.material.io/foundations/elevation) — Shadow system principles
+- [MDN — backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter) — Native browser support
+- [Google Keep Design Analysis](https://material.io/design/material-studies/keeps-notes.html) — Card design reference
+
+---
+
+*Research for: Pomodoro Timer UI Redesign (Google Keep/Calendar Aesthetic)*
+*Researched: 2026-02-21*
