@@ -3,16 +3,20 @@
  */
 
 export const colors = {
-  primary: '#e74c3c',
-  primaryHover: '#c0392b',
+  primary: '#0066FF',
+  primaryHover: '#0052CC',
   secondary: '#333333',
-  background: '#ffffff',
-  surface: '#fafafa',
-  border: '#e0e0e0',
-  text: '#333333',
+  background: '#FFFFFF',
+  surface: '#F5F5F5',
+  border: '#E0E0E0',
+  text: '#1A1A1A',
   textMuted: '#666666',
   success: '#27ae60',
-  error: '#e53e3e',
+  error: '#DC2626',
+  sidebarBg: '#FFFFFF',
+  sidebarBorder: '#E8E8E8',
+  sidebarActive: '#F0F7FF',
+  sidebarActiveText: '#0066FF',
 } as const;
 
 export const radii = {
