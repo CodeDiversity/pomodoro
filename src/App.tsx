@@ -3,7 +3,6 @@ import TimerDisplay from './components/TimerDisplay'
 import TimerControls from './components/TimerControls'
 import Settings from './components/Settings'
 import NotePanel from './components/NotePanel'
-import TagInput from './components/TagInput'
 import SessionSummary from './components/SessionSummary'
 import { HistoryList } from './components/history/HistoryList'
 import { HistoryDrawer } from './components/history/HistoryDrawer'
@@ -20,7 +19,7 @@ import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 
 import styled from 'styled-components'
-import { colors, transitions } from './components/ui/theme'
+import { transitions } from './components/ui/theme'
 
 type ViewMode = 'timer' | 'history' | 'stats' | 'settings'
 
@@ -154,50 +153,9 @@ const RightPane = styled.div`
   flex: 0 0 420px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
   height: 100%;
-  padding: 24px;
   background: white;
-  border-left: 1px solid #E8E8E8;
-`
-
-const CompleteSessionButton = styled.button`
-  width: 100%;
-  padding: 12px;
-  background-color: #1A1A1A;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color ${transitions.fast};
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  &:hover {
-    background-color: #333;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${colors.primary};
-    outline-offset: 2px;
-  }
-`
-
-const ProTipCard = styled.div`
-  background: #F0F7FF;
-  border-left: 3px solid #0066FF;
-  padding: 12px 16px;
-  border-radius: 0 8px 8px 0;
-  font-size: 0.85rem;
-  color: #333;
-  line-height: 1.5;
-  margin-top: auto;
-  margin-bottom: 16px;
+  border-left: 1px solid #e2e8f0;
 `
 
 function App() {
@@ -297,7 +255,6 @@ function App() {
     tags,
     saveStatus,
     lastSaved,
-    maxNoteLength,
     handleNoteChange,
     handleTagsChange,
     resetNotes,
@@ -474,28 +431,11 @@ function App() {
                     isVisible={showNotePanel}
                     noteText={noteText}
                     onNoteChange={handleNoteChange}
-                    saveStatus={saveStatus}
-                    lastSaved={lastSaved}
-                    maxLength={maxNoteLength}
-                  />
-
-                  <TagInput
-                    isVisible={showNotePanel}
                     tags={tags}
                     suggestions={tagSuggestions}
                     onTagsChange={handleTagsChange}
+                    onCompleteSession={handleSessionSkip}
                   />
-
-                  <ProTipCard>
-                    <strong>Pro Tip:</strong> Take a moment to jot down what you accomplished before ending your session.
-                  </ProTipCard>
-
-                  <CompleteSessionButton onClick={handleSessionSkip}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Complete Session
-                  </CompleteSessionButton>
                 </RightPane>
               )}
             </SplitPaneContainer>

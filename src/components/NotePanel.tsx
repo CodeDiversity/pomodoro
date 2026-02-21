@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import styled from 'styled-components'
 import { colors, transitions } from './ui/theme'
+
+const TAG_REGEX = /^[a-zA-Z0-9-]{1,20}$/
+const MAX_TAGS = 10
 
 const Panel = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'flex' : 'none'};
@@ -149,6 +152,7 @@ const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
 `
 
 const Tag = styled.span`
@@ -199,6 +203,46 @@ const AddTagButton = styled.button`
   &:hover {
     border-color: #136dec;
     color: #136dec;
+  }
+`
+
+const TagInput = styled.input`
+  width: 80px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #136dec;
+  }
+`
+
+const SuggestionsList = styled.ul`
+  position: absolute;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 4px 0;
+  margin: 4px 0 0 0;
+  max-height: 120px;
+  overflow-y: auto;
+  z-index: 10;
+  min-width: 100px;
+`
+
+const SuggestionItem = styled.li`
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color ${transitions.fast};
+
+  &:hover {
+    background: #f1f5f9;
   }
 `
 
@@ -261,9 +305,10 @@ interface NotePanelProps {
   isVisible: boolean
   noteText: string
   onNoteChange: (text: string) => void
-  saveStatus: 'idle' | 'saving' | 'saved'
-  lastSaved: number | null
-  maxLength: number
+  tags: string[]
+  suggestions: string[]
+  onTagsChange: (tags: string[]) => void
+  onCompleteSession: () => void
 }
 
 // Icons
@@ -333,8 +378,51 @@ export default function NotePanel({
   isVisible,
   noteText,
   onNoteChange,
+  tags,
+  suggestions,
+  onTagsChange,
+  onCompleteSession,
 }: NotePanelProps) {
   const [taskInput, setTaskInput] = useState('')
+  const [tagInput, setTagInput] = useState('')
+  const [showTagInput, setShowTagInput] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const tagInputRef = useRef<HTMLInputElement>(null)
+
+  const filteredSuggestions = suggestions
+    .filter(s => !tags.includes(s))
+    .filter(s => s.toLowerCase().includes(tagInput.toLowerCase()))
+    .slice(0, 5)
+
+  const addTag = (value: string) => {
+    const tag = value.trim().toLowerCase()
+    if (TAG_REGEX.test(tag) && tags.length < MAX_TAGS && !tags.includes(tag)) {
+      onTagsChange([...tags, tag])
+      setTagInput('')
+      setShowTagInput(false)
+      setShowSuggestions(false)
+    }
+  }
+
+  const removeTag = (index: number) => {
+    onTagsChange(tags.filter((_, i) => i !== index))
+  }
+
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (tagInput) addTag(tagInput)
+    }
+    if (e.key === 'Escape') {
+      setShowTagInput(false)
+      setTagInput('')
+    }
+  }
+
+  const handleAddTagClick = () => {
+    setShowTagInput(true)
+    setTimeout(() => tagInputRef.current?.focus(), 0)
+  }
 
   return (
     <Panel $isVisible={isVisible}>
@@ -382,15 +470,48 @@ export default function NotePanel({
         <Section>
           <SectionLabel>Tags</SectionLabel>
           <TagsContainer>
-            <Tag>
-              #Work <TagRemoveButton><CloseIcon /></TagRemoveButton>
-            </Tag>
-            <Tag>
-              #Design <TagRemoveButton><CloseIcon /></TagRemoveButton>
-            </Tag>
-            <AddTagButton>
-              <AddIcon /> Add Tag
-            </AddTagButton>
+            {tags.map((tag, i) => (
+              <Tag key={i}>
+                #{tag} <TagRemoveButton onClick={() => removeTag(i)} aria-label={`Remove ${tag} tag`}><CloseIcon /></TagRemoveButton>
+              </Tag>
+            ))}
+            {showTagInput ? (
+              <div style={{ position: 'relative' }}>
+                <TagInput
+                  ref={tagInputRef}
+                  value={tagInput}
+                  onChange={(e) => {
+                    setTagInput(e.target.value)
+                    setShowSuggestions(true)
+                  }}
+                  onKeyDown={handleTagKeyDown}
+                  onBlur={() => setTimeout(() => {
+                    setShowTagInput(false)
+                    setShowSuggestions(false)
+                    setTagInput('')
+                  }, 200)}
+                  placeholder="tag"
+                />
+                {tagInput && showSuggestions && filteredSuggestions.length > 0 && (
+                  <SuggestionsList>
+                    {filteredSuggestions.map(s => (
+                      <SuggestionItem
+                        key={s}
+                        onClick={() => addTag(s)}
+                      >
+                        {s}
+                      </SuggestionItem>
+                    ))}
+                  </SuggestionsList>
+                )}
+              </div>
+            ) : (
+              tags.length < MAX_TAGS && (
+                <AddTagButton onClick={handleAddTagClick}>
+                  <AddIcon /> Add Tag
+                </AddTagButton>
+              )
+            )}
           </TagsContainer>
         </Section>
 
@@ -403,7 +524,7 @@ export default function NotePanel({
         </ProTipCard>
       </PanelContent>
 
-      <CompleteButton>
+      <CompleteButton onClick={onCompleteSession}>
         <CheckCircleIcon />
         Complete Session
       </CompleteButton>
