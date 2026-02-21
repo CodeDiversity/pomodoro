@@ -1,103 +1,110 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { colors, transitions, spacing } from './ui/theme'
+import { colors, transitions } from './ui/theme'
 
 const Panel = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'flex' : 'none'};
   flex-direction: column;
   background: white;
-  border: 1px solid #E8E8E8;
-  border-radius: 12px;
-  padding: 24px;
-  gap: 16px;
-  flex: 1;
+  height: 100%;
 `
 
-const Header = styled.div`
+const PanelHeader = styled.div`
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e2e8f0;
+`
+
+const Title = styled.h2`
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: ${colors.text};
+  margin: 0 0 4px 0;
+`
+
+const Subtitle = styled.p`
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+`
+
+const PanelContent = styled.div`
+  flex: 1;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 24px;
+  overflow-y: auto;
 `
 
-const HeaderTitle = styled.div`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: ${colors.text};
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `
 
-const HeaderSubtitle = styled.div`
-  font-size: 0.85rem;
-  color: ${colors.textMuted};
+const SectionLabel = styled.label`
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #94a3b8;
 `
 
 const TaskInputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`
-
-const TaskInputWrapper = styled.div`
   position: relative;
-  display: flex;
-  align-items: center;
-`
-
-const Label = styled.label`
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: ${colors.textMuted};
-`
-
-const TaskInputIcon = styled.div`
-  position: absolute;
-  left: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${colors.textMuted};
-  pointer-events: none;
 `
 
 const TaskInput = styled.input`
   width: 100%;
-  padding: 12px 12px 12px 40px;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  padding: 12px 12px 12px 44px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.9rem;
   font-family: inherit;
   box-sizing: border-box;
+  background: #f8fafc;
   transition: border-color ${transitions.fast}, box-shadow ${transitions.fast};
 
   &::placeholder {
-    color: #999;
+    color: #94a3b8;
   }
 
   &:focus {
     outline: none;
-    border-color: #0066FF;
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    border-color: #136dec;
+    box-shadow: 0 0 0 3px rgba(19, 109, 236, 0.1);
   }
 `
 
-const SessionNotesLabel = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: ${colors.textMuted};
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
+const InputIcon = styled.span`
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const NotesContainer = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
 `
 
 const Toolbar = styled.div`
   display: flex;
-  gap: 4px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #F0F0F0;
+  gap: 1px;
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
 `
 
 const ToolbarButton = styled.button`
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,10 +112,11 @@ const ToolbarButton = styled.button`
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  color: #64748b;
   transition: background-color ${transitions.fast};
 
   &:hover {
-    background-color: #F5F5F5;
+    background-color: #f1f5f9;
   }
 
   &:focus-visible {
@@ -117,53 +125,136 @@ const ToolbarButton = styled.button`
   }
 `
 
-const TextAreaContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-`
-
 const TextArea = styled.textarea`
   width: 100%;
-  flex: 1;
-  min-height: 120px;
+  min-height: 160px;
   padding: 16px;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
+  border: none;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   resize: none;
   box-sizing: border-box;
-  transition: border-color ${transitions.fast};
+  background: transparent;
 
   &::placeholder {
-    color: #999;
+    color: #94a3b8;
   }
 
   &:focus {
     outline: none;
-    border-color: #0066FF;
   }
 `
 
-const StatusRow = styled.div`
+const TagsContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+`
+
+const Tag = styled.span`
+  display: inline-flex;
   align-items: center;
-  gap: ${spacing.md};
+  gap: 4px;
+  padding: 4px 12px;
   font-size: 0.75rem;
-  color: ${colors.textMuted};
+  font-weight: 600;
+  color: #136dec;
+  background: rgba(19, 109, 236, 0.1);
+  border-radius: 9999px;
 `
 
-const SaveStatus = styled.span<{ $saving: boolean }>`
-  color: ${props => props.$saving ? '#e67e22' : '#27ae60'};
-  transition: color ${transitions.fast};
+const TagRemoveButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  font-size: 10px;
+  color: #136dec;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
 `
 
-const CharCounter = styled.span`
-  color: ${colors.textMuted};
-  font-variant-numeric: tabular-nums;
+const AddTagButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: 1px dashed #cbd5e1;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all ${transitions.fast};
+
+  &:hover {
+    border-color: #136dec;
+    color: #136dec;
+  }
+`
+
+const ProTipCard = styled.div`
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(19, 109, 236, 0.05);
+  border: 1px solid rgba(19, 109, 236, 0.1);
+`
+
+const ProTipHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+`
+
+const ProTipTitle = styled.p`
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #136dec;
+  margin: 0;
+`
+
+const ProTipText = styled.p`
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+`
+
+const CompleteButton = styled.button`
+  width: calc(100% - 48px);
+  margin: 0 24px 24px;
+  padding: 16px;
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity ${transitions.fast};
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
+  }
 `
 
 interface NotePanelProps {
@@ -175,24 +266,23 @@ interface NotePanelProps {
   maxLength: number
 }
 
-// Task Icon
-const TaskIcon = () => (
+// Icons
+const EditIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 11l3 3L22 4" />
-    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
   </svg>
 )
 
-// Toolbar Icons
 const BoldIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
     <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
   </svg>
 )
 
 const ListIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="8" y1="6" x2="21" y2="6" />
     <line x1="8" y1="12" x2="21" y2="12" />
     <line x1="8" y1="18" x2="21" y2="18" />
@@ -203,9 +293,39 @@ const ListIcon = () => (
 )
 
 const LinkIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+  </svg>
+)
+
+const LightbulbIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#136dec" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18h6"/>
+    <path d="M10 22h4"/>
+    <path d="M12 2v1"/>
+    <path d="M12 7a5 5 0 0 1 5 5c0 2-1 3-2 4l-1 2H9l-1-2c-1-1-2-2-2-4a5 5 0 0 1 5-5z"/>
+  </svg>
+)
+
+const CheckCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22 4 12 14.01 9 11.01"/>
+  </svg>
+)
+
+const CloseIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
+const AddIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
   </svg>
 )
 
@@ -213,67 +333,80 @@ export default function NotePanel({
   isVisible,
   noteText,
   onNoteChange,
-  saveStatus,
-  lastSaved,
-  maxLength,
 }: NotePanelProps) {
   const [taskInput, setTaskInput] = useState('')
 
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
-
   return (
     <Panel $isVisible={isVisible}>
-      <Header>
-        <HeaderTitle>Active Session</HeaderTitle>
-        <HeaderSubtitle>Configure your current focus task</HeaderSubtitle>
-      </Header>
+      <PanelHeader>
+        <Title>Active Session</Title>
+        <Subtitle>Configure your current focus task</Subtitle>
+      </PanelHeader>
 
-      <TaskInputContainer>
-        <Label>What are you working on?</Label>
-        <TaskInputWrapper>
-          <TaskInputIcon>
-            <TaskIcon />
-          </TaskInputIcon>
-          <TaskInput
-            type="text"
-            value={taskInput}
-            onChange={(e) => setTaskInput(e.target.value)}
-            placeholder="What are you working on?"
-          />
-        </TaskInputWrapper>
-      </TaskInputContainer>
+      <PanelContent>
+        <Section>
+          <SectionLabel>Current Task</SectionLabel>
+          <TaskInputContainer>
+            <InputIcon><EditIcon /></InputIcon>
+            <TaskInput
+              type="text"
+              value={taskInput}
+              onChange={(e) => setTaskInput(e.target.value)}
+              placeholder="What are you working on?"
+            />
+          </TaskInputContainer>
+        </Section>
 
-      <SessionNotesLabel>SESSION NOTES</SessionNotesLabel>
-      <Toolbar>
-        <ToolbarButton aria-label="Bold" title="Bold">
-          <BoldIcon />
-        </ToolbarButton>
-        <ToolbarButton aria-label="List" title="List">
-          <ListIcon />
-        </ToolbarButton>
-        <ToolbarButton aria-label="Link" title="Link">
-          <LinkIcon />
-        </ToolbarButton>
-      </Toolbar>
+        <Section>
+          <SectionLabel>Session Notes</SectionLabel>
+          <NotesContainer>
+            <Toolbar>
+              <ToolbarButton aria-label="Bold" title="Bold">
+                <BoldIcon />
+              </ToolbarButton>
+              <ToolbarButton aria-label="List" title="List">
+                <ListIcon />
+              </ToolbarButton>
+              <ToolbarButton aria-label="Link" title="Link">
+                <LinkIcon />
+              </ToolbarButton>
+            </Toolbar>
+            <TextArea
+              value={noteText}
+              onChange={(e) => onNoteChange(e.target.value)}
+              placeholder="Brainstorming key UI components..."
+            />
+          </NotesContainer>
+        </Section>
 
-      <TextAreaContainer>
-        <TextArea
-          value={noteText}
-          onChange={(e) => onNoteChange(e.target.value)}
-          placeholder="Brainstorming key UI components..."
-          maxLength={maxLength}
-        />
-      </TextAreaContainer>
+        <Section>
+          <SectionLabel>Tags</SectionLabel>
+          <TagsContainer>
+            <Tag>
+              #Work <TagRemoveButton><CloseIcon /></TagRemoveButton>
+            </Tag>
+            <Tag>
+              #Design <TagRemoveButton><CloseIcon /></TagRemoveButton>
+            </Tag>
+            <AddTagButton>
+              <AddIcon /> Add Tag
+            </AddTagButton>
+          </TagsContainer>
+        </Section>
 
-      <StatusRow>
-        <SaveStatus $saving={saveStatus === 'saving'}>
-          {saveStatus === 'saving' ? 'Saving...' :
-           saveStatus === 'saved' && lastSaved ? `Saved at ${formatTime(lastSaved)}` : ''}
-        </SaveStatus>
-        <CharCounter>{noteText.length}/{maxLength}</CharCounter>
-      </StatusRow>
+        <ProTipCard>
+          <ProTipHeader>
+            <LightbulbIcon />
+            <ProTipTitle>Pro Tip</ProTipTitle>
+          </ProTipHeader>
+          <ProTipText>Try the 'Pomodoro Technique' - 25 mins work, 5 mins break for maximum focus.</ProTipText>
+        </ProTipCard>
+      </PanelContent>
+
+      <CompleteButton>
+        <CheckCircleIcon />
+        Complete Session
+      </CompleteButton>
     </Panel>
   )
 }

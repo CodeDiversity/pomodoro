@@ -21,7 +21,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 24px;
   height: 100%;
   width: 100%;
 `
@@ -29,23 +29,32 @@ const Container = styled.div`
 const Badge = styled.div`
   display: inline-block;
   padding: 6px 16px;
-  background-color: #F0F7FF;
-  color: #0066FF;
-  border-radius: 16px;
+  background-color: rgba(19, 109, 236, 0.05);
+  color: #136dec;
+  border-radius: 9999px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+  border: 1px solid rgba(19, 109, 236, 0.1);
 `
 
 const CircleContainer = styled.div`
   position: relative;
-  width: 240px;
-  height: 240px;
+  width: 280px;
+  height: 280px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+`
+
+const OuterRing = styled.div`
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 12px solid #f1f5f9;
+  transform: scale(1.1);
 `
 
 const SVG = styled.svg`
@@ -57,33 +66,34 @@ const SVG = styled.svg`
 
 const CircleTrack = styled.circle`
   fill: none;
-  stroke: #E8E8E8;
-  stroke-width: 8px;
+  stroke: transparent;
+  stroke-width: 12px;
 `
 
 const CircleProgress = styled.circle`
   fill: none;
-  stroke: #0066FF;
-  stroke-width: 8px;
+  stroke: #136dec;
+  stroke-width: 12px;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s ease;
 `
 
 const TimeText = styled.div`
-  font-size: 4rem;
-  font-weight: 700;
+  font-size: 5rem;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
   color: #1A1A1A;
   line-height: 1;
   z-index: 1;
+  letter-spacing: -0.02em;
 `
 
 const RemainingLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 500;
-  color: #666;
+  color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   margin-top: 4px;
   z-index: 1;
 `
@@ -94,13 +104,13 @@ const DailyGoalContainer = styled.div`
   align-items: flex-start;
   gap: 8px;
   width: 200px;
-  margin-top: 16px;
+  margin-top: 8px;
 `
 
 const DailyGoalLabel = styled.div`
   font-size: 0.7rem;
-  font-weight: 600;
-  color: #666;
+  font-weight: 700;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 1px;
 `
@@ -115,19 +125,19 @@ const DailyGoalRow = styled.div`
 const DailyGoalText = styled.div`
   font-size: 0.9rem;
   color: #1A1A1A;
-  font-weight: 600;
+  font-weight: 700;
 `
 
 const DailyGoalPercentage = styled.div`
   font-size: 0.85rem;
-  color: #666;
+  color: #94a3b8;
   font-weight: 500;
 `
 
 const ProgressBarContainer = styled.div`
   width: 100%;
   height: 6px;
-  background-color: #E8E8E8;
+  background-color: #e2e8f0;
   border-radius: 3px;
   overflow: hidden;
 `
@@ -135,7 +145,7 @@ const ProgressBarContainer = styled.div`
 const ProgressBarFill = styled.div<{ $progress: number }>`
   width: ${props => props.$progress * 100}%;
   height: 100%;
-  background-color: #0066FF;
+  background-color: #136dec;
   border-radius: 3px;
   transition: width 0.3s ease;
 `
@@ -145,18 +155,17 @@ export default function TimerDisplay({
   mode,
   sessionCount,
 }: TimerDisplayProps) {
-  // isRunning prop available for future use (e.g., pulsing animation)
   const formattedTime = formatTime(timeRemaining)
 
   // Calculate progress based on mode
   const getTotalDuration = () => {
     switch (mode) {
       case 'focus':
-        return 25 * 60 // 25 minutes
+        return 25 * 60
       case 'shortBreak':
-        return 5 * 60 // 5 minutes
+        return 5 * 60
       case 'longBreak':
-        return 15 * 60 // 15 minutes
+        return 15 * 60
       default:
         return 25 * 60
     }
@@ -165,14 +174,14 @@ export default function TimerDisplay({
   const totalDuration = getTotalDuration()
   const progress = (totalDuration - timeRemaining) / totalDuration
 
-  // SVG circle calculations
+  // SVG circle calculations - segmented style (4 gaps)
   const radius = 120
-  const strokeWidth = 8
+  const strokeWidth = 12
   const normalizedRadius = radius - strokeWidth / 2
   const circumference = 2 * Math.PI * normalizedRadius
   const dashoffset = circumference * (1 - progress)
 
-  // Daily goal progress (sessionCount out of SESSIONS_BEFORE_LONG_BREAK)
+  // Daily goal progress
   const dailyGoalProgress = Math.min(sessionCount / SESSIONS_BEFORE_LONG_BREAK, 1)
 
   return (
@@ -180,26 +189,27 @@ export default function TimerDisplay({
       {mode === 'focus' && <Badge>DEEP WORK</Badge>}
 
       <CircleContainer>
-        <SVG width="240" height="240">
+        <OuterRing />
+        <SVG width="280" height="280">
           <CircleTrack
-            cx={radius}
-            cy={radius}
+            cx={140}
+            cy={140}
             r={normalizedRadius}
           />
           <CircleProgress
-            cx={radius}
-            cy={radius}
+            cx={140}
+            cy={140}
             r={normalizedRadius}
             strokeDasharray={`${circumference} ${circumference}`}
             strokeDashoffset={dashoffset}
           />
         </SVG>
         <TimeText>{formattedTime}</TimeText>
-        <RemainingLabel>REMAINING</RemainingLabel>
+        <RemainingLabel>Remaining</RemainingLabel>
       </CircleContainer>
 
       <DailyGoalContainer>
-        <DailyGoalLabel>DAILY GOAL</DailyGoalLabel>
+        <DailyGoalLabel>Daily Goal</DailyGoalLabel>
         <DailyGoalRow>
           <DailyGoalText>
             {sessionCount}/{SESSIONS_BEFORE_LONG_BREAK} Sessions

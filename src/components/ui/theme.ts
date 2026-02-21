@@ -3,10 +3,10 @@
  */
 
 export const colors = {
-  primary: '#0066FF',
-  primaryHover: '#0052CC',
+  primary: '#136dec',
+  primaryHover: '#0d5bc4',
   secondary: '#333333',
-  background: '#FFFFFF',
+  background: '#f6f7f8',
   surface: '#F5F5F5',
   border: '#E0E0E0',
   text: '#1A1A1A',
@@ -16,7 +16,7 @@ export const colors = {
   sidebarBg: '#FFFFFF',
   sidebarBorder: '#E8E8E8',
   sidebarActive: '#F0F7FF',
-  sidebarActiveText: '#0066FF',
+  sidebarActiveText: '#136dec',
 } as const;
 
 export const radii = {

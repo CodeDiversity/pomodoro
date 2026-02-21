@@ -33,7 +33,7 @@ const AppContainer = styled.div`
 const MainContent = styled.main`
   flex: 1;
   margin-left: 240px;
-  background: #F8F9FA;
+  background: #f6f7f8;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -52,29 +52,77 @@ const ContentArea = styled.div`
 
 const TopBar = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: white;
-  border-bottom: 1px solid #E8E8E8;
-  gap: 16px;
+  padding: 16px 32px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+  height: 64px;
 `
 
 const StatusIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: ${colors.text};
+  color: #64748b;
 `
 
 const StatusDot = styled.div<{ $active: boolean }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: ${props => props.$active ? colors.success : colors.textMuted};
-  transition: background-color ${transitions.normal};
+  background-color: #136dec;
+  animation: ${props => props.$active ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none'};
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .5;
+    }
+  }
+`
+
+const TopBarActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`
+
+const NotificationButton = styled.button`
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #64748b;
+  transition: all ${transitions.fast};
+
+  &:hover {
+    color: #136dec;
+  }
+`
+
+const Avatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(19, 109, 236, 0.2);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `
 
 
@@ -382,12 +430,17 @@ function App() {
             <StatusDot $active={state.isRunning || state.startTime !== null} />
             Focus Session Active
           </StatusIndicator>
-          <Settings
-            autoStart={autoStart}
-            onAutoStartChange={setAutoStart}
-            customDurations={customDurations || undefined}
-            onSaveDurations={handleSaveDurations}
-          />
+          <TopBarActions>
+            <NotificationButton aria-label="Notifications">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+              </svg>
+            </NotificationButton>
+            <Avatar>
+              <img src="https://ui-avatars.com/api/?name=User&background=136dec&color=fff" alt="User Profile" />
+            </Avatar>
+          </TopBarActions>
         </TopBar>
 
         <ContentArea>
