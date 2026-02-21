@@ -38,6 +38,11 @@ Phase structure prioritizes:
 3. Components can import and use useAppDispatch and useAppSelector with full TypeScript inference
 4. Store hot-reloads in development without losing state
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 07-01-PLAN.md — Install Redux Toolkit and configure store with DevTools, typed hooks, and Provider integration
+
 ---
 
 ## Phase 8: Timer Slice Migration
