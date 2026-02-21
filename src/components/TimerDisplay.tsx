@@ -4,6 +4,7 @@ import { SESSIONS_BEFORE_LONG_BREAK } from '../constants/timer'
 
 interface TimerDisplayProps {
   timeRemaining: number
+  duration: number
   mode: TimerMode
   sessionCount: number
   isRunning: boolean
@@ -41,8 +42,8 @@ const Badge = styled.div`
 
 const CircleContainer = styled.div`
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,13 +80,14 @@ const CircleProgress = styled.circle`
 `
 
 const TimeText = styled.div`
-  font-size: 5rem;
+  font-size: 4.5rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   color: #1A1A1A;
   line-height: 1;
   z-index: 1;
   letter-spacing: -0.02em;
+  padding: 20px;
 `
 
 const RemainingLabel = styled.div`
@@ -152,30 +154,17 @@ const ProgressBarFill = styled.div<{ $progress: number }>`
 
 export default function TimerDisplay({
   timeRemaining,
+  duration,
   mode,
   sessionCount,
 }: TimerDisplayProps) {
   const formattedTime = formatTime(timeRemaining)
 
-  // Calculate progress based on mode
-  const getTotalDuration = () => {
-    switch (mode) {
-      case 'focus':
-        return 25 * 60
-      case 'shortBreak':
-        return 5 * 60
-      case 'longBreak':
-        return 15 * 60
-      default:
-        return 25 * 60
-    }
-  }
+  // Calculate progress based on actual duration
+  const progress = (duration - timeRemaining) / duration
 
-  const totalDuration = getTotalDuration()
-  const progress = (totalDuration - timeRemaining) / totalDuration
-
-  // SVG circle calculations - segmented style (4 gaps)
-  const radius = 120
+  // SVG circle calculations
+  const radius = 140
   const strokeWidth = 12
   const normalizedRadius = radius - strokeWidth / 2
   const circumference = 2 * Math.PI * normalizedRadius
@@ -190,15 +179,15 @@ export default function TimerDisplay({
 
       <CircleContainer>
         <OuterRing />
-        <SVG width="280" height="280">
+        <SVG width="320" height="320">
           <CircleTrack
-            cx={140}
-            cy={140}
+            cx={160}
+            cy={160}
             r={normalizedRadius}
           />
           <CircleProgress
-            cx={140}
-            cy={140}
+            cx={160}
+            cy={160}
             r={normalizedRadius}
             strokeDasharray={`${circumference} ${circumference}`}
             strokeDashoffset={dashoffset}

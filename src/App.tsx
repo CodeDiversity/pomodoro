@@ -407,6 +407,7 @@ function App() {
               <LeftPane>
                 <TimerDisplay
                   timeRemaining={state.timeRemaining}
+                  duration={state.duration}
                   mode={state.mode}
                   sessionCount={state.sessionCount}
                   isRunning={state.isRunning}
