@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { colors, radii, shadows, transitions } from './ui/theme'
+import { colors, transitions } from './ui/theme'
 
 interface TimerControlsProps {
   isRunning: boolean
@@ -16,34 +16,33 @@ interface TimerControlsProps {
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 16px;
 `
 
 const PrimaryButton = styled.button`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #0066FF;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  border-radius: ${radii.md};
-  background-color: ${colors.secondary};
-  color: white;
-  box-shadow: ${shadows.md};
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
   transition: all ${transitions.normal};
 
   &:hover:not(:disabled) {
-    background-color: #444;
-    transform: translateY(-1px);
-    box-shadow: ${shadows.lg};
+    background-color: #0052CC;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
   }
 
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: ${shadows.md};
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
   }
 
   &:focus-visible {
@@ -57,70 +56,65 @@ const PrimaryButton = styled.button`
   }
 `
 
-const Icon = styled.span`
-  font-size: 0.875rem;
-`
-
-const MenuContainer = styled.div`
-  position: relative;
-`
-
-const MenuToggle = styled.button`
-  padding: 0.5rem 0.75rem;
-  font-size: 1.25rem;
-  cursor: pointer;
-  border: none;
-  border-radius: ${radii.md};
+const IconButton = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background-color: transparent;
-  color: ${colors.textMuted};
-  line-height: 1;
+  border: 1px solid #E0E0E0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all ${transitions.normal};
 
-  &:hover {
-    background-color: ${colors.surface};
+  &:hover:not(:disabled) {
+    background-color: #F5F5F5;
   }
 
   &:focus-visible {
     outline: 2px solid ${colors.primary};
     outline-offset: 2px;
   }
-`
 
-const Menu = styled.div`
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.25rem;
-  background-color: ${colors.background};
-  border: 1px solid ${colors.border};
-  border-radius: ${radii.lg};
-  box-shadow: ${shadows.lg};
-  z-index: 10;
-  overflow: hidden;
-`
-
-const MenuItem = styled.button`
-  display: block;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  text-align: left;
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
-  color: ${colors.text};
-  transition: all ${transitions.fast};
-
-  &:hover {
-    background-color: ${colors.surface};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${colors.primary};
-    outline-offset: -2px;
-    background-color: ${colors.surface};
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `
+
+const SecondaryButtonsRow = styled.div`
+  display: flex;
+  gap: 12px;
+`
+
+// SVG Icons (20x20, stroke-width 2)
+const PlayIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="5 3 19 12 5 21 5 3" />
+  </svg>
+)
+
+const PauseIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="6" y="4" width="4" height="16" />
+    <rect x="14" y="4" width="4" height="16" />
+  </svg>
+)
+
+const SkipIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="5 4 15 12 5 20 5 4" />
+    <line x1="19" y1="5" x2="19" y2="19" />
+  </svg>
+)
+
+const ResetIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10" />
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+  </svg>
+)
 
 export default function TimerControls({
   isRunning,
@@ -133,15 +127,7 @@ export default function TimerControls({
   onSessionSkip,
   onSessionReset,
 }: TimerControlsProps) {
-  const [showMenu, setShowMenu] = useState(false)
-
   const isPaused = !isRunning && startTime !== null
-
-  const getPrimaryButtonLabel = () => {
-    if (isRunning) return 'Pause'
-    if (isPaused) return 'Resume'
-    return 'Start'
-  }
 
   const getPrimaryButtonAction = () => {
     if (isRunning) return onPause
@@ -165,37 +151,29 @@ export default function TimerControls({
 
   return (
     <Container>
-      <PrimaryButton onClick={handlePrimaryClick} aria-label={getPrimaryButtonLabel()}>
-        {isRunning ? <Icon>⏸</Icon> : <Icon>▶</Icon>}
-        <span>{getPrimaryButtonLabel()}</span>
+      <PrimaryButton
+        onClick={handlePrimaryClick}
+        aria-label={isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'}
+      >
+        {isRunning ? <PauseIcon /> : <PlayIcon />}
       </PrimaryButton>
 
-      <MenuContainer>
-        <MenuToggle onClick={() => setShowMenu(!showMenu)} aria-label="More options">
-          ⋮
-        </MenuToggle>
-
-        {showMenu && (
-          <Menu>
-            <MenuItem
-              onClick={() => {
-                handleReset()
-                setShowMenu(false)
-              }}
-            >
-              Reset
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleSkip()
-                setShowMenu(false)
-              }}
-            >
-              Skip
-            </MenuItem>
-          </Menu>
-        )}
-      </MenuContainer>
+      <SecondaryButtonsRow>
+        <IconButton
+          onClick={handleSkip}
+          aria-label="Skip session"
+          title="Skip session"
+        >
+          <SkipIcon />
+        </IconButton>
+        <IconButton
+          onClick={handleReset}
+          aria-label="Reset timer"
+          title="Reset timer"
+        >
+          <ResetIcon />
+        </IconButton>
+      </SecondaryButtonsRow>
     </Container>
   )
 }
