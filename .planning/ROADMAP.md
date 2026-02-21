@@ -80,12 +80,16 @@
 
 ### Phase 6: redesign
 
-**Goal:** [To be planned]
-**Depends on:** Phase 5
-**Plans:** 0 plans
+**Goal:** Complete visual redesign transitioning from dark mode to clean, modern light-mode aesthetic with blue accents. Includes new layout structure (sidebar navigation, split-pane timer view), circular timer with progress ring, card-based history, and refined typography. All existing functionality preserved.
 
-Plans:
-- [ ] TBD (run /gsd:plan-phase 6 to break down)
+**Depends on:** Phase 05.1
+
+**Plans:** 4 plans
+
+- [ ] 06-01-PLAN.md — Foundation: Theme, layout shell, sidebar navigation
+- [ ] 06-02-PLAN.md — Timer View: Circular timer, split-pane layout, notes panel redesign
+- [ ] 06-03-PLAN.md — History View: Card-based history, search/filter UI
+- [ ] 06-04-PLAN.md — Settings & Polish: Settings redesign, final touches, cleanup
 
 ---
 
