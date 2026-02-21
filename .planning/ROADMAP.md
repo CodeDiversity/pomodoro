@@ -66,6 +66,11 @@ Plans:
 4. Timer accuracy maintained in background tabs (no drift from throttling)
 5. Redux DevTools shows timer actions with readable names and state changes
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 08-01-PLAN.md — Create timerSlice.ts, timerMiddleware.ts, update store.ts, refactor useTimer.ts, test accuracy
+
 ---
 
 ## Phase 9: UI and Session Slices
@@ -231,7 +236,7 @@ Plans:
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
 | 7 - Redux Foundation | Pending | 2 | 0% |
-| 8 - Timer Slice Migration | Pending | 4 | 0% |
+| 8 - Timer Slice Migration | Planned | 4 | 0% |
 | 9 - UI and Session Slices | Pending | 2 | 0% |
 | 10 - History Slice and Selectors | Pending | 2 | 0% |
 | 11 - Settings Modernization | Pending | 6 | 0% |
