@@ -228,3 +228,17 @@ export function getDefaultState(): TimerState {
     pausedTimeRemaining: null,
   }
 }
+
+/**
+ * Clear all data from the database
+ * Deletes all entries from sessions, tags, timerState, and settings stores
+ */
+export async function clearDatabase(): Promise<void> {
+  const db = await initDB()
+
+  // Clear all stores
+  await db.clear('sessions')
+  await db.clear('tags')
+  await db.clear('timerState')
+  await db.clear('settings')
+}
