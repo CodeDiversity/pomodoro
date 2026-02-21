@@ -7,8 +7,8 @@
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v2.0 UI Redesign
 - **Current Phase:** 06-redesign
-- **Current Plan:** 03 (History View Redesign - COMPLETE)
-- **Next Step:** Continue with next plan in phase 06-redesign
+- **Current Plan:** 04 (Final Redesign Polish - COMPLETE)
+- **Next Step:** Human verification checkpoint
 
 ## Current Position
 
@@ -16,10 +16,10 @@
 |-----------|-------|
 | Milestone | v2.0 UI Redesign |
 | Phase | 06-redesign |
-| Plan | 03 - History View Redesign |
-| Status | In Progress |
+| Plan | 04 - Final Redesign Polish |
+| Status | COMPLETE - Awaiting Verification |
 
-Progress: [###.........] 30%
+Progress: [####........] 40%
 
 ## v2.0 Phase Summary
 
@@ -37,6 +37,7 @@ Progress: [###.........] 30%
 | 06-01 | Theme Foundation and Sidebar Layout | COMPLETE |
 | 06-02 | Timer View Redesign | COMPLETE |
 | 06-03 | History View Redesign | COMPLETE |
+| 06-04 | Final Redesign Polish | COMPLETE |
 
 ---
 
@@ -58,6 +59,10 @@ Progress: [###.........] 30%
 - Implemented date grouping with Today/Yesterday/Day/Date header format
 - Used inline SVG icons for all history view elements to minimize dependencies
 - Limited tag display to 3 visible with +N overflow indicator
+- Transformed Settings from dropdown to modal for better UX and consistency
+- Transformed HelpPanel from dropdown to modal with ? keyboard shortcut
+- Added global CSS file for scrollbar and focus-visible styling
+- Created celebratory SessionSummary with animated entry
 
 ### Phase 05.1 Decisions
 - Used styled-components for all UI components (consistent with existing codebase)
@@ -104,6 +109,7 @@ Progress: [###.........] 30%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: **Plan 06-04 completed** - Final Redesign Polish with Settings, HelpPanel, SessionSummary modals and global styles
 - 2026-02-21: **Plan 06-03 completed** - History View Redesign with card-based layout, date grouping, and weekly stats header
 - 2026-02-21: **Plan 06-02 completed** - Timer View Redesign with circular progress ring and split-pane layout
 - 2026-02-21: **Plan 06-01 completed** - Theme Foundation and Sidebar Layout with light mode and blue accents
@@ -139,4 +145,4 @@ Progress: [###.........] 30%
 
 *State updated: 2026-02-21*
 
-<!-- GSD_METADATA: {"plan": "06-03", "status": "complete", "tasks": 4, "duration": "18min"} -->
+<!-- GSD_METADATA: {"plan": "06-04", "status": "complete", "tasks": 4, "duration": "22min"} -->
