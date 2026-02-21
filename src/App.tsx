@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import TimerDisplay from './components/TimerDisplay'
 import TimerControls from './components/TimerControls'
-import HelpPanel from './components/HelpPanel'
 import Settings from './components/Settings'
 import NotePanel from './components/NotePanel'
 import TagInput from './components/TagInput'
@@ -42,18 +41,43 @@ const MainContent = styled.main`
 
 const ContentArea = styled.div`
   flex: 1;
-  padding: 24px;
+  padding: 0 24px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   overflow-y: auto;
+  height: calc(100vh - 65px);
 `
 
 const TopBar = styled.div`
   display: flex;
-  justify-content: flex-end;
-  padding: 24px 24px 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-bottom: 1px solid #E8E8E8;
+`
+
+const StatusIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: ${colors.text};
+`
+
+const StatusDot = styled.div<{ $active: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${props => props.$active ? colors.success : colors.textMuted};
+  transition: background-color ${transitions.normal};
+`
+
+const TopBarActions = styled.div`
+  display: flex;
   gap: 12px;
 `
 
@@ -62,10 +86,10 @@ const TopBar = styled.div`
 const SplitPaneContainer = styled.div`
   display: flex;
   gap: 32px;
-  max-width: 1000px;
   width: 100%;
+  height: 100%;
+  max-width: 1000px;
   margin: 0 auto;
-  align-items: flex-start;
 
   @media (max-width: 900px) {
     flex-direction: column;
@@ -74,21 +98,25 @@ const SplitPaneContainer = styled.div`
 `
 
 const LeftPane = styled.div`
-  flex: 1;
+  flex: 0 0 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  justify-content: space-between;
   min-width: 300px;
+  height: 100%;
+  padding: 24px 0;
 `
 
 const RightPane = styled.div`
-  flex: 1;
+  flex: 0 0 40%;
   max-width: 480px;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
+  padding: 24px 0;
 `
 
 const CompleteSessionButton = styled.button`
@@ -102,6 +130,11 @@ const CompleteSessionButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color ${transitions.fast};
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
   &:hover {
     background-color: #333;
@@ -121,7 +154,8 @@ const ProTipCard = styled.div`
   font-size: 0.85rem;
   color: #333;
   line-height: 1.5;
-  margin-top: 8px;
+  margin-top: auto;
+  margin-bottom: 16px;
 `
 
 function App() {
@@ -348,15 +382,20 @@ function App() {
       <Sidebar activeView={viewMode} onViewChange={setViewMode} />
 
       <MainContent>
-        {/* Top right: Help and Settings */}
+        {/* Top bar with status indicator */}
         <TopBar>
-          <HelpPanel />
-          <Settings
-            autoStart={autoStart}
-            onAutoStartChange={setAutoStart}
-            customDurations={customDurations || undefined}
-            onSaveDurations={handleSaveDurations}
-          />
+          <StatusIndicator>
+            <StatusDot $active={state.isRunning || state.startTime !== null} />
+            Focus Session Active
+          </StatusIndicator>
+          <TopBarActions>
+            <Settings
+              autoStart={autoStart}
+              onAutoStartChange={setAutoStart}
+              customDurations={customDurations || undefined}
+              onSaveDurations={handleSaveDurations}
+            />
+          </TopBarActions>
         </TopBar>
 
         <ContentArea>
@@ -402,13 +441,16 @@ function App() {
                     onTagsChange={handleTagsChange}
                   />
 
-                  <CompleteSessionButton onClick={handleSessionSkip}>
-                    Complete Session
-                  </CompleteSessionButton>
-
                   <ProTipCard>
                     <strong>Pro Tip:</strong> Take a moment to jot down what you accomplished before ending your session.
                   </ProTipCard>
+
+                  <CompleteSessionButton onClick={handleSessionSkip}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Complete Session
+                  </CompleteSessionButton>
                 </RightPane>
               )}
             </SplitPaneContainer>
