@@ -2,22 +2,31 @@ import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
 import { formatDateFull } from '../../utils/dateUtils'
 import { formatDurationFull, truncateText } from '../../utils/durationUtils'
+import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
 
 const ItemContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  padding: ${spacing.md};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.lg};
+  margin-bottom: ${spacing.sm};
   cursor: pointer;
-  transition: all 0.15s ease;
-  background: #fff;
+  transition: all ${transitions.normal};
+  background: ${colors.background};
+  box-shadow: ${shadows.sm};
 
   &:hover {
-    border-color: #3498db;
-    background: #f8f9fa;
+    border-color: ${colors.primary};
+    background: ${colors.surface};
+    transform: translateY(-2px);
+    box-shadow: ${shadows.md};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -28,19 +37,19 @@ const LeftContent = styled.div`
 
 const DateDurationRow = styled.div`
   display: flex;
-  gap: 12px;
+  gap: ${spacing.md};
   font-size: 0.9rem;
-  color: #333;
-  margin-bottom: 4px;
+  color: ${colors.text};
+  margin-bottom: ${spacing.xs};
 `
 
 const Duration = styled.span`
-  color: #666;
+  color: ${colors.textMuted};
 `
 
 const NotePreview = styled.div`
   font-size: 0.85rem;
-  color: #666;
+  color: ${colors.textMuted};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -49,18 +58,19 @@ const NotePreview = styled.div`
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-left: 12px;
+  gap: ${spacing.sm};
+  margin-left: ${spacing.md};
   flex-shrink: 0;
 `
 
 const Tag = styled.span`
   display: inline-block;
   padding: 2px 8px;
-  background: #e8e8e8;
-  border-radius: 12px;
+  background: ${colors.surface};
+  border-radius: ${radii.full};
   font-size: 0.75rem;
-  color: #555;
+  color: ${colors.textMuted};
+  border: 1px solid ${colors.border};
 `
 
 interface HistoryItemProps {
