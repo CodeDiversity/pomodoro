@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { clearDatabase } from '../services/db'
 
 interface SettingsProps {
   autoStart: boolean
@@ -150,9 +151,9 @@ const ToggleButton = styled.button`
 
 const Panel = styled.div`
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   right: 0;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
   background-color: white;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
@@ -240,6 +241,23 @@ const SaveButton = styled.button`
   }
 `
 
+const ResetButton = styled.button`
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e53e3e;
+  border-radius: 4px;
+  background-color: white;
+  color: #e53e3e;
+  margin-top: 0.5rem;
+
+  &:hover {
+    background-color: #fff5f5;
+  }
+`
+
 export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations }: SettingsProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -298,6 +316,15 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
   const focusError = validateFocus()
   const shortBreakError = validateShortBreak()
   const longBreakError = validateLongBreak()
+
+  // Handle database reset
+  const handleReset = async () => {
+    const confirmed = window.confirm('Are you sure you want to reset all data? This will delete all your sessions and settings.')
+    if (confirmed) {
+      await clearDatabase()
+      window.location.reload()
+    }
+  }
 
   return (
     <Container>
@@ -365,6 +392,10 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
               </SaveButton>
             </DurationSection>
           )}
+
+          <ResetButton onClick={handleReset}>
+            Reset All Data
+          </ResetButton>
         </Panel>
       )}
     </Container>
