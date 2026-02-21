@@ -107,8 +107,8 @@ export default function TimerDisplay({
   timeRemaining,
   mode,
   sessionCount,
-  isRunning,
 }: TimerDisplayProps) {
+  // isRunning prop available for future use (e.g., pulsing animation)
   const formattedTime = formatTime(timeRemaining)
 
   // Calculate progress based on mode

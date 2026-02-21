@@ -21,7 +21,7 @@ import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 
 import styled from 'styled-components'
-import { colors, radii, shadows, transitions } from './components/ui/theme'
+import { colors, transitions } from './components/ui/theme'
 
 type ViewMode = 'timer' | 'history' | 'stats' | 'settings'
 
