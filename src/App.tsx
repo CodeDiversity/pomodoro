@@ -20,31 +20,38 @@ import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 
 import styled from 'styled-components'
+import { colors, radii, shadows, transitions } from './components/ui/theme'
 
 type ViewMode = 'timer' | 'history' | 'stats'
 
 const TabBar = styled.div`
   display: flex;
   gap: 0.25rem;
-  background: #f5f5f5;
+  background: ${colors.surface};
   padding: 0.25rem;
-  border-radius: 8px;
+  border-radius: ${radii.lg};
+  box-shadow: ${shadows.sm};
 `
 
 const Tab = styled.button<{ $active: boolean }>`
-  padding: 0.5rem 1rem;
+  padding: 10px 20px;
   border: none;
-  border-radius: 6px;
-  background: ${props => props.$active ? 'white' : 'transparent'};
-  color: ${props => props.$active ? '#333' : '#666'};
-  font-weight: ${props => props.$active ? '500' : '400'};
+  border-radius: ${radii.md};
+  background: ${props => props.$active ? colors.background : 'transparent'};
+  color: ${props => props.$active ? colors.text : colors.textMuted};
+  font-weight: ${props => props.$active ? '600' : '400'};
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: ${props => props.$active ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'};
-  transition: all 0.2s;
+  box-shadow: ${props => props.$active ? shadows.md : 'none'};
+  transition: all ${transitions.normal};
 
   &:hover {
-    background: ${props => props.$active ? 'white' : '#eeeeee'};
+    background: ${props => props.$active ? colors.background : colors.surface};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
   }
 `
 
