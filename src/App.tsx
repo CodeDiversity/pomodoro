@@ -72,6 +72,72 @@ const SettingsPlaceholder = styled.div`
   }
 `
 
+// Split-pane layout for timer view
+const SplitPaneContainer = styled.div`
+  display: flex;
+  gap: 32px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: flex-start;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    align-items: center;
+  }
+`
+
+const LeftPane = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-width: 300px;
+`
+
+const RightPane = styled.div`
+  flex: 1;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
+const CompleteSessionButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  background-color: #1A1A1A;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color ${transitions.fast};
+
+  &:hover {
+    background-color: #333;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
+  }
+`
+
+const ProTipCard = styled.div`
+  background: #F0F7FF;
+  border-left: 3px solid #0066FF;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.5;
+  margin-top: 8px;
+`
+
 function App() {
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>('timer')
@@ -310,15 +376,15 @@ function App() {
         <ContentArea>
           {/* Timer View */}
           {viewMode === 'timer' && (
-            <>
-              <TimerDisplay
-                timeRemaining={state.timeRemaining}
-                mode={state.mode}
-                sessionCount={state.sessionCount}
-                isRunning={state.isRunning}
-              />
+            <SplitPaneContainer>
+              <LeftPane>
+                <TimerDisplay
+                  timeRemaining={state.timeRemaining}
+                  mode={state.mode}
+                  sessionCount={state.sessionCount}
+                  isRunning={state.isRunning}
+                />
 
-              <div style={{ marginTop: '1rem' }}>
                 <TimerControls
                   isRunning={state.isRunning}
                   startTime={state.startTime}
@@ -330,24 +396,36 @@ function App() {
                   onSessionSkip={handleSessionSkip}
                   onSessionReset={handleSessionReset}
                 />
-              </div>
+              </LeftPane>
 
-              <NotePanel
-                isVisible={showNotePanel}
-                noteText={noteText}
-                onNoteChange={handleNoteChange}
-                saveStatus={saveStatus}
-                lastSaved={lastSaved}
-                maxLength={maxNoteLength}
-              />
+              {showNotePanel && (
+                <RightPane>
+                  <NotePanel
+                    isVisible={showNotePanel}
+                    noteText={noteText}
+                    onNoteChange={handleNoteChange}
+                    saveStatus={saveStatus}
+                    lastSaved={lastSaved}
+                    maxLength={maxNoteLength}
+                  />
 
-              <TagInput
-                isVisible={showNotePanel}
-                tags={tags}
-                suggestions={tagSuggestions}
-                onTagsChange={handleTagsChange}
-              />
-            </>
+                  <TagInput
+                    isVisible={showNotePanel}
+                    tags={tags}
+                    suggestions={tagSuggestions}
+                    onTagsChange={handleTagsChange}
+                  />
+
+                  <CompleteSessionButton onClick={handleSessionSkip}>
+                    Complete Session
+                  </CompleteSessionButton>
+
+                  <ProTipCard>
+                    <strong>Pro Tip:</strong> Take a moment to jot down what you accomplished before ending your session.
+                  </ProTipCard>
+                </RightPane>
+              )}
+            </SplitPaneContainer>
           )}
 
           {/* History View */}
