@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
 import { HistoryFilterBar } from './HistoryFilterBar'
 import { HistoryItem } from './HistoryItem'
+import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
 
 const ListContainer = styled.div`
   padding: 16px;
@@ -36,28 +37,45 @@ const LoadingText = styled.div`
 const LoadMoreButton = styled.button`
   display: block;
   width: 100%;
-  padding: 12px;
-  margin-top: 16px;
-  border: 1px solid #3498db;
-  border-radius: 8px;
-  background: #fff;
-  color: #3498db;
+  padding: ${spacing.md};
+  margin-top: ${spacing.lg};
+  border: 1px solid ${colors.primary};
+  border-radius: ${radii.md};
+  background: ${colors.background};
+  color: ${colors.primary};
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  box-shadow: ${shadows.sm};
+  transition: all ${transitions.normal};
 
   &:hover {
-    background: #3498db;
+    background: ${colors.primary};
     color: #fff;
+    transform: translateY(-1px);
+    box-shadow: ${shadows.md};
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: ${shadows.sm};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
   }
 
   &:disabled {
-    border-color: #ccc;
-    color: #999;
+    border-color: ${colors.border};
+    color: ${colors.textMuted};
     cursor: not-allowed;
+    box-shadow: none;
     &:hover {
-      background: #fff;
-      color: #999;
+      background: ${colors.background};
+      color: ${colors.textMuted};
+      transform: none;
+      box-shadow: none;
     }
   }
 `
