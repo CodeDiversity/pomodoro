@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
+import { colors, radii, shadows, transitions } from './ui/theme'
 
 interface TimerControlsProps {
   isRunning: boolean
@@ -28,13 +29,31 @@ const PrimaryButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   border: none;
-  border-radius: 8px;
-  background-color: #333;
+  border-radius: ${radii.md};
+  background-color: ${colors.secondary};
   color: white;
-  transition: background-color 0.2s;
+  box-shadow: ${shadows.md};
+  transition: all ${transitions.normal};
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #444;
+    transform: translateY(-1px);
+    box-shadow: ${shadows.lg};
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: ${shadows.md};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `
 
@@ -51,13 +70,19 @@ const MenuToggle = styled.button`
   font-size: 1.25rem;
   cursor: pointer;
   border: none;
-  border-radius: 8px;
+  border-radius: ${radii.md};
   background-color: transparent;
-  color: #666;
+  color: ${colors.textMuted};
   line-height: 1;
+  transition: all ${transitions.normal};
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${colors.surface};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -66,10 +91,10 @@ const Menu = styled.div`
   top: 100%;
   right: 0;
   margin-top: 0.25rem;
-  background-color: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: ${colors.background};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.lg};
+  box-shadow: ${shadows.lg};
   z-index: 10;
   overflow: hidden;
 `
@@ -83,10 +108,17 @@ const MenuItem = styled.button`
   cursor: pointer;
   border: none;
   background-color: transparent;
-  color: #333;
+  color: ${colors.text};
+  transition: all ${transitions.fast};
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${colors.surface};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: -2px;
+    background-color: ${colors.surface};
   }
 `
 
