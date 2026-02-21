@@ -7,34 +7,30 @@ const MAX_TAGS = 10
 
 const Container = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
-  margin-top: ${spacing.sm};
-  padding-top: ${spacing.sm};
-  border-top: 1px solid #f0f0f0;
-  position: relative;
 `
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${spacing.sm};
+  gap: 8px;
   margin-bottom: ${spacing.sm};
 `
 
-const Chip = styled.span`
+const Pill = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: ${colors.text};
-  background: #f0f0f0;
-  border-radius: 4px;
-  transition: background-color ${transitions.fast}, transform ${transitions.fast};
+  color: #0066FF;
+  background: #F0F7FF;
+  border: 1px solid #0066FF;
+  border-radius: 16px;
+  transition: background-color ${transitions.fast};
 
   &:hover {
-    background: #e8e8e8;
-    transform: translateY(-1px);
+    background: #E0EFFF;
   }
 `
 
@@ -45,19 +41,18 @@ const RemoveButton = styled.button`
   width: 16px;
   height: 16px;
   padding: 0;
-  margin-left: 2px;
+  margin-left: 6px;
   font-size: 12px;
   line-height: 1;
-  color: ${colors.textMuted};
+  color: #0066FF;
   background: transparent;
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: background-color ${transitions.fast}, color ${transitions.fast};
+  transition: background-color ${transitions.fast};
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: ${colors.text};
+    background: rgba(0, 102, 255, 0.1);
   }
 
   &:focus-visible {
@@ -68,13 +63,13 @@ const RemoveButton = styled.button`
 
 const Input = styled.input`
   width: 100%;
-  padding: 6px 8px;
-  border: none;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
   font-size: 0.85rem;
   box-sizing: border-box;
-  transition: background-color ${transitions.fast}, box-shadow ${transitions.fast};
-  background-color: transparent;
+  transition: border-color ${transitions.fast}, box-shadow ${transitions.fast};
+  background-color: white;
   color: ${colors.text};
 
   &::placeholder {
@@ -83,12 +78,12 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    background-color: rgba(231, 76, 60, 0.05);
-    box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.2);
+    border-color: #0066FF;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
   }
 
   &:disabled {
-    background: transparent;
+    background: #F5F5F5;
     cursor: not-allowed;
   }
 `
@@ -101,7 +96,7 @@ const SuggestionsList = styled.ul`
   box-shadow: ${shadows.md};
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 4px 0 0 0;
   width: calc(100% - 2rem);
   max-height: 150px;
   overflow-y: auto;
@@ -129,6 +124,10 @@ const Counter = styled.span`
   color: ${colors.textMuted};
   margin-top: ${spacing.xs};
   display: block;
+`
+
+const InputContainer = styled.div`
+  position: relative;
 `
 
 interface TagInputProps {
@@ -183,37 +182,39 @@ export default function TagInput({
     <Container $isVisible={isVisible}>
       <TagsContainer>
         {tags.map((tag, i) => (
-          <Chip key={i}>
+          <Pill key={i}>
             {tag}
-            <RemoveButton onClick={() => removeTag(i)}>x</RemoveButton>
-          </Chip>
+            <RemoveButton onClick={() => removeTag(i)} aria-label={`Remove ${tag} tag`}>×</RemoveButton>
+          </Pill>
         ))}
       </TagsContainer>
-      <Input
-        ref={inputRef}
-        value={input}
-        onChange={(e) => {
-          setInput(e.target.value)
-          setShowSuggestions(true)
-        }}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-        disabled={tags.length >= MAX_TAGS}
-        placeholder={tags.length >= MAX_TAGS ? 'Max tags reached' : 'Add tag (press Enter)...'}
-      />
-      {input && showSuggestions && filteredSuggestions.length > 0 && (
-        <SuggestionsList>
-          {filteredSuggestions.map(s => (
-            <SuggestionItem
-              key={s}
-              onClick={() => addTag(s)}
-            >
-              {s}
-            </SuggestionItem>
-          ))}
-        </SuggestionsList>
-      )}
+      <InputContainer>
+        <Input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value)
+            setShowSuggestions(true)
+          }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          disabled={tags.length >= MAX_TAGS}
+          placeholder={tags.length >= MAX_TAGS ? 'Max tags reached' : '+ Add Tag'}
+        />
+        {input && showSuggestions && filteredSuggestions.length > 0 && (
+          <SuggestionsList>
+            {filteredSuggestions.map(s => (
+              <SuggestionItem
+                key={s}
+                onClick={() => addTag(s)}
+              >
+                {s}
+              </SuggestionItem>
+            ))}
+          </SuggestionsList>
+        )}
+      </InputContainer>
       <Counter>{tags.length}/10 tags used</Counter>
     </Container>
   )
