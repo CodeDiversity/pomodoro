@@ -52,11 +52,12 @@ const ContentArea = styled.div`
 
 const TopBar = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 16px 24px;
   background: white;
   border-bottom: 1px solid #E8E8E8;
+  gap: 16px;
 `
 
 const StatusIndicator = styled.div`
@@ -76,20 +77,12 @@ const StatusDot = styled.div<{ $active: boolean }>`
   transition: background-color ${transitions.normal};
 `
 
-const TopBarActions = styled.div`
-  display: flex;
-  gap: 12px;
-`
-
 
 // Split-pane layout for timer view
 const SplitPaneContainer = styled.div`
   display: flex;
-  gap: 32px;
   width: 100%;
   height: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
 
   @media (max-width: 900px) {
     flex-direction: column;
@@ -98,25 +91,26 @@ const SplitPaneContainer = styled.div`
 `
 
 const LeftPane = styled.div`
-  flex: 0 0 60%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 24px;
   min-width: 300px;
   height: 100%;
-  padding: 24px 0;
+  padding: 24px;
 `
 
 const RightPane = styled.div`
-  flex: 0 0 40%;
-  max-width: 480px;
-  width: 100%;
+  flex: 0 0 420px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   height: 100%;
-  padding: 24px 0;
+  padding: 24px;
+  background: white;
+  border-left: 1px solid #E8E8E8;
 `
 
 const CompleteSessionButton = styled.button`
@@ -388,14 +382,12 @@ function App() {
             <StatusDot $active={state.isRunning || state.startTime !== null} />
             Focus Session Active
           </StatusIndicator>
-          <TopBarActions>
-            <Settings
-              autoStart={autoStart}
-              onAutoStartChange={setAutoStart}
-              customDurations={customDurations || undefined}
-              onSaveDurations={handleSaveDurations}
-            />
-          </TopBarActions>
+          <Settings
+            autoStart={autoStart}
+            onAutoStartChange={setAutoStart}
+            customDurations={customDurations || undefined}
+            onSaveDurations={handleSaveDurations}
+          />
         </TopBar>
 
         <ContentArea>

@@ -20,7 +20,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
   height: 100%;
   width: 100%;
 `
@@ -45,7 +46,6 @@ const CircleContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: auto 0;
 `
 
 const SVG = styled.svg`
@@ -94,7 +94,7 @@ const DailyGoalContainer = styled.div`
   align-items: flex-start;
   gap: 8px;
   width: 200px;
-  margin-top: auto;
+  margin-top: 16px;
 `
 
 const DailyGoalLabel = styled.div`
