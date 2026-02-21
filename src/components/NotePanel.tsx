@@ -1,28 +1,37 @@
 import styled from 'styled-components'
+import { colors, radii, transitions, spacing } from './ui/theme'
 
 const Panel = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
+  margin-top: ${spacing.md};
+  padding: ${spacing.md};
+  border: 1px solid ${colors.border};
+  border-radius: 12px;
+  background: ${colors.background};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 `
 
 const TextArea = styled.textarea`
   width: 100%;
   min-height: 120px;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: ${spacing.md};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.md};
   font-family: inherit;
   font-size: 0.9rem;
   resize: vertical;
   box-sizing: border-box;
+  transition: border-color ${transitions.fast}, box-shadow ${transitions.fast};
+  background-color: ${colors.background};
+
+  &::placeholder {
+    color: ${colors.textMuted};
+  }
 
   &:focus {
     outline: none;
-    border-color: #e74c3c;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
   }
 `
 
@@ -30,9 +39,9 @@ const StatusRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: ${spacing.sm};
   font-size: 0.8rem;
-  color: #666;
+  color: ${colors.textMuted};
 `
 
 const SaveStatus = styled.span<{ $saving: boolean }>`
