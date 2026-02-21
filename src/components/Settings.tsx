@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { clearDatabase } from '../services/db'
+import { colors, radii, shadows, transitions } from './ui/theme'
 
 interface SettingsProps {
   autoStart: boolean
@@ -27,52 +28,62 @@ const DurationInputContainer = styled.div`
 
 const DurationLabel = styled.span`
   font-size: 0.8125rem;
-  color: #333;
+  color: ${colors.text};
   min-width: 70px;
 `
 
 const StepperButton = styled.button`
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   font-size: 1rem;
   cursor: pointer;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
-  background-color: white;
-  color: #666;
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.md};
+  background-color: ${colors.background};
+  color: ${colors.textMuted};
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  transition: all ${transitions.normal};
 
-  &:hover {
-    background-color: #f5f5f5;
+  &:hover:not(:disabled) {
+    background-color: ${colors.surface};
+    transform: translateY(-1px);
+    box-shadow: ${shadows.sm};
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+  }
 `
 
 const DurationNumberInput = styled.input`
   width: 50px;
-  height: 24px;
+  height: 28px;
   text-align: center;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.md};
   font-size: 0.8125rem;
   padding: 0;
+  transition: all ${transitions.normal};
 
   &:focus {
     outline: none;
-    border-color: #666;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary}40;
   }
 `
 
 const DurationUnit = styled.span`
   font-size: 0.75rem;
-  color: #666;
+  color: ${colors.textMuted};
 `
 
 function DurationInput({ label, value, onChange, min, max }: DurationInputProps) {
@@ -132,20 +143,28 @@ const Container = styled.div`
 `
 
 const ToggleButton = styled.button`
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   font-size: 0.875rem;
   cursor: pointer;
-  border: 1px solid #e5e5e5;
+  border: 1px solid ${colors.border};
   border-radius: 50%;
-  background-color: white;
-  color: #666;
+  background-color: ${colors.background};
+  color: ${colors.textMuted};
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all ${transitions.normal};
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${colors.surface};
+    transform: translateY(-1px);
+    box-shadow: ${shadows.sm};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
   }
 `
 
@@ -154,10 +173,10 @@ const Panel = styled.div`
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  background-color: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: ${colors.background};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.lg};
+  box-shadow: ${shadows.lg};
   padding: 0.75rem;
   min-width: 200px;
   z-index: 20;
@@ -167,15 +186,15 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${colors.surface};
 `
 
 const Title = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: ${colors.text};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `
@@ -185,12 +204,19 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
-  color: #999;
+  color: ${colors.textMuted};
   line-height: 1;
   padding: 0;
+  transition: color ${transitions.fast};
 
   &:hover {
-    color: #666;
+    color: ${colors.text};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+    border-radius: 2px;
   }
 `
 
@@ -203,18 +229,25 @@ const Label = styled.label`
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8125rem;
-  color: #333;
+  color: ${colors.text};
   cursor: pointer;
 `
 
 const Checkbox = styled.input`
   cursor: pointer;
+  width: 16px;
+  height: 16px;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+  }
 `
 
 const DurationSection = styled.div`
   margin-bottom: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${colors.surface};
 `
 
 const ErrorText = styled.div`
@@ -230,14 +263,29 @@ const SaveButton = styled.button`
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid #4a5568;
-  border-radius: 4px;
-  background-color: #4a5568;
+  border: 1px solid ${colors.primary};
+  border-radius: ${radii.md};
+  background-color: ${colors.primary};
   color: white;
   margin-top: 0.5rem;
+  transition: all ${transitions.normal};
 
   &:hover {
-    background-color: #2d3748;
+    background-color: ${colors.primaryHover};
+    transform: translateY(-1px);
+    box-shadow: ${shadows.md};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `
 
@@ -247,14 +295,22 @@ const ResetButton = styled.button`
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid #e53e3e;
-  border-radius: 4px;
-  background-color: white;
-  color: #e53e3e;
+  border: 1px solid ${colors.error};
+  border-radius: ${radii.md};
+  background-color: ${colors.background};
+  color: ${colors.error};
   margin-top: 0.5rem;
+  transition: all ${transitions.normal};
 
   &:hover {
     background-color: #fff5f5;
+    transform: translateY(-1px);
+    box-shadow: ${shadows.sm};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.error};
   }
 `
 
