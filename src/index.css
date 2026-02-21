@@ -1,0 +1,74 @@
+/* Global styles for Pomodoro Timer */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F8F9FA;
+  color: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Inherit font family for form elements */
+input,
+button,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Remove default button styles */
+button {
+  cursor: pointer;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D0D0D0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B0B0B0;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D0D0D0 transparent;
+}
+
+/* Focus visible styles for accessibility */
+:focus-visible {
+  outline: 2px solid #0066FF;
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(0, 102, 255, 0.2);
+  color: #1A1A1A;
+}

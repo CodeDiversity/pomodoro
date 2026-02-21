@@ -53,8 +53,8 @@ const ContentArea = styled.div`
 const TopBar = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 16px 24px;
-  gap: 0.5rem;
+  padding: 24px 24px 16px;
+  gap: 12px;
 `
 
 const SettingsPlaceholder = styled.div`
@@ -456,8 +456,15 @@ function App() {
 
           {/* Stats View */}
           {viewMode === 'stats' && (
-            <div style={{ width: '100%', maxWidth: '800px' }}>
-              <StatsGrid dateFilter="7days" />
+            <div style={{ width: '100%', maxWidth: '800px', padding: '24px' }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}>
+                <StatsGrid dateFilter="7days" />
+              </div>
             </div>
           )}
 
