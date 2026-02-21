@@ -8,6 +8,7 @@ interface SettingsProps {
   onAutoStartChange: (value: boolean) => void
   customDurations?: { focus: number; shortBreak: number; longBreak: number }
   onSaveDurations?: (durations: { focus: number; shortBreak: number; longBreak: number }) => void
+  viewMode?: 'modal' | 'page'
 }
 
 // DurationInput component with +/- stepper
@@ -146,6 +147,35 @@ function DurationInput({ label, value, onChange, min, max }: DurationInputProps)
     </DurationInputContainer>
   )
 }
+
+// Page container for settings view
+const PageContainer = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 600px;
+  width: 100%;
+  padding: 32px;
+`
+
+const PageHeader = styled.div`
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E8E8E8;
+`
+
+const PageTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin: 0;
+`
+
+const PageSubtitle = styled.p`
+  font-size: 0.9rem;
+  color: #666;
+  margin: 8px 0 0;
+`
 
 const Container = styled.div`
   position: relative;
@@ -411,7 +441,7 @@ const ResetButton = styled.button`
   }
 `
 
-export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations }: SettingsProps) {
+export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations, viewMode = 'modal' }: SettingsProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   // Initialize duration state from props (convert seconds to minutes)
@@ -434,7 +464,7 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
     }
   }, [customDurations])
 
-  const handleSaveDurations = () => {
+  const handleSaveDurationsWrapper = () => {
     if (onSaveDurations) {
       onSaveDurations({
         focus: focusMinutes * 60,
@@ -442,7 +472,9 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
         longBreak: longBreakMinutes * 60,
       })
     }
-    setIsOpen(false)
+    if (viewMode === 'modal') {
+      setIsOpen(false)
+    }
   }
 
   const handleCancel = () => {
@@ -497,6 +529,87 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
     }
   }
 
+  // Page view mode: render as standalone page content
+  if (viewMode === 'page') {
+    return (
+      <PageContainer>
+        <PageHeader>
+          <PageTitle>Settings</PageTitle>
+          <PageSubtitle>Customize your timer preferences and manage your data</PageSubtitle>
+        </PageHeader>
+
+        <SectionTitle>Timer</SectionTitle>
+        <SettingRow>
+          <Label>
+            <ToggleSwitch
+              checked={autoStart}
+              onClick={() => onAutoStartChange(!autoStart)}
+              role="switch"
+              aria-checked={autoStart}
+            >
+              <HiddenCheckbox
+                type="checkbox"
+                checked={autoStart}
+                onChange={(e) => onAutoStartChange(e.target.checked)}
+              />
+            </ToggleSwitch>
+            Auto-start next session
+          </Label>
+        </SettingRow>
+
+        {onSaveDurations && (
+          <DurationSection>
+            <SectionTitle>Durations</SectionTitle>
+            <DurationInput
+              label="Focus"
+              value={focusMinutes}
+              onChange={setFocusMinutes}
+              min={1}
+              max={60}
+            />
+            {focusError && <ErrorText>{focusError}</ErrorText>}
+
+            <DurationInput
+              label="Short Break"
+              value={shortBreakMinutes}
+              onChange={setShortBreakMinutes}
+              min={1}
+              max={30}
+            />
+            {shortBreakError && <ErrorText>{shortBreakError}</ErrorText>}
+
+            <DurationInput
+              label="Long Break"
+              value={longBreakMinutes}
+              onChange={setLongBreakMinutes}
+              min={1}
+              max={60}
+            />
+            {longBreakError && <ErrorText>{longBreakError}</ErrorText>}
+          </DurationSection>
+        )}
+
+        <SectionTitle>Data</SectionTitle>
+        <ResetButton onClick={handleReset}>
+          Reset All Data
+        </ResetButton>
+
+        {onSaveDurations && (
+          <Footer style={{ marginTop: '24px', padding: '16px 0 0' }}>
+            <SaveButton
+              onClick={handleSaveDurationsWrapper}
+              disabled={!!focusError || !!shortBreakError || !!longBreakError}
+              style={{ minWidth: '120px' }}
+            >
+              Save Changes
+            </SaveButton>
+          </Footer>
+        )}
+      </PageContainer>
+    )
+  }
+
+  // Modal view mode: render as button + modal overlay
   return (
     <Container>
       <ToggleButton
@@ -583,9 +696,8 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
                   Cancel
                 </CancelButton>
                 <SaveButton
-                  onClick={handleSaveDurations}
+                  onClick={handleSaveDurationsWrapper}
                   disabled={!!focusError || !!shortBreakError || !!longBreakError}
-                >
                   Save Changes
                 </SaveButton>
               </Footer>

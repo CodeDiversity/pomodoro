@@ -470,10 +470,13 @@ function App() {
 
           {/* Settings View */}
           {viewMode === 'settings' && (
-            <SettingsPlaceholder>
-              <h2>Settings</h2>
-              <p>Use the settings button in the top bar to access timer settings.</p>
-            </SettingsPlaceholder>
+            <Settings
+              autoStart={autoStart}
+              onAutoStartChange={setAutoStart}
+              customDurations={customDurations || undefined}
+              onSaveDurations={handleSaveDurations}
+              viewMode="page"
+            />
           )}
         </ContentArea>
       </MainContent>
