@@ -10,12 +10,24 @@ const Panel = styled.div<{ $isVisible: boolean }>`
   border-radius: 12px;
   padding: 24px;
   gap: 16px;
+  flex: 1;
 `
 
 const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+const HeaderTitle = styled.div`
   font-size: 1.1rem;
   font-weight: 600;
   color: ${colors.text};
+`
+
+const HeaderSubtitle = styled.div`
+  font-size: 0.85rem;
+  color: ${colors.textMuted};
 `
 
 const TaskInputContainer = styled.div`
@@ -24,15 +36,31 @@ const TaskInputContainer = styled.div`
   gap: 6px;
 `
 
+const TaskInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`
+
 const Label = styled.label`
   font-size: 0.85rem;
   font-weight: 500;
   color: ${colors.textMuted};
 `
 
+const TaskInputIcon = styled.div`
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colors.textMuted};
+  pointer-events: none;
+`
+
 const TaskInput = styled.input`
   width: 100%;
-  padding: 12px;
+  padding: 12px 12px 12px 40px;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -49,6 +77,15 @@ const TaskInput = styled.input`
     border-color: #0066FF;
     box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
   }
+`
+
+const SessionNotesLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: ${colors.textMuted};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 `
 
 const Toolbar = styled.div`
@@ -80,15 +117,23 @@ const ToolbarButton = styled.button`
   }
 `
 
+const TextAreaContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+`
+
 const TextArea = styled.textarea`
   width: 100%;
-  min-height: 200px;
+  flex: 1;
+  min-height: 120px;
   padding: 16px;
   border: 1px solid #E0E0E0;
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.95rem;
-  resize: vertical;
+  resize: none;
   box-sizing: border-box;
   transition: border-color ${transitions.fast};
 
@@ -129,6 +174,14 @@ interface NotePanelProps {
   lastSaved: number | null
   maxLength: number
 }
+
+// Task Icon
+const TaskIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+)
 
 // Toolbar Icons
 const BoldIcon = () => (
@@ -172,18 +225,27 @@ export default function NotePanel({
 
   return (
     <Panel $isVisible={isVisible}>
-      <Header>Active Session</Header>
+      <Header>
+        <HeaderTitle>Active Session</HeaderTitle>
+        <HeaderSubtitle>Configure your current focus task</HeaderSubtitle>
+      </Header>
 
       <TaskInputContainer>
         <Label>What are you working on?</Label>
-        <TaskInput
-          type="text"
-          value={taskInput}
-          onChange={(e) => setTaskInput(e.target.value)}
-          placeholder="Enter your task..."
-        />
+        <TaskInputWrapper>
+          <TaskInputIcon>
+            <TaskIcon />
+          </TaskInputIcon>
+          <TaskInput
+            type="text"
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            placeholder="What are you working on?"
+          />
+        </TaskInputWrapper>
       </TaskInputContainer>
 
+      <SessionNotesLabel>SESSION NOTES</SessionNotesLabel>
       <Toolbar>
         <ToolbarButton aria-label="Bold" title="Bold">
           <BoldIcon />
@@ -196,12 +258,14 @@ export default function NotePanel({
         </ToolbarButton>
       </Toolbar>
 
-      <TextArea
-        value={noteText}
-        onChange={(e) => onNoteChange(e.target.value)}
-        placeholder="Capture your thoughts, ideas, and progress..."
-        maxLength={maxLength}
-      />
+      <TextAreaContainer>
+        <TextArea
+          value={noteText}
+          onChange={(e) => onNoteChange(e.target.value)}
+          placeholder="Brainstorming key UI components..."
+          maxLength={maxLength}
+        />
+      </TextAreaContainer>
 
       <StatusRow>
         <SaveStatus $saving={saveStatus === 'saving'}>
