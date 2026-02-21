@@ -57,20 +57,6 @@ const TopBar = styled.div`
   gap: 12px;
 `
 
-const SettingsPlaceholder = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  text-align: center;
-  color: ${colors.textMuted};
-
-  h2 {
-    color: ${colors.text};
-    margin-bottom: 8px;
-  }
-`
 
 // Split-pane layout for timer view
 const SplitPaneContainer = styled.div`

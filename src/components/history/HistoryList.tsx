@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
 import { HistoryFilterBar } from './HistoryFilterBar'
 import { HistoryItem } from './HistoryItem'
-import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
+import { colors, transitions } from '../ui/theme'
 
 const ListContainer = styled.div`
   padding: 24px;

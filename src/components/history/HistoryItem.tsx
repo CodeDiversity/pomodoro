@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
 import { formatDurationFull, truncateText } from '../../utils/durationUtils'
-import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
+import { colors } from '../ui/theme'
 
 const ItemContainer = styled.div`
   display: flex;

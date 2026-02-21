@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { colors, radii, shadows, transitions } from './ui/theme'
+import { colors, transitions } from './ui/theme'
 
 const Container = styled.div`
   position: relative;

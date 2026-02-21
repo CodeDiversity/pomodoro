@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { DateFilter } from '../../utils/dateUtils'
-import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
+import { colors, transitions } from '../ui/theme'
 
 const FilterBarContainer = styled.div`
   display: flex;

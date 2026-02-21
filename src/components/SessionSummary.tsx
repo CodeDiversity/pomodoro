@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { colors, radii, shadows, spacing, transitions } from './ui/theme'
+import { colors, transitions } from './ui/theme'
 
 const Overlay = styled.div`
   position: fixed;

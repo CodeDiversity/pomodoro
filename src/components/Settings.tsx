@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { clearDatabase } from '../services/db'
-import { colors, radii, shadows, transitions } from './ui/theme'
+import { colors, transitions } from './ui/theme'
 
 interface SettingsProps {
   autoStart: boolean
@@ -698,6 +698,7 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
                 <SaveButton
                   onClick={handleSaveDurationsWrapper}
                   disabled={!!focusError || !!shortBreakError || !!longBreakError}
+                >
                   Save Changes
                 </SaveButton>
               </Footer>
