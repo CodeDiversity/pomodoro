@@ -431,7 +431,7 @@ function App() {
           {/* History View */}
           {viewMode === 'history' && (
             <>
-              <div style={{ width: '100%', maxWidth: '800px' }}>
+              <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
                 <HistoryList
                   sessions={sessions}
                   filteredSessions={filteredSessions}
@@ -441,6 +441,7 @@ function App() {
                   onDateFilterChange={setDateFilter}
                   onSearchChange={setSearchQuery}
                   onSessionClick={handleSessionClick}
+                  onStartTimer={() => setViewMode('timer')}
                 />
               </div>
               <HistoryDrawer
