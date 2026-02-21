@@ -1,26 +1,35 @@
 import { useState } from 'react'
 import styled from 'styled-components'
+import { colors, radii, shadows, transitions } from './ui/theme'
 
 const Container = styled.div`
   position: relative;
 `
 
 const ToggleButton = styled.button`
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid #e5e5e5;
+  border: 1px solid ${colors.border};
   border-radius: 50%;
-  background-color: white;
-  color: #666;
+  background-color: ${colors.background};
+  color: ${colors.textMuted};
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all ${transitions.normal};
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: ${colors.surface};
+    transform: translateY(-1px);
+    box-shadow: ${shadows.sm};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
   }
 `
 
@@ -30,10 +39,10 @@ const Panel = styled.div`
   left: 50%;
   transform: translateX(-50%);
   margin-bottom: 0.5rem;
-  background-color: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: ${colors.background};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.lg};
+  box-shadow: ${shadows.lg};
   padding: 0.75rem;
   min-width: 200px;
   z-index: 20;
@@ -43,15 +52,15 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${colors.surface};
 `
 
 const Title = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: ${colors.text};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `
@@ -61,12 +70,19 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
-  color: #999;
+  color: ${colors.textMuted};
   line-height: 1;
   padding: 0;
+  transition: color ${transitions.fast};
 
   &:hover {
-    color: #666;
+    color: ${colors.text};
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
+    border-radius: 2px;
   }
 `
 
@@ -87,15 +103,15 @@ const Kbd = styled.kbd`
   font-family: monospace;
   font-size: 0.75rem;
   padding: 0.125rem 0.375rem;
-  background-color: #f5f5f5;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
-  color: #333;
+  background-color: ${colors.surface};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.sm};
+  color: ${colors.text};
 `
 
 const Description = styled.span`
   font-size: 0.8125rem;
-  color: #666;
+  color: ${colors.textMuted};
 `
 
 export default function HelpPanel() {
