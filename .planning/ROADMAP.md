@@ -61,7 +61,7 @@
 | 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
 | 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
 | 6 - Redesign | v2.0 UI Redesign with light mode and sidebar | N/A (visual redesign) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
-| 6.1 - Timer Refinement | Timer view layout improvements | N/A (layout refinement) | TBD | 0/1 | Not Started | - |
+| 6.1 - Timer Refinement | Timer view layout improvements | N/A (layout refinement) | 8 criteria | 1/1 | Complete | 2026-02-21 |
 
 ---
 
@@ -105,7 +105,9 @@
 
 **Plans:** 1 plan
 
-- [ ] 06.1-01-PLAN.md — Timer layout refinements and component positioning
+- [x] 06.1-01-PLAN.md — Timer layout refinements and component positioning
+
+**Phase 6.1 Status:** COMPLETE (2026-02-21)
 
 ---
 

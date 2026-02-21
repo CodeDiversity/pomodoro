@@ -36,7 +36,7 @@ Progress: [##########] 100%
 | 06-02 | Timer View Redesign | 5 tasks | COMPLETE |
 | 06-03 | History View Redesign | 4 tasks | COMPLETE |
 | 06-04 | Final Redesign Polish | 4 tasks | COMPLETE |
-| 06.1-timer-refinement | Timer view refinements and polish | 1+ plans | IN PROGRESS |
+| 06.1-timer-refinement | Timer view refinements and polish | 1 plan | COMPLETE |
 
 ### Phase 06-redesign Plans
 
