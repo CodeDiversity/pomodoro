@@ -60,6 +60,8 @@
 |-------|------|--------------|------------------|----------------|--------|-----------|
 | 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
 | 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
+| 6 - Redesign | v2.0 UI Redesign with light mode and sidebar | N/A (visual redesign) | 4 artifacts | 4/4 | Complete | 2026-02-21 |
+| 6.1 - Timer Refinement | Timer view layout improvements | N/A (layout refinement) | TBD | 0/1 | Not Started | - |
 
 ---
 
@@ -86,10 +88,24 @@
 
 **Plans:** 4 plans
 
-- [ ] 06-01-PLAN.md — Foundation: Theme, layout shell, sidebar navigation
-- [ ] 06-02-PLAN.md — Timer View: Circular timer, split-pane layout, notes panel redesign
-- [ ] 06-03-PLAN.md — History View: Card-based history, search/filter UI
-- [ ] 06-04-PLAN.md — Settings & Polish: Settings redesign, final touches, cleanup
+- [x] 06-01-PLAN.md — Foundation: Theme, layout shell, sidebar navigation
+- [x] 06-02-PLAN.md — Timer View: Circular timer, split-pane layout, notes panel redesign
+- [x] 06-03-PLAN.md — History View: Card-based history, search/filter UI
+- [x] 06-04-PLAN.md — Settings & Polish: Settings redesign, final touches, cleanup
+
+**Phase 6 Status:** COMPLETE (2026-02-21)
+
+---
+
+### Phase 6.1: Timer View Refinement
+
+**Goal:** Refine the timer view layout with full-height split panel, repositioned daily goal indicator, updated top bar with session status, and improved right panel structure with Complete Session button at bottom.
+
+**Depends on:** Phase 6
+
+**Plans:** 1 plan
+
+- [ ] 06.1-01-PLAN.md — Timer layout refinements and component positioning
 
 ---
 
