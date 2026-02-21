@@ -446,8 +446,8 @@ const ResetButton = styled.button`
 const Toast = styled.div<{ $visible: boolean }>`
   position: absolute;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(${props => props.$visible ? '0' : '20px'});
+  right: 24px;
+  transform: translateY(${props => props.$visible ? '0' : '20px'});
   opacity: ${props => props.$visible ? '1' : '0'};
   background: #0f172a;
   color: white;
