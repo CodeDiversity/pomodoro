@@ -441,8 +441,35 @@ const ResetButton = styled.button`
   }
 `
 
+const Toast = styled.div<{ $visible: boolean }>`
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(${props => props.$visible ? '0' : '20px'});
+  opacity: ${props => props.$visible ? '1' : '0'};
+  background: #0f172a;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const CheckIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
 export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations, viewMode = 'modal' }: SettingsProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [showToast, setShowToast] = useState(false)
 
   // Initialize duration state from props (convert seconds to minutes)
   const [focusMinutes, setFocusMinutes] = useState(() => {
@@ -471,6 +498,9 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
         shortBreak: shortBreakMinutes * 60,
         longBreak: longBreakMinutes * 60,
       })
+      // Show success toast
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 2000)
     }
     if (viewMode === 'modal') {
       setIsOpen(false)
@@ -605,6 +635,11 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
             </SaveButton>
           </Footer>
         )}
+
+        <Toast $visible={showToast}>
+          <CheckIcon />
+          Settings saved successfully
+        </Toast>
       </PageContainer>
     )
   }
@@ -706,6 +741,11 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
           </Modal>
         </Overlay>
       )}
+
+      <Toast $visible={showToast}>
+        <CheckIcon />
+        Settings saved successfully
+      </Toast>
     </Container>
   )
 }
