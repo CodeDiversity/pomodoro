@@ -6,25 +6,34 @@
 
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v2.0 UI Redesign
-- **Current Phase:** Not started (defining requirements)
-- **Next Step:** v1.1 complete, ready for v2.0 redesign or new features
+- **Current Phase:** 06-redesign
+- **Current Plan:** 01 (Theme Foundation and Sidebar Layout - COMPLETE)
+- **Next Step:** Continue with next plan in phase 06-redesign
 
 ## Current Position
 
 | Attribute | Value |
 |-----------|-------|
 | Milestone | v2.0 UI Redesign |
-| Phase | — (defining requirements) |
-| Plan | — |
-| Status | Defining requirements |
+| Phase | 06-redesign |
+| Plan | 01 - Theme Foundation and Sidebar Layout |
+| Status | In Progress |
 
-Progress: [............] 0%
+Progress: [#...........] 10%
 
 ## v2.0 Phase Summary
 
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
-| Phase 6 (Presets) was removed from v1.1 roadmap | - | - | - |
+| 06-redesign | v2.0 UI Redesign with light mode and sidebar | 5 plans | In Progress |
+| 06-01 | Theme Foundation and Sidebar Layout | 3 tasks | COMPLETE |
+
+### Phase 06-redesign Plans
+
+| Plan | Name | Status |
+|------|------|--------|
+| 06-01 | Theme Foundation and Sidebar Layout | COMPLETE |
+| 06-02 | (Next plan TBD) | Pending |
 
 ---
 
@@ -32,6 +41,13 @@ Progress: [............] 0%
 
 - Used action-based approach for updating custom durations rather than direct state mutation
 - Applied custom durations on load only when different from defaults to avoid unnecessary resets
+
+### Phase 06-redesign Decisions
+
+- Changed primary color from red (#e74c3c) to blue (#0066FF) for fresh light mode aesthetic
+- Implemented sidebar navigation replacing tab-based navigation
+- Used inline SVG icons to minimize dependency changes during redesign
+- Kept Settings modal pattern for consistency while adding sidebar navigation item
 
 ### Phase 05.1 Decisions
 - Used styled-components for all UI components (consistent with existing codebase)
@@ -78,6 +94,7 @@ Progress: [............] 0%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: **Plan 06-01 completed** - Theme Foundation and Sidebar Layout with light mode and blue accents
 - 2026-02-21: **Session resumed** - Project context restored
 - 2026-02-21: Quick task 5 completed - Reduced TimerDisplay whitespace for more compact UI
 - 2026-02-21: Quick task 4 completed - Notes section now has Google Keep aesthetic
@@ -110,4 +127,4 @@ Progress: [............] 0%
 
 *State updated: 2026-02-21*
 
-<!-- GSD_METADATA: {"plan": "05.1-04", "status": "complete", "tasks": 3, "duration": "3min"} -->
+<!-- GSD_METADATA: {"plan": "06-01", "status": "complete", "tasks": 3, "duration": "2min"} -->
