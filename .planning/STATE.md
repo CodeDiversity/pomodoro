@@ -21,12 +21,15 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 
 ## Current Position
 
-No active phase. All planned work for v2.0 is complete.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-21 — Milestone v2.1 started
 
 **Ready For:**
-- Planning v2.1 enhancements
-- Human verification of shipped features
-- New requirements definition
+- Domain research (Redux Toolkit integration patterns)
+- Requirements definition for v2.1 features
+- Roadmap creation
 
 ## Key Decisions
 

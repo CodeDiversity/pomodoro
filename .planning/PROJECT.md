@@ -8,23 +8,18 @@ A responsive Pomodoro timer web app with session notes, history tracking, and st
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current State: v2.0 Shipped
+## Current Milestone: v2.1 Enhancements
 
-**Last Milestone:** v2.0 UI Redesign — SHIPPED 2026-02-21
+**Goal:** Add advanced features and architectural improvements: Redux Toolkit state management, enhanced stats visualizations, data export, and settings page modernization.
 
-**What shipped:**
-- Custom timer durations with validation and persistence
-- Complete visual redesign with light mode and blue (#136dec) accents
-- Sidebar navigation replacing tab-based layout
-- Split-pane timer view with circular progress ring
-- Polished modal UX for Settings, Help, and Session Summary
-- Card-based history view with date grouping
-
-**Next Milestone Goals:**
-- v2.1 Performance optimizations
-- Additional stats visualizations (weekly charts, streaks)
-- Export functionality for session history
-- Sound customization options
+**Target features:**
+- Redux Toolkit for centralized state management (refactor from useReducer)
+- Modernized Settings page to match app design system
+- Weekly stats visualization with bar charts
+- Daily streak counter
+- Export history as CSV
+- Custom notification sounds
+- Performance optimizations
 
 ## Requirements
 
