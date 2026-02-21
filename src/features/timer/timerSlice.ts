@@ -107,7 +107,7 @@ const timerSlice = createSlice({
       state.pausedTimeRemaining = null
     },
 
-    loadState(state, action: PayloadAction<TimerState>) {
+    loadState(_state, action: PayloadAction<TimerState>) {
       return action.payload
     },
   },

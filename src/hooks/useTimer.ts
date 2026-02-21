@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { TimerMode } from '../types/timer'
-import { DURATIONS } from '../constants/timer'
-import { loadTimerState, saveTimerState, saveTimerStateImmediate, loadSettings, saveSettings } from '../services/persistence'
+import { loadTimerState, loadSettings, saveSettings } from '../services/persistence'
 import { notifySessionComplete, requestPermission } from '../services/notifications'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
