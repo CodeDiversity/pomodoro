@@ -1,6 +1,6 @@
 # Project State: Pomodoro Timer
 
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-02-21
 
 ## Project Reference
 
@@ -58,6 +58,7 @@ Progress: [██████████] 100%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: Quick task 3 completed - Fix saved notes not showing on click
 - 2026-02-21: Quick task 2 completed - Fixed history tab refresh and added DB reset
 - 2026-02-20: Plan 05-02 completed - Settings UI with duration inputs and validation
 - 2026-02-20: Plan 05-01 completed - Data layer and timer integration for custom durations
@@ -70,10 +71,11 @@ Progress: [██████████] 100%
 |---|-------------|------|--------|-----------|
 | 1 | Add keyboard shortcuts | 2026-02-20 | a1b2c3d | [1-add-keyboard-shortcuts](./quick/1-add-keyboard-shortcuts/) |
 | 2 | fix history tab refresh and add db reset | 2026-02-21 | 40af9de | [2-fix-history-tab-refresh-and-add-db-reset](./quick/2-fix-history-tab-refresh-and-add-db-reset/) |
+| 3 | Fix saved notes not showing on click | 2026-02-21 | 5ef5b91 | [3-fix-saved-notes-not-showing-on-click](./quick/3-fix-saved-notes-not-showing-on-click/) |
 
 **Ready For:**
 - Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
 
 ---
 
-*State updated: 2026-02-20*
+*State updated: 2026-02-21*
