@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { colors, radii, shadows, transitions } from './theme';
+import { colors, radii, transitions } from './theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';

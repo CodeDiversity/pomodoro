@@ -7,7 +7,7 @@
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
 - **Current Phase:** 05.1 (Design System)
-- **Next Step:** Plan 05.1-02 (Modernize buttons)
+- **Next Step:** Plan 05.1-03 (Modernize tabs and history drawer)
 
 ## Current Position
 
@@ -15,10 +15,10 @@
 |-----------|-------|
 | Milestone | v1.1 Custom Durations |
 | Phase | 05.1 of 05.1 (UI Modernization) |
-| Plan | 01 of 04 (COMPLETED) |
+| Plan | 02 of 04 (COMPLETED) |
 | Status | Plan complete |
 
-Progress: [██░░░░░░░░░] 10%
+Progress: [████░░░░░░░░] 20%
 
 ## v1.1 Phase Summary
 
@@ -40,6 +40,10 @@ Progress: [██░░░░░░░░░] 10%
 - Kept existing red (#e74c3c) accent color from research findings
 - All interactive elements include focus-visible rings for accessibility
 - Components import from centralized theme.ts for consistency
+- Applied hover lift effect (translateY) with shadow changes for tactile feedback
+- TimerControls: Added shadow, hover lift effect, active state, focus-visible ring
+- NotePanel: Added panel shadow, modern textarea with focus ring and transitions
+- TagInput: Added gradient chips with hover effects, modern input with focus ring
 
 ---
 
@@ -69,6 +73,7 @@ Progress: [██░░░░░░░░░] 10%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: Plan 05.1-02 completed - Modernized TimerControls, NotePanel, TagInput with shadows and focus rings
 - 2026-02-21: Plan 05.1-01 completed - Design system foundation with shared UI components
 - 2026-02-21: Quick task 3 completed - Fix saved notes not showing on click
 - 2026-02-21: Quick task 2 completed - Fixed history tab refresh and added DB reset
@@ -86,7 +91,7 @@ Progress: [██░░░░░░░░░] 10%
 | 3 | Fix saved notes not showing on click | 2026-02-21 | 5ef5b91 | [3-fix-saved-notes-not-showing-on-click](./quick/3-fix-saved-notes-not-showing-on-click/) |
 
 **Ready For:**
-- Plan 05.1-02 - Modernize buttons (replace inline buttons with shared Button component)
+- Plan 05.1-03 - Modernize tabs and history drawer
 - Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
 
 ---
