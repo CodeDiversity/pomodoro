@@ -4,6 +4,7 @@ import { SessionRecord } from '../../types/session'
 import { saveSession, deleteSession } from '../../services/sessionStore'
 import { formatDateFull } from '../../utils/dateUtils'
 import { formatDurationFull } from '../../utils/durationUtils'
+import { colors, transitions } from '../ui/theme'
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -45,20 +46,34 @@ const DrawerHeader = styled.div`
 const DrawerTitle = styled.h2`
   margin: 0;
   font-size: 1.1rem;
-  color: #333;
+  color: ${colors.text};
+  font-weight: 600;
 `
 
 const CloseButton = styled.button`
+  width: 32px;
+  height: 32px;
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: ${colors.textMuted};
   padding: 0;
   line-height: 1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ${transitions.fast};
 
   &:hover {
-    color: #333;
+    background-color: ${colors.surface};
+    color: ${colors.text};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
   }
 `
 
@@ -73,46 +88,51 @@ const DetailRow = styled.div`
 `
 
 const DetailLabel = styled.div`
-  font-size: 0.8rem;
-  color: #888;
-  margin-bottom: 4px;
+  font-size: 0.75rem;
+  color: ${colors.textMuted};
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 500;
 `
 
 const DetailValue = styled.div`
   font-size: 0.95rem;
-  color: #333;
+  color: ${colors.text};
 `
 
 const NoteTextArea = styled.textarea`
   width: 100%;
   min-height: 120px;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid ${colors.border};
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.9rem;
   resize: vertical;
   box-sizing: border-box;
+  transition: all ${transitions.fast};
 
   &:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
   }
 `
 
 const TagsInput = styled.input`
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid ${colors.border};
   border-radius: 8px;
   font-size: 0.9rem;
   box-sizing: border-box;
+  transition: all ${transitions.fast};
 
   &:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
   }
 `
 
@@ -126,43 +146,52 @@ const TagsDisplay = styled.div`
 const Tag = styled.span`
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  background: #e8e8e8;
-  border-radius: 14px;
+  padding: 4px 12px;
+  background: #F0F7FF;
+  border: 1px solid ${colors.primary};
+  border-radius: 16px;
   font-size: 0.85rem;
-  color: #555;
+  color: ${colors.primary};
 `
 
 const ModeBadge = styled.span`
   display: inline-block;
-  padding: 4px 10px;
-  background: #e74c3c;
-  border-radius: 4px;
+  padding: 4px 12px;
+  background: #F0F7FF;
+  border: 1px solid ${colors.primary};
+  border-radius: 16px;
   font-size: 0.8rem;
-  color: #fff;
+  font-weight: 600;
+  color: ${colors.primary};
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 `
 
 const DeleteButton = styled.button`
   margin: 20px;
   padding: 12px;
-  border: 1px solid #e74c3c;
+  border: 1px solid ${colors.error};
   border-radius: 8px;
   background: #fff;
-  color: #e74c3c;
+  color: ${colors.error};
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all ${transitions.fast};
 
   &:hover {
-    background: #e74c3c;
-    color: #fff;
+    background: #fff5f5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.error};
+    outline-offset: 2px;
   }
 `
 
 const SaveStatus = styled.div<{ $saving: boolean }>`
   font-size: 0.8rem;
-  color: ${props => props.$saving ? '#e67e22' : '#27ae60'};
+  color: ${props => props.$saving ? colors.textMuted : colors.success};
   margin-top: 6px;
 `
 
@@ -183,12 +212,13 @@ const ConfirmDialog = styled.div`
 const ConfirmTitle = styled.h3`
   margin: 0 0 12px;
   font-size: 1.1rem;
-  color: #333;
+  color: ${colors.text};
+  font-weight: 600;
 `
 
 const ConfirmText = styled.p`
   margin: 0 0 20px;
-  color: #666;
+  color: ${colors.textMuted};
   font-size: 0.95rem;
 `
 
@@ -200,16 +230,22 @@ const ConfirmButtons = styled.div`
 
 const ConfirmButton = styled.button<{ $danger?: boolean }>`
   padding: 10px 20px;
-  border: 1px solid ${props => props.$danger ? '#e74c3c' : '#ccc'};
-  border-radius: 6px;
-  background: ${props => props.$danger ? '#e74c3c' : '#fff'};
-  color: ${props => props.$danger ? '#fff' : '#333'};
+  border: 1px solid ${props => props.$danger ? colors.error : colors.border};
+  border-radius: 8px;
+  background: ${props => props.$danger ? colors.error : '#fff'};
+  color: ${props => props.$danger ? '#fff' : colors.text};
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all ${transitions.fast};
 
   &:hover {
-    background: ${props => props.$danger ? '#c0392b' : '#f5f5f5'};
+    background: ${props => props.$danger ? '#c0392b' : colors.surface};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${props => props.$danger ? colors.error : colors.primary};
+    outline-offset: 2px;
   }
 `
 
