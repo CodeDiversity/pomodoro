@@ -7,7 +7,7 @@
 - **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 - **Current Milestone:** v1.1 Custom Durations
 - **Current Phase:** 05.1 (Design System)
-- **Next Step:** Plan 05.1-04 (Modernize HistoryList and HistoryDrawer)
+- **Next Step:** Plan 05.1-05 (remaining UI modernization)
 
 ## Current Position
 
@@ -15,10 +15,10 @@
 |-----------|-------|
 | Milestone | v1.1 Custom Durations |
 | Phase | 05.1 of 05.1 (UI Modernization) |
-| Plan | 03 of 04 (COMPLETED) |
+| Plan | 04 of 04 (COMPLETED) |
 | Status | Plan complete |
 
-Progress: [██████░░░░░░] 30%
+Progress: [████████████] 100%
 
 ## v1.1 Phase Summary
 
@@ -47,6 +47,9 @@ Progress: [██████░░░░░░] 30%
 - Settings: Modernized stepper buttons, focus rings, hover lift effects, shadow on save button
 - App.tsx tabs: Added shadow, better padding, 12px radius, focus-visible rings
 - HelpPanel: Added shadow-lg panel, focus rings on buttons
+- SessionSummary: Added backdrop blur, elevated shadow, hover lift on Continue button
+- HistoryList: Added shadow and hover lift on Load more button
+- HistoryItem: Added card shadow and hover lift effect with border color change
 
 ---
 
@@ -76,6 +79,7 @@ Progress: [██████░░░░░░] 30%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: Plan 05.1-04 completed - Modernized SessionSummary, HistoryList, and HistoryItem with consistent design system
 - 2026-02-21: Plan 05.1-03 completed - Modernized Settings, App tabs, and HelpPanel with consistent design system
 - 2026-02-21: Plan 05.1-02 completed - Modernized TimerControls, NotePanel, TagInput with shadows and focus rings
 - 2026-02-21: Plan 05.1-01 completed - Design system foundation with shared UI components
@@ -95,11 +99,11 @@ Progress: [██████░░░░░░] 30%
 | 3 | Fix saved notes not showing on click | 2026-02-21 | 5ef5b91 | [3-fix-saved-notes-not-showing-on-click](./quick/3-fix-saved-notes-not-showing-on-click/) |
 
 **Ready For:**
-- Plan 05.1-04 - Modernize HistoryList and HistoryDrawer
+- Phase 05.1 complete - All UI modernization done
 - Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
 
 ---
 
 *State updated: 2026-02-21*
 
-<!-- GSD_METADATA: {"plan": "05.1-03", "status": "complete", "tasks": 3, "duration": "6min"} -->
+<!-- GSD_METADATA: {"plan": "05.1-04", "status": "complete", "tasks": 3, "duration": "3min"} -->
