@@ -7,10 +7,12 @@
 
 ## Phases
 
-- [ ] **Phase 5: Custom Durations Core** - Data layer, timer integration, Settings UI
+- [x] **Phase 5: Custom Durations Core** - Data layer, timer integration, Settings UI
+- [ ] **Phase 05.1: Modernize UI** - Design system and component modernization (INSERTED)
 - [ ] **Phase 6: Presets & Polish** - Presets, confirmation dialogs, reset to defaults
 
 **Phase 5 Status:** COMPLETE
+**Phase 05.1 Status:** IN PROGRESS
 
 ---
 
@@ -38,6 +40,19 @@
 
 ---
 
+### Phase 05.1: Modernize notes and buttons for better UX and professional look (INSERTED)
+
+**Goal:** Modernize notes input and buttons throughout the app with consistent border-radius, shadows, focus rings, and transitions for a professional look
+
+**Depends on:** Phase 5
+
+**Plans:** 4 plans
+
+- [x] 05.1-01-PLAN.md - Design system foundation (theme, Button, Input, Chip)
+- [x] 05.1-02-PLAN.md - Core component modernization (TimerControls, NotePanel, TagInput)
+- [x] 05.1-03-PLAN.md - Settings and navigation (Settings, App tabs, HelpPanel)
+- [x] 05.1-04-PLAN.md - Modal and history components (SessionSummary, HistoryList, HistoryItem)
+
 ### Phase 6: Presets & Polish
 
 **Goal:** Users can quickly select preset configurations and get confirmation when changing active timers
@@ -61,6 +76,7 @@
 | Phase | Goal | Requirements | Success Criteria | Plans Complete | Status | Completed |
 |-------|------|--------------|------------------|----------------|--------|-----------|
 | 5 - Custom Durations Core | Set and persist custom timer durations | DUR-01, DUR-02, DUR-03, DUR-05, DUR-06, DUR-08 | 6 criteria | 2/2 | Complete | 2026-02-20 |
+| 05.1 - Modernize UI | Professional UI with consistent design | N/A (UX improvement) | 4 artifacts | 4/4 | In Progress | - |
 | 6 - Presets & Polish | Presets and confirmation dialogs | DUR-04, DUR-07, DUR-09 | 3 criteria | 0/1 | Not started | - |
 
 ---
