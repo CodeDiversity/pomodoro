@@ -44,13 +44,18 @@
 - [ ] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
 - [ ] **STRK-07**: Streak data persisted to IndexedDB
 
-### Data Export
+### Data Export & Import
 
 - [ ] **EXPT-01**: Export button in History view
 - [ ] **EXPT-02**: Date range filter for export (today/7 days/30 days/all)
 - [ ] **EXPT-03**: CSV format with columns: date, duration, mode, notes, tags
 - [ ] **EXPT-04**: Filename: pomodoro-sessions-YYYY-MM-DD.csv
 - [ ] **EXPT-05**: Download triggers browser file download
+- [ ] **IMPT-01**: Import button in Settings view
+- [ ] **IMPT-02**: File picker accepts CSV files exported from app
+- [ ] **IMPT-03**: Import validates CSV format and columns
+- [ ] **IMPT-04**: Imported sessions merged with existing (no duplicates)
+- [ ] **IMPT-05**: Import progress shown with success/error feedback
 
 ## v2.2+ Requirements (Deferred)
 
@@ -85,7 +90,7 @@
 | REDUX-05 | Phase 10 | Pending |
 | REDUX-06 | Phase 9 | Pending |
 | REDUX-07 | Phase 8 | Pending |
-| REDUX-08 | Phase 8-10 | Pending |
+| REDUX-08 | Phase 8 | Pending |
 | REDUX-09 | Phase 8 | Pending |
 | REDUX-10 | Phase 10 | Pending |
 | SETS-01 | Phase 11 | Pending |
@@ -119,4 +124,4 @@
 ---
 
 *Requirements defined: 2026-02-21*
-*Last updated: 2026-02-21 after research synthesis*
+*Last updated: 2026-02-21 after roadmap creation*
