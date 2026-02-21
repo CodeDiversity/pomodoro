@@ -1,27 +1,24 @@
 import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
-import { formatDateFull } from '../../utils/dateUtils'
 import { formatDurationFull, truncateText } from '../../utils/durationUtils'
 import { colors, radii, shadows, spacing, transitions } from '../ui/theme'
 
 const ItemContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  padding: ${spacing.md};
-  border: 1px solid ${colors.border};
-  border-radius: ${radii.lg};
-  margin-bottom: ${spacing.sm};
+  gap: 16px;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid #E8E8E8;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
-  transition: all ${transitions.normal};
-  background: ${colors.background};
-  box-shadow: ${shadows.sm};
+  transition: all 200ms ease;
 
   &:hover {
-    border-color: ${colors.primary};
-    background: ${colors.surface};
-    transform: translateY(-2px);
-    box-shadow: ${shadows.md};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
   }
 
   &:focus-visible {
@@ -30,47 +27,83 @@ const ItemContainer = styled.div`
   }
 `
 
-const LeftContent = styled.div`
+const StatusIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #E8F5E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`
+
+const CheckmarkIcon = styled.svg`
+  width: 20px;
+  height: 20px;
+  color: #27AE60;
+`
+
+const Content = styled.div`
   flex: 1;
   min-width: 0;
 `
 
-const DateDurationRow = styled.div`
-  display: flex;
-  gap: ${spacing.md};
-  font-size: 0.9rem;
-  color: ${colors.text};
-  margin-bottom: ${spacing.xs};
+const Title = styled.div`
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1A1A1A;
+  margin-bottom: 4px;
 `
 
-const Duration = styled.span`
-  color: ${colors.textMuted};
+const TimeRange = styled.div`
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 4px;
 `
 
 const NotePreview = styled.div`
   font-size: 0.85rem;
-  color: ${colors.textMuted};
-  white-space: nowrap;
+  color: #888;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+`
+
+const Meta = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+`
+
+const DurationBadge = styled.span`
+  background: #F5F5F5;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #666;
 `
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${spacing.sm};
-  margin-left: ${spacing.md};
-  flex-shrink: 0;
+  gap: 6px;
+  justify-content: flex-end;
 `
 
 const Tag = styled.span`
-  display: inline-block;
-  padding: 2px 8px;
-  background: ${colors.surface};
-  border-radius: ${radii.full};
+  background: #F0F7FF;
+  color: #0066FF;
+  border: 1px solid #0066FF;
+  border-radius: 12px;
+  padding: 2px 10px;
   font-size: 0.75rem;
-  color: ${colors.textMuted};
-  border: 1px solid ${colors.border};
 `
 
 interface HistoryItemProps {
@@ -78,25 +111,75 @@ interface HistoryItemProps {
   onClick: () => void
 }
 
+function formatTimeRange(startTimestamp: string, durationSeconds: number): string {
+  const start = new Date(startTimestamp)
+  const end = new Date(start.getTime() + durationSeconds * 1000)
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  }
+
+  return `${formatTime(start)} - ${formatTime(end)}`
+}
+
+function extractSessionTitle(session: SessionRecord): string {
+  if (session.noteText) {
+    // Get first line, remove leading/trailing whitespace
+    const firstLine = session.noteText.split('\n')[0].trim()
+    if (firstLine) {
+      return truncateText(firstLine, 50)
+    }
+  }
+  return 'Focus Session'
+}
+
 export function HistoryItem({ session, onClick }: HistoryItemProps) {
+  const title = extractSessionTitle(session)
+  const timeRange = formatTimeRange(session.startTimestamp, session.actualDurationSeconds)
+  const duration = formatDurationFull(session.actualDurationSeconds)
+
+  // Get notes preview (excluding the title line if it was from notes)
+  let notesPreview = ''
+  if (session.noteText) {
+    const lines = session.noteText.split('\n')
+    if (lines.length > 1) {
+      notesPreview = lines.slice(1).join(' ').trim()
+    }
+  }
+
   return (
     <ItemContainer onClick={onClick}>
-      <LeftContent>
-        <DateDurationRow>
-          <span>{formatDateFull(session.startTimestamp)}</span>
-          <Duration>{formatDurationFull(session.actualDurationSeconds)}</Duration>
-        </DateDurationRow>
-        {session.noteText && (
-          <NotePreview>{truncateText(session.noteText, 80)}</NotePreview>
+      <StatusIcon>
+        <CheckmarkIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </CheckmarkIcon>
+      </StatusIcon>
+
+      <Content>
+        <Title>{title}</Title>
+        <TimeRange>{timeRange}</TimeRange>
+        {notesPreview && (
+          <NotePreview>{truncateText(notesPreview, 100)}</NotePreview>
         )}
-      </LeftContent>
-      {session.tags.length > 0 && (
-        <TagsContainer>
-          {session.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
-        </TagsContainer>
-      )}
+      </Content>
+
+      <Meta>
+        <DurationBadge>{duration}</DurationBadge>
+        {session.tags.length > 0 && (
+          <TagsContainer>
+            {session.tags.slice(0, 3).map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+            {session.tags.length > 3 && (
+              <Tag>+{session.tags.length - 3}</Tag>
+            )}
+          </TagsContainer>
+        )}
+      </Meta>
     </ItemContainer>
   )
 }
