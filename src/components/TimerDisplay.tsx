@@ -20,7 +20,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
 `
 
 const Badge = styled.div`
@@ -40,8 +42,10 @@ const CircleContainer = styled.div`
   width: 240px;
   height: 240px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin: auto 0;
 `
 
 const SVG = styled.svg`
@@ -74,21 +78,54 @@ const TimeText = styled.div`
   z-index: 1;
 `
 
+const RemainingLabel = styled.div`
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  z-index: 1;
+`
+
 const DailyGoalContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  width: 200px;
+  margin-top: auto;
+`
+
+const DailyGoalLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`
+
+const DailyGoalRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `
 
 const DailyGoalText = styled.div`
   font-size: 0.9rem;
+  color: #1A1A1A;
+  font-weight: 600;
+`
+
+const DailyGoalPercentage = styled.div`
+  font-size: 0.85rem;
   color: #666;
   font-weight: 500;
 `
 
 const ProgressBarContainer = styled.div`
-  width: 200px;
+  width: 100%;
   height: 6px;
   background-color: #E8E8E8;
   border-radius: 3px;
@@ -158,12 +195,17 @@ export default function TimerDisplay({
           />
         </SVG>
         <TimeText>{formattedTime}</TimeText>
+        <RemainingLabel>REMAINING</RemainingLabel>
       </CircleContainer>
 
       <DailyGoalContainer>
-        <DailyGoalText>
-          {sessionCount}/{SESSIONS_BEFORE_LONG_BREAK} Sessions
-        </DailyGoalText>
+        <DailyGoalLabel>DAILY GOAL</DailyGoalLabel>
+        <DailyGoalRow>
+          <DailyGoalText>
+            {sessionCount}/{SESSIONS_BEFORE_LONG_BREAK} Sessions
+          </DailyGoalText>
+          <DailyGoalPercentage>{Math.round(dailyGoalProgress * 100)}%</DailyGoalPercentage>
+        </DailyGoalRow>
         <ProgressBarContainer>
           <ProgressBarFill $progress={dailyGoalProgress} />
         </ProgressBarContainer>
