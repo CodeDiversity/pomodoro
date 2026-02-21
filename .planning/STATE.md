@@ -58,10 +58,18 @@ Progress: [██████████] 100%
 ## Session Continuity
 
 **Recent Activity:**
+- 2026-02-21: Quick task 2 completed - Fixed history tab refresh and added DB reset
 - 2026-02-20: Plan 05-02 completed - Settings UI with duration inputs and validation
 - 2026-02-20: Plan 05-01 completed - Data layer and timer integration for custom durations
 - 2026-02-19: Phase 5 context gathered - Input style, validation, apply timing, save strategy decided
 - 2026-02-19: v1.0 completed and shipped
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 1 | Add keyboard shortcuts | 2026-02-20 | a1b2c3d | [1-add-keyboard-shortcuts](./quick/1-add-keyboard-shortcuts/) |
+| 2 | fix history tab refresh and add db reset | 2026-02-21 | 40af9de | [2-fix-history-tab-refresh-and-add-db-reset](./quick/2-fix-history-tab-refresh-and-add-db-reset/) |
 
 **Ready For:**
 - Phase 6 - Presets & Polish (DUR-04, DUR-07, DUR-09)
