@@ -1,71 +1,102 @@
 import { useState, useRef } from 'react'
 import styled from 'styled-components'
+import { colors, radii, shadows, transitions, spacing } from './ui/theme'
 
 const TAG_REGEX = /^[a-zA-Z0-9-]{1,20}$/
 const MAX_TAGS = 10
 
 const Container = styled.div<{ $isVisible: boolean }>`
   display: ${props => props.$isVisible ? 'block' : 'none'};
-  margin-top: 0.5rem;
+  margin-top: ${spacing.sm};
+  position: relative;
 `
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: ${spacing.sm};
+  margin-bottom: ${spacing.sm};
 `
 
 const Chip = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: #e74c3c;
+  gap: ${spacing.xs};
+  padding: ${spacing.xs} ${spacing.sm};
+  font-size: 12px;
+  font-weight: 500;
   color: white;
-  border-radius: 12px;
-  font-size: 0.85rem;
+  background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 100%);
+  border-radius: 16px;
+  transition: transform ${transitions.fast}, box-shadow ${transitions.fast};
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
 `
 
 const RemoveButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   padding: 0;
-  font-size: 1rem;
+  margin-left: 2px;
+  font-size: 14px;
   line-height: 1;
-  opacity: 0.8;
+  color: white;
+  background: transparent;
+  border: none;
+  border-radius: ${radii.full};
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity ${transitions.fast};
 
   &:hover {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 1px;
   }
 `
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: ${spacing.sm} ${spacing.md};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.md};
   font-size: 0.9rem;
   box-sizing: border-box;
+  transition: border-color ${transitions.fast}, box-shadow ${transitions.fast};
+  background-color: ${colors.background};
+  color: ${colors.text};
+
+  &::placeholder {
+    color: ${colors.textMuted};
+  }
 
   &:focus {
     outline: none;
-    border-color: #e74c3c;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
   }
 
   &:disabled {
-    background: #f5f5f5;
+    background: ${colors.surface};
     cursor: not-allowed;
   }
 `
 
 const SuggestionsList = styled.ul`
   position: absolute;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background: ${colors.background};
+  border: 1px solid ${colors.border};
+  border-radius: ${radii.md};
+  box-shadow: ${shadows.md};
   list-style: none;
   padding: 0;
   margin: 0;
@@ -76,18 +107,25 @@ const SuggestionsList = styled.ul`
 `
 
 const SuggestionItem = styled.li`
-  padding: 0.5rem;
+  padding: ${spacing.sm} ${spacing.md};
   cursor: pointer;
+  transition: background-color ${transitions.fast};
 
   &:hover {
-    background: #f5f5f5;
+    background: ${colors.surface};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: -2px;
+    background: ${colors.surface};
   }
 `
 
 const Counter = styled.span`
   font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.25rem;
+  color: ${colors.textMuted};
+  margin-top: ${spacing.xs};
   display: block;
 `
 
