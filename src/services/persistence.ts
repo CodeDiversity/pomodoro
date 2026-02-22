@@ -13,13 +13,17 @@ export interface AppSettings {
   focusDuration: number
   shortBreakDuration: number
   longBreakDuration: number
+  notificationSound: string
+  volume: number
 }
 
-const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_SETTINGS: AppSettings = {
   autoStart: false,
   focusDuration: 25 * 60,
   shortBreakDuration: 5 * 60,
   longBreakDuration: 15 * 60,
+  notificationSound: 'beep',
+  volume: 80,
 }
 
 const SETTINGS_KEY = 'current'
@@ -176,6 +180,8 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
       shortBreakDuration: settings.shortBreakDuration,
       longBreakDuration: settings.longBreakDuration,
       autoStart: settings.autoStart,
+      notificationSound: settings.notificationSound,
+      volume: settings.volume,
       version: 1,
     })
   } catch (error) {
@@ -205,6 +211,8 @@ export async function loadSettings(): Promise<AppSettings> {
       focusDuration: stored.focusDuration ?? DEFAULT_SETTINGS.focusDuration,
       shortBreakDuration: stored.shortBreakDuration ?? DEFAULT_SETTINGS.shortBreakDuration,
       longBreakDuration: stored.longBreakDuration ?? DEFAULT_SETTINGS.longBreakDuration,
+      notificationSound: stored.notificationSound ?? DEFAULT_SETTINGS.notificationSound,
+      volume: stored.volume ?? DEFAULT_SETTINGS.volume,
     }
   } catch (error) {
     console.error('Failed to load settings:', error)

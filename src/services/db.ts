@@ -53,6 +53,8 @@ interface SettingsData {
   shortBreakDuration: number
   longBreakDuration: number
   autoStart: boolean
+  notificationSound: string
+  volume: number
   version: number
 }
 
