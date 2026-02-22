@@ -316,20 +316,34 @@ const Label = styled.label`
   cursor: pointer;
 `
 
-// Custom toggle switch
-const ToggleSwitch = styled.div<{ checked: boolean }>`
+// Custom toggle switch using real checkbox
+const ToggleSwitch = styled.label<{ checked: boolean }>`
   position: relative;
+  display: inline-block;
   width: 48px;
   height: 24px;
-  background: ${props => props.checked ? colors.primary : '#E0E0E0'};
-  border-radius: 12px;
-  transition: background ${transitions.normal};
+  flex-shrink: 0;
   cursor: pointer;
-  pointer-events: auto;
 
+  /* Slider track */
+  &::before {
+    content: '';
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${props => props.checked ? colors.primary : '#E0E0E0'};
+    border-radius: 12px;
+    transition: background ${transitions.normal};
+  }
+
+  /* Slider knob */
   &::after {
     content: '';
     position: absolute;
+    cursor: pointer;
     top: 2px;
     left: ${props => props.checked ? '26px' : '2px'};
     width: 20px;
@@ -339,13 +353,6 @@ const ToggleSwitch = styled.div<{ checked: boolean }>`
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: left ${transitions.normal};
   }
-`
-
-const HiddenCheckbox = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
 `
 
 const DurationSection = styled.div`
@@ -574,17 +581,12 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
 
         <SectionTitle>Timer</SectionTitle>
         <SettingRow>
-          <Label onClick={() => onAutoStartChange(!autoStart)}>
-            <ToggleSwitch
-              checked={autoStart}
-              onClick={() => onAutoStartChange(!autoStart)}
-              role="switch"
-              aria-checked={autoStart}
-            >
-              <HiddenCheckbox
+          <Label>
+            <ToggleSwitch checked={autoStart}>
+              <input
                 type="checkbox"
                 checked={autoStart}
-                onChange={(e) => e.stopPropagation()}
+                onChange={(e) => onAutoStartChange(e.target.checked)}
               />
             </ToggleSwitch>
             Auto-start next session
@@ -676,17 +678,12 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
             <Content>
               <SectionTitle>Timer</SectionTitle>
               <SettingRow>
-                <Label onClick={() => onAutoStartChange(!autoStart)}>
-                  <ToggleSwitch
-                    checked={autoStart}
-                    onClick={() => onAutoStartChange(!autoStart)}
-                    role="switch"
-                    aria-checked={autoStart}
-                  >
-                    <HiddenCheckbox
+                <Label>
+                  <ToggleSwitch checked={autoStart}>
+                    <input
                       type="checkbox"
                       checked={autoStart}
-                      onChange={(e) => e.stopPropagation()}
+                      onChange={(e) => onAutoStartChange(e.target.checked)}
                     />
                   </ToggleSwitch>
                   Auto-start next session
