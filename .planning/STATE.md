@@ -1,7 +1,7 @@
 # Project State: Pomodoro Timer v2.1
 
 **Current Milestone:** v2.1 Enhancements
-**Last Updated:** 2026-02-21
+**Last Updated:** 2026-02-22
 
 ---
 
@@ -21,10 +21,10 @@
 
 ## Current Position
 
-**Phase:** 08-timer-slice-migration
+**Phase:** 09-ui-session-slices
 **Current Plan:** 01 (Complete)
 **Next Plan:** Complete
-**Status:** Plan 08-01 complete - Timer migrated to Redux
+**Status:** Plan 09-01 complete - UI slice created with viewMode, drawer, modal state
 
 ### Phase 8 Status
 
@@ -40,15 +40,27 @@
 - [x] Background tab visibility changes handled correctly
 - [x] TypeScript compiles and build succeeds
 
+### Phase 9 Status
+
+**Plan 09-01: COMPLETE**
+
+**Goal:** Create UI slice for managing viewMode, drawer state, and modal visibility in Redux
+
+**Success Criteria:**
+- [x] viewMode (timer/history/stats/settings) state managed in Redux
+- [x] History drawer open/close state managed in Redux
+- [x] Session summary modal visibility controlled via Redux actions
+- [x] Components require no changes (useSessionNotes unchanged)
+
 ---
 
 ## Progress Bar
 
 ```
-Milestone v2.1: [████░░░░░░░░░░░░░░░] 20%
+Milestone v2.1: [██████░░░░░░░░░░░░░] 30%
 Phase 7:  [██████████] 100% - Redux Foundation (Plan 1 of 1 complete)
 Phase 8:  [██████████] 100% - Timer Slice Migration (Plan 1 of 1 complete)
-Phase 9:  [░░░░░░░░░░] 0% - UI + Session Slices
+Phase 9:  [██████████] 100% - UI + Session Slices (Plan 1 of 1 complete)
 Phase 10: [░░░░░░░░░░] 0% - History + Selectors
 Phase 11: [░░░░░░░░░░] 0% - Settings Modernization
 Phase 12: [░░░░░░░░░░] 0% - Stats Visualization
@@ -72,13 +84,15 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export
 | 2026-02-21 | Timestamp-based timer accuracy | Use Date.now() for tick calculation, not incrementing counter |
 | 2026-02-21 | Interval in hook (not middleware) | Simpler, more testable, easier to control lifecycle |
 | 2026-02-21 | Middleware handles persistence | Decouples persistence from UI logic, cleaner separation |
+| 2026-02-22 | Centralized UI state in Redux | Single source of truth for navigation and modals |
+| 2026-02-22 | UI slice follows timerSlice pattern | Consistent architecture across all slices |
 
 ### Technical Debt
 
 | Item | Phase to Address | Notes |
 |------|------------------|-------|
 | useReducer timer logic | 8 | COMPLETE - Replaced by timerSlice |
-| useState UI state in App.tsx | 9 | Will migrate to uiSlice |
+| useState UI state in App.tsx | 9 | COMPLETE - Replaced by uiSlice |
 | Direct IndexedDB calls in hooks | 8-10 | Will move to thunks/middleware |
 
 ### Open Questions
@@ -97,16 +111,16 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed Phase 8 Plan 01 - Timer Slice Migration
-**Completed at:** 2026-02-21
-**Next Action:** Begin Phase 9 - UI + Session Slices
+**Last Action:** Completed Phase 9 Plan 01 - UI Slice
+**Completed at:** 2026-02-22
+**Next Action:** Begin Phase 10 - History + Selectors
 
 ### Phase Queue
 
 1. Phase 7: Redux Foundation — COMPLETE (Plan 07-01 done)
 2. Phase 8: Timer Slice Migration — COMPLETE (Plan 08-01 done)
-3. Phase 9: UI + Session Slices — next
-4. Phase 10: History + Selectors — waiting on 9
+3. Phase 9: UI + Session Slices — COMPLETE (Plan 09-01 done)
+4. Phase 10: History + Selectors — next
 5. Phase 11: Settings Modernization — waiting on 9
 6. Phase 12: Stats Visualization — waiting on 10
 7. Phase 13: Streak Counter — waiting on 10
