@@ -1,7 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import timerReducer from '../features/timer/timerSlice';
 import uiReducer from '../features/ui/uiSlice';
+import sessionReducer from '../features/session/sessionSlice';
 import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
+import { sessionPersistenceMiddleware } from '../features/session/sessionMiddleware';
 
 /**
  * Redux Store Configuration
@@ -10,6 +12,7 @@ import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
  * Configured with timer slice and persistence middleware:
  * - Phase 8: timerSlice for timer state management
  * - Phase 9: uiSlice for UI state management (COMPLETE)
+ * - Phase 9: sessionSlice for session notes management (COMPLETE)
  * - Phase 10: historySlice
  * - Phase 11: settingsSlice
  */
@@ -18,6 +21,7 @@ export const store = configureStore({
   reducer: {
     timer: timerReducer,
     ui: uiReducer,
+    session: sessionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -25,7 +29,7 @@ export const store = configureStore({
         // Ignore these action types (timestamps are numbers, not Date objects)
         ignoredActions: ['timer/start', 'timer/resume'],
       },
-    }).prepend(timerPersistenceMiddleware),
+    }).prepend(timerPersistenceMiddleware, sessionPersistenceMiddleware),
   // Redux DevTools are enabled automatically in development by configureStore
   // No additional configuration needed for default DevTools setup
 });

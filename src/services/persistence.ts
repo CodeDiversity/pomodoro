@@ -211,3 +211,64 @@ export async function loadSettings(): Promise<AppSettings> {
     return DEFAULT_SETTINGS
   }
 }
+
+const SESSION_STATE_KEY = 'current'
+
+/**
+ * Save session state to IndexedDB
+ */
+export async function saveSessionState(state: {
+  noteText: string
+  tags: string[]
+  lastSaved?: number
+}): Promise<void> {
+  try {
+    if (!isIndexedDBAvailable()) {
+      console.warn('IndexedDB not available, skipping session save')
+      return
+    }
+
+    const db = await initDB()
+    await db.put('sessionState', {
+      id: SESSION_STATE_KEY,
+      noteText: state.noteText,
+      tags: state.tags,
+      lastSaved: state.lastSaved ?? Date.now(),
+      version: 1,
+    })
+  } catch (error) {
+    console.error('Failed to save session state:', error)
+  }
+}
+
+/**
+ * Load session state from IndexedDB
+ */
+export async function loadSessionState(): Promise<{
+  noteText: string
+  tags: string[]
+  lastSaved: number | null
+} | null> {
+  try {
+    if (!isIndexedDBAvailable()) {
+      console.warn('IndexedDB not available, using default session state')
+      return null
+    }
+
+    const db = await initDB()
+    const stored = await db.get('sessionState', SESSION_STATE_KEY)
+
+    if (!stored) {
+      return null
+    }
+
+    return {
+      noteText: stored.noteText || '',
+      tags: stored.tags || [],
+      lastSaved: stored.lastSaved || null,
+    }
+  } catch (error) {
+    console.error('Failed to load session state:', error)
+    return null
+  }
+}

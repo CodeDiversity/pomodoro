@@ -4,7 +4,7 @@ import { SessionRecord, TagData } from '../types/session'
 import { DEFAULT_STATE } from '../constants/timer'
 
 const DB_NAME = 'pomodoro-timer'
-const DB_VERSION = 2
+const DB_VERSION = 3
 const STORE_NAME = 'timerState'
 const STATE_KEY = 'current'
 const SCHEMA_VERSION = 1
@@ -26,6 +26,10 @@ interface PomodoroDBSchema extends DBSchema {
   tags: {
     key: string                    // tag value
     value: TagData
+  }
+  sessionState: {
+    key: string
+    value: SessionStateData
   }
 }
 
@@ -49,6 +53,14 @@ interface SettingsData {
   shortBreakDuration: number
   longBreakDuration: number
   autoStart: boolean
+  version: number
+}
+
+interface SessionStateData {
+  id: string
+  noteText: string
+  tags: string[]
+  lastSaved: number | null
   version: number
 }
 
@@ -86,6 +98,13 @@ export async function initDB(): Promise<IDBPDatabase<PomodoroDBSchema>> {
           // Create tags store (v2)
           if (!db.objectStoreNames.contains('tags')) {
             db.createObjectStore('tags', { keyPath: 'value' })
+          }
+        }
+
+        // Create sessionState store (v3)
+        if (oldVersion < 3) {
+          if (!db.objectStoreNames.contains('sessionState')) {
+            db.createObjectStore('sessionState', { keyPath: 'id' })
           }
         }
       },
