@@ -3,6 +3,7 @@ import timerReducer from '../features/timer/timerSlice';
 import uiReducer from '../features/ui/uiSlice';
 import sessionReducer from '../features/session/sessionSlice';
 import historyReducer from '../features/history/historySlice';
+import settingsReducer from '../features/settings/settingsSlice';
 import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 import { sessionPersistenceMiddleware } from '../features/session/sessionMiddleware';
 
@@ -15,7 +16,7 @@ import { sessionPersistenceMiddleware } from '../features/session/sessionMiddlew
  * - Phase 9: uiSlice for UI state management (COMPLETE)
  * - Phase 9: sessionSlice for session notes management (COMPLETE)
  * - Phase 10: historySlice for history filter state (COMPLETE)
- * - Phase 11: settingsSlice
+ * - Phase 11: settingsSlice for sound preferences (COMPLETE)
  */
 
 export const store = configureStore({
@@ -24,6 +25,7 @@ export const store = configureStore({
     ui: uiReducer,
     session: sessionReducer,
     history: historyReducer,
+    settings: settingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

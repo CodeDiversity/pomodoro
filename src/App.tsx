@@ -14,7 +14,7 @@ import { useSessionNotes } from './hooks/useSessionNotes'
 import { useSessionManager } from './hooks/useSessionManager'
 import { useSessionHistory } from './hooks/useSessionHistory'
 import { getTagSuggestions } from './services/sessionStore'
-import { loadSettings, saveSettings } from './services/persistence'
+import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './services/persistence'
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 import { useAppSelector, useAppDispatch } from './app/hooks'
@@ -243,6 +243,8 @@ function App() {
       focusDuration: durations.focus,
       shortBreakDuration: durations.shortBreak,
       longBreakDuration: durations.longBreak,
+      notificationSound: DEFAULT_SETTINGS.notificationSound,
+      volume: DEFAULT_SETTINGS.volume,
     })
     // Apply to timer (this updates timer display and resets if running)
     setCustomDurations(durations)

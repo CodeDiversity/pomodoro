@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { TimerMode } from '../types/timer'
-import { loadTimerState, loadSettings, saveSettings } from '../services/persistence'
+import { loadTimerState, loadSettings, saveSettings, DEFAULT_SETTINGS } from '../services/persistence'
 import { notifySessionComplete, requestPermission } from '../services/notifications'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
@@ -209,6 +209,8 @@ export function useTimer(options: UseTimerOptions = {}) {
         focusDuration: state.duration,
         shortBreakDuration: 5 * 60,
         longBreakDuration: 15 * 60,
+        notificationSound: DEFAULT_SETTINGS.notificationSound,
+        volume: DEFAULT_SETTINGS.volume,
       })
     },
     [state.duration]
@@ -224,6 +226,8 @@ export function useTimer(options: UseTimerOptions = {}) {
         focusDuration: durations.focus,
         shortBreakDuration: durations.shortBreak,
         longBreakDuration: durations.longBreak,
+        notificationSound: DEFAULT_SETTINGS.notificationSound,
+        volume: DEFAULT_SETTINGS.volume,
       })
     },
     [dispatch]
