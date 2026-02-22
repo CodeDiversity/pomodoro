@@ -583,7 +583,10 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
               <HiddenCheckbox
                 type="checkbox"
                 checked={autoStart}
-                onChange={(e) => onAutoStartChange(e.target.checked)}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  onAutoStartChange(e.target.checked)
+                }}
               />
             </ToggleSwitch>
             Auto-start next session
@@ -685,7 +688,10 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
                     <HiddenCheckbox
                       type="checkbox"
                       checked={autoStart}
-                      onChange={(e) => onAutoStartChange(e.target.checked)}
+                      onChange={(e) => {
+                        e.stopPropagation()
+                        onAutoStartChange(e.target.checked)
+                      }}
                     />
                   </ToggleSwitch>
                   Auto-start next session
