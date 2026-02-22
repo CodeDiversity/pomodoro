@@ -154,6 +154,13 @@ Plans:
 6. Volume slider (0-100%) controls all notification sound playback
 7. All settings persist to IndexedDB and restore on app load
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Redux settings slice + persistence enhancement
+- [ ] 11-02-PLAN.md — Audio service enhancement + SoundSettings component
+- [ ] 11-03-PLAN.md — Settings page redesign with sound settings integration
+
 ---
 
 ## Phase 12: Stats Visualization
