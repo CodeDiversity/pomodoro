@@ -121,6 +121,12 @@ Plans:
 5. useSessionHistory hook maintains same API — components require no changes
 6. No unnecessary re-renders when unrelated state changes
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Create history slice with filter state (dateFilter, searchQuery, sessions)
+- [ ] 10-02-PLAN.md — Create memoized selectors and refactor useSessionHistory hook to use Redux
+
 ---
 
 ## Phase 11: Settings Modernization
