@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import timerReducer from '../features/timer/timerSlice';
 import uiReducer from '../features/ui/uiSlice';
 import sessionReducer from '../features/session/sessionSlice';
+import historyReducer from '../features/history/historySlice';
 import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 import { sessionPersistenceMiddleware } from '../features/session/sessionMiddleware';
 
@@ -13,7 +14,7 @@ import { sessionPersistenceMiddleware } from '../features/session/sessionMiddlew
  * - Phase 8: timerSlice for timer state management
  * - Phase 9: uiSlice for UI state management (COMPLETE)
  * - Phase 9: sessionSlice for session notes management (COMPLETE)
- * - Phase 10: historySlice
+ * - Phase 10: historySlice for history filter state (COMPLETE)
  * - Phase 11: settingsSlice
  */
 
@@ -22,6 +23,7 @@ export const store = configureStore({
     timer: timerReducer,
     ui: uiReducer,
     session: sessionReducer,
+    history: historyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
