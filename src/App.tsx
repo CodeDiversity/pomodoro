@@ -17,11 +17,11 @@ import { getTagSuggestions } from './services/sessionStore'
 import { loadSettings, saveSettings } from './services/persistence'
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
+import { useAppSelector, useAppDispatch } from './app/hooks'
+import { setViewMode, openDrawer, closeDrawer, showSummaryModal, hideSummaryModal } from './features/ui/uiSlice'
 
 import styled from 'styled-components'
 import { transitions } from './components/ui/theme'
-
-type ViewMode = 'timer' | 'history' | 'stats' | 'settings'
 
 const AppContainer = styled.div`
   display: flex;
@@ -159,8 +159,12 @@ const RightPane = styled.div`
 `
 
 function App() {
-  // View mode state
-  const [viewMode, setViewMode] = useState<ViewMode>('timer')
+  // Redux dispatch and selectors for UI state
+  const dispatch = useAppDispatch()
+  const viewMode = useAppSelector(state => state.ui.viewMode)
+  const isDrawerOpen = useAppSelector(state => state.ui.isDrawerOpen)
+  const selectedSessionId = useAppSelector(state => state.ui.selectedSessionId)
+  const showSummary = useAppSelector(state => state.ui.showSummary)
 
   // History state
   const {
@@ -174,25 +178,22 @@ function App() {
     refetch,
   } = useSessionHistory()
 
-  const [selectedSession, setSelectedSession] = useState<SessionRecord | null>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  // Find selected session from sessions list based on ID from Redux
+  const selectedSession = sessions.find(s => s.id === selectedSessionId) || null
 
   const handleSessionClick = (session: SessionRecord) => {
-    setSelectedSession(session)
-    setIsDrawerOpen(true)
+    dispatch(openDrawer(session.id))
   }
 
   const handleDrawerClose = () => {
-    setIsDrawerOpen(false)
-    setSelectedSession(null)
+    dispatch(closeDrawer())
   }
 
   const handleSessionDelete = () => {
     refetch()
   }
 
-  // State for summary modal
-  const [showSummary, setShowSummary] = useState(false)
+  // State for summary modal (still local - completed session data)
   const [completedSession, setCompletedSession] = useState<{
     durationString: string
     noteText: string
@@ -285,7 +286,7 @@ function App() {
           tags: tags,
           startTimestamp: new Date().toISOString(),
         })
-        setShowSummary(true)
+        dispatch(showSummaryModal())
       },
       onSessionReset: () => {
         // Discard session and reset notes
@@ -304,7 +305,7 @@ function App() {
         tags: record.tags,
         startTimestamp: record.startTimestamp,
       })
-      setShowSummary(true)
+      dispatch(showSummaryModal())
     }
   }
 
@@ -318,7 +319,7 @@ function App() {
         tags: record.tags,
         startTimestamp: record.startTimestamp,
       })
-      setShowSummary(true)
+      dispatch(showSummaryModal())
     }
   }
 
@@ -378,7 +379,7 @@ function App() {
 
   return (
     <AppContainer>
-      <Sidebar activeView={viewMode} onViewChange={setViewMode} />
+      <Sidebar activeView={viewMode} onViewChange={(view) => dispatch(setViewMode(view))} />
 
       <MainContent>
         {/* Top bar with status indicator */}
@@ -455,7 +456,7 @@ function App() {
                   onDateFilterChange={setDateFilter}
                   onSearchChange={setSearchQuery}
                   onSessionClick={handleSessionClick}
-                  onStartTimer={() => setViewMode('timer')}
+                  onStartTimer={() => dispatch(setViewMode('timer'))}
                 />
               </div>
               <HistoryDrawer
@@ -499,7 +500,7 @@ function App() {
         isVisible={showSummary}
         session={completedSession}
         onContinue={() => {
-          setShowSummary(false)
+          dispatch(hideSummaryModal())
           setCompletedSession(null)
           resetNotes()
           // Reload tag suggestions
