@@ -622,7 +622,6 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
           </DurationSection>
         )}
 
-        <SectionTitle>Sound</SectionTitle>
         <SoundSettings />
 
         <SectionTitle>Data</SectionTitle>
