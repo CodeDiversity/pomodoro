@@ -573,10 +573,9 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
 
         <SectionTitle>Timer</SectionTitle>
         <SettingRow>
-          <Label>
+          <Label onClick={() => onAutoStartChange(!autoStart)}>
             <ToggleSwitch
               checked={autoStart}
-              onClick={() => onAutoStartChange(!autoStart)}
               role="switch"
               aria-checked={autoStart}
             >
@@ -675,10 +674,9 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
             <Content>
               <SectionTitle>Timer</SectionTitle>
               <SettingRow>
-                <Label>
+                <Label onClick={() => onAutoStartChange(!autoStart)}>
                   <ToggleSwitch
                     checked={autoStart}
-                    onClick={() => onAutoStartChange(!autoStart)}
                     role="switch"
                     aria-checked={autoStart}
                   >
