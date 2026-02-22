@@ -22,9 +22,9 @@
 ## Current Position
 
 **Phase:** 09-ui-session-slices
-**Current Plan:** 01 (Complete)
+**Current Plan:** 02 (Complete)
 **Next Plan:** Complete
-**Status:** Plan 09-01 complete - UI slice created with viewMode, drawer, modal state
+**Status:** Plan 09-02 complete - Session slice created with noteText, tags, saveStatus, and 500ms debounced persistence
 
 ### Phase 8 Status
 
@@ -60,7 +60,7 @@
 Milestone v2.1: [██████░░░░░░░░░░░░░] 30%
 Phase 7:  [██████████] 100% - Redux Foundation (Plan 1 of 1 complete)
 Phase 8:  [██████████] 100% - Timer Slice Migration (Plan 1 of 1 complete)
-Phase 9:  [██████████] 100% - UI + Session Slices (Plan 1 of 1 complete)
+Phase 9:  [██████████] 100% - UI + Session Slices (Plans 01-02 complete)
 Phase 10: [░░░░░░░░░░] 0% - History + Selectors
 Phase 11: [░░░░░░░░░░] 0% - Settings Modernization
 Phase 12: [░░░░░░░░░░] 0% - Stats Visualization
@@ -86,6 +86,8 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export
 | 2026-02-21 | Middleware handles persistence | Decouples persistence from UI logic, cleaner separation |
 | 2026-02-22 | Centralized UI state in Redux | Single source of truth for navigation and modals |
 | 2026-02-22 | UI slice follows timerSlice pattern | Consistent architecture across all slices |
+| 2026-02-22 | Session notes in Redux with 500ms debounce | Matches original useSessionNotes timing |
+| 2026-02-22 | sessionPersistenceMiddleware pattern | Mirrors timerPersistenceMiddleware for consistency |
 
 ### Technical Debt
 
@@ -111,7 +113,7 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed Phase 9 Plan 01 - UI Slice
+**Last Action:** Completed Phase 9 Plan 02 - Session Slice
 **Completed at:** 2026-02-22
 **Next Action:** Begin Phase 10 - History + Selectors
 
@@ -119,7 +121,7 @@ None currently.
 
 1. Phase 7: Redux Foundation — COMPLETE (Plan 07-01 done)
 2. Phase 8: Timer Slice Migration — COMPLETE (Plan 08-01 done)
-3. Phase 9: UI + Session Slices — COMPLETE (Plan 09-01 done)
+3. Phase 9: UI + Session Slices — COMPLETE (Plans 09-01, 09-02 done)
 4. Phase 10: History + Selectors — next
 5. Phase 11: Settings Modernization — waiting on 9
 6. Phase 12: Stats Visualization — waiting on 10
