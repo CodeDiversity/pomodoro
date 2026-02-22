@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import timerReducer from '../features/timer/timerSlice';
+import uiReducer from '../features/ui/uiSlice';
 import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 
 /**
@@ -8,7 +9,7 @@ import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
  * This is the central Redux store for the Pomodoro Timer application.
  * Configured with timer slice and persistence middleware:
  * - Phase 8: timerSlice for timer state management
- * - Phase 9: uiSlice, sessionSlice
+ * - Phase 9: uiSlice for UI state management (COMPLETE)
  * - Phase 10: historySlice
  * - Phase 11: settingsSlice
  */
@@ -16,6 +17,7 @@ import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 export const store = configureStore({
   reducer: {
     timer: timerReducer,
+    ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
