@@ -22,9 +22,9 @@
 ## Current Position
 
 **Phase:** 10-history-slice-and-selectors
-**Current Plan:** 01 (Complete)
-**Next Plan:** Phase 10 Plan 02
-**Status:** Plan 10-01 complete - historySlice created with filter state in Redux
+**Current Plan:** 02 (Complete)
+**Next Plan:** Phase 10 Plan 03
+**Status:** Plan 10-02 complete - memoized selectors and Redux-based useSessionHistory hook created
 
 ### Phase 8 Status
 
@@ -83,6 +83,18 @@
 - [x] store.ts includes history reducer
 - [x] TypeScript compiles without errors
 
+**Plan 10-02: COMPLETE**
+
+**Goal:** Create memoized selectors for filtered sessions and stats, then refactor useSessionHistory hook to use Redux
+
+**Success Criteria:**
+- [x] historySelectors.ts created with memoized selectors using createSelector
+- [x] selectFilteredSessions, selectStats, selectLongestSession implemented
+- [x] useSessionHistory hook created in features/history with Redux
+- [x] Same API maintained - components require no changes
+- [x] TypeScript compiles without errors
+- [x] Build succeeds with no warnings
+
 ---
 
 ## Progress Bar
@@ -92,7 +104,7 @@ Milestone v2.1: [████████████░░░░░░░░░
 Phase 7:  [██████████] 100% - Redux Foundation (Plan 1 of 1 complete)
 Phase 8:  [██████████] 100% - Timer Slice Migration (Plan 1 of 1 complete)
 Phase 9:  [██████████] 100% - UI + Session Slices (Plans 01-03 complete)
-Phase 10: [█░░░░░░░░░] 10% - History + Selectors (Plan 01 of ~3 complete)
+Phase 10: [██░░░░░░░░░] 20% - History + Selectors (Plan 02 of ~3 complete)
 Phase 11: [░░░░░░░░░░] 0% - Settings Modernization
 Phase 12: [░░░░░░░░░░] 0% - Stats Visualization
 Phase 13: [░░░░░░░░░░] 0% - Streak Counter
@@ -122,6 +134,8 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export
 | 2026-02-22 | useSessionNotes maintains backward-compatible API | No component changes needed - critical for REDUX-04 |
 | 2026-02-22 | historySlice follows uiSlice/sessionSlice pattern | Consistent architecture across all Redux slices |
 | 2026-02-22 | historySlice with dateFilter, searchQuery, sessions, isLoading | Filter state in Redux for history view |
+| 2026-02-22 | Memoized selectors using createSelector | Prevents unnecessary re-renders when unrelated state changes |
+| 2026-02-22 | useSessionHistory uses Redux with backward-compatible API | No component changes required - maintains original return shape |
 
 ### Technical Debt
 
@@ -147,16 +161,16 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed Phase 10 Plan 01 - historySlice with filter state in Redux
+**Last Action:** Completed Phase 10 Plan 02 - memoized selectors and Redux-based useSessionHistory
 **Completed at:** 2026-02-22
-**Next Action:** Begin Phase 10 Plan 02 - history selectors
+**Next Action:** Begin Phase 10 Plan 03 - remaining work or verification
 
 ### Phase Queue
 
 1. Phase 7: Redux Foundation — COMPLETE (Plan 07-01 done)
 2. Phase 8: Timer Slice Migration — COMPLETE (Plan 08-01 done)
 3. Phase 9: UI + Session Slices — COMPLETE (Plans 09-01, 09-02, 09-03 done)
-4. Phase 10: History + Selectors — in progress (Plan 10-01 done)
+4. Phase 10: History + Selectors — in progress (Plans 10-01, 10-02 done)
 5. Phase 11: Settings Modernization — waiting on 10
 6. Phase 12: Stats Visualization — waiting on 10
 7. Phase 13: Streak Counter — waiting on 10
@@ -183,4 +197,4 @@ None currently.
 
 ---
 
-*Ready for: Phase 10 Plan 02 - History Selectors*
+*Ready for: Phase 10 Plan 03 - Completion*
