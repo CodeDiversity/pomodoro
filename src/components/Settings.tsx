@@ -325,6 +325,7 @@ const ToggleSwitch = styled.div<{ checked: boolean }>`
   border-radius: 12px;
   transition: background ${transitions.normal};
   cursor: pointer;
+  pointer-events: auto;
 
   &::after {
     content: '';
@@ -576,6 +577,7 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
           <Label onClick={() => onAutoStartChange(!autoStart)}>
             <ToggleSwitch
               checked={autoStart}
+              onClick={() => onAutoStartChange(!autoStart)}
               role="switch"
               aria-checked={autoStart}
             >
@@ -677,6 +679,7 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
                 <Label onClick={() => onAutoStartChange(!autoStart)}>
                   <ToggleSwitch
                     checked={autoStart}
+                    onClick={() => onAutoStartChange(!autoStart)}
                     role="switch"
                     aria-checked={autoStart}
                   >
