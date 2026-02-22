@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { clearDatabase } from '../services/db'
 import { colors, transitions } from './ui/theme'
+import SoundSettings from './settings/SoundSettings'
 
 interface SettingsProps {
   autoStart: boolean
@@ -620,6 +621,9 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
             {longBreakError && <ErrorText>{longBreakError}</ErrorText>}
           </DurationSection>
         )}
+
+        <SectionTitle>Sound</SectionTitle>
+        <SoundSettings />
 
         <SectionTitle>Data</SectionTitle>
         <ResetButton onClick={handleReset}>
