@@ -92,6 +92,13 @@ Plans:
 4. Session notes and tags save to Redux with same debounced persistence
 5. useSessionNotes hook maintains same API — components require no changes
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Create UI slice for viewMode, drawer, modal state
+- [ ] 09-02-PLAN.md — Create session slice with 500ms debounce middleware
+- [ ] 09-03-PLAN.md — Refactor useSessionNotes hook to use Redux, maintain API
+
 ---
 
 ## Phase 10: History Slice and Selectors
