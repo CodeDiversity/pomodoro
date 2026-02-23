@@ -4,7 +4,7 @@ import { SessionRecord, TagData } from '../types/session'
 import { DEFAULT_STATE } from '../constants/timer'
 
 const DB_NAME = 'pomodoro-timer'
-const DB_VERSION = 3
+const DB_VERSION = 4
 const STORE_NAME = 'timerState'
 const STATE_KEY = 'current'
 const SCHEMA_VERSION = 1
@@ -30,6 +30,10 @@ interface PomodoroDBSchema extends DBSchema {
   sessionState: {
     key: string
     value: SessionStateData
+  }
+  streak: {
+    key: string
+    value: StreakData
   }
 }
 
@@ -64,6 +68,15 @@ interface SessionStateData {
   tags: string[]
   taskTitle: string
   lastSaved: number | null
+  version: number
+}
+
+interface StreakData {
+  id: string
+  currentStreak: number
+  bestStreak: number
+  lastActiveDate: string | null
+  protectionUsed: boolean
   version: number
 }
 
@@ -108,6 +121,13 @@ export async function initDB(): Promise<IDBPDatabase<PomodoroDBSchema>> {
         if (oldVersion < 3) {
           if (!db.objectStoreNames.contains('sessionState')) {
             db.createObjectStore('sessionState', { keyPath: 'id' })
+          }
+        }
+
+        // Create streak store (v4)
+        if (oldVersion < 4) {
+          if (!db.objectStoreNames.contains('streak')) {
+            db.createObjectStore('streak', { keyPath: 'id' })
           }
         }
       },

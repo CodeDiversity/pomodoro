@@ -4,8 +4,10 @@ import uiReducer from '../features/ui/uiSlice';
 import sessionReducer from '../features/session/sessionSlice';
 import historyReducer from '../features/history/historySlice';
 import settingsReducer from '../features/settings/settingsSlice';
+import streakReducer from '../features/streak/streakSlice';
 import { timerPersistenceMiddleware } from '../features/timer/timerMiddleware';
 import { sessionPersistenceMiddleware } from '../features/session/sessionMiddleware';
+import { streakPersistenceMiddleware } from '../features/streak/streakMiddleware';
 
 /**
  * Redux Store Configuration
@@ -17,6 +19,7 @@ import { sessionPersistenceMiddleware } from '../features/session/sessionMiddlew
  * - Phase 9: sessionSlice for session notes management (COMPLETE)
  * - Phase 10: historySlice for history filter state (COMPLETE)
  * - Phase 11: settingsSlice for sound preferences (COMPLETE)
+ * - Phase 13: streakSlice for streak tracking (COMPLETE)
  */
 
 export const store = configureStore({
@@ -26,6 +29,7 @@ export const store = configureStore({
     session: sessionReducer,
     history: historyReducer,
     settings: settingsReducer,
+    streak: streakReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -33,7 +37,7 @@ export const store = configureStore({
         // Ignore these action types (timestamps are numbers, not Date objects)
         ignoredActions: ['timer/start', 'timer/resume'],
       },
-    }).prepend(timerPersistenceMiddleware, sessionPersistenceMiddleware),
+    }).prepend(timerPersistenceMiddleware, sessionPersistenceMiddleware, streakPersistenceMiddleware),
   // Redux DevTools are enabled automatically in development by configureStore
   // No additional configuration needed for default DevTools setup
 });
