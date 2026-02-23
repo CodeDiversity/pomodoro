@@ -25,36 +25,52 @@ export const StatsView: React.FC<StatsViewProps> = ({ weeklyData, weeklyLoading 
   }, [sessions])
 
   return (
-    <div style={{ width: '100%', maxWidth: '800px', padding: '24px' }}>
-      {/* Streak Display */}
+    <div style={{
+      width: '100%',
+      maxWidth: '800px',
+      padding: '24px',
+      display: 'grid',
+      gridTemplateColumns: '1fr 2fr',
+      gap: '16px',
+      alignItems: 'start'
+    }}>
+      {/* Row 1: StreakDisplay (left) and StatsGrid (right) */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        marginBottom: '16px'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         <StreakDisplay />
       </div>
 
-      {/* Calendar Heatmap */}
+      <div style={{
+        background: 'white',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <StatsGrid dateFilter="7days" />
+      </div>
+
+      {/* Row 2: CalendarHeatmap (full width) */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '24px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        marginBottom: '16px'
+        gridColumn: '1 / -1'
       }}>
         <CalendarHeatmap dailyActivity={dailyActivity} />
       </div>
 
-      {/* Weekly Chart */}
+      {/* Row 3: WeeklyChart (full width) */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '24px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        marginBottom: '16px'
+        gridColumn: '1 / -1'
       }}>
         {/* Date range title */}
         <div style={{
@@ -79,15 +95,17 @@ export const StatsView: React.FC<StatsViewProps> = ({ weeklyData, weeklyLoading 
         )}
       </div>
 
-      {/* Stats Grid */}
-      <div style={{
-        background: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
-        <StatsGrid dateFilter="7days" />
-      </div>
+      {/* Responsive: Stack vertically on mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+          }
+          div[style*="grid-column: 1 / -1"] {
+            grid-column: 1 !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }
