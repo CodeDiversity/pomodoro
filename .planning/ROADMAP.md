@@ -38,7 +38,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 6. Users with 5+ day streaks can miss one day without losing their streak (streak protection)
 7. Streak data persists to IndexedDB and survives browser refresh
 
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 **Plan list:**
 - [x] 13-01-PLAN.md - Streak Redux infrastructure with persistence
@@ -93,7 +93,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 13. Streak Tracking | 3/3 | Complete | 2026-02-23 |
+| 13. Streak Tracking | 3/3 | Complete    | 2026-02-23 |
 | 14. Data Export/Import | 0/1 | Not started | - |
 | 15. Integration & Polish | 0/1 | Not started | - |
 

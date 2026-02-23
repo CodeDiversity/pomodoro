@@ -24,7 +24,7 @@
 
 **Phase:** Not started (defining requirements)
 **Plan:** —
-**Status:** Defining requirements
+**Status:** Milestone complete
 **Last activity:** 2026-02-23 — Milestone v2.2 started
 
 ### Phase 8 Status

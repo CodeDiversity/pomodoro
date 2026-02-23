@@ -10,8 +10,8 @@
 - [x] **STRK-01**: Current streak displayed in header/stats view
 - [x] **STRK-02**: Best (longest) streak tracked and displayed
 - [x] **STRK-03**: Streak calculated based on consecutive days with focus sessions (minimum 5 minutes)
-- [ ] **STRK-04**: Streak calendar view showing monthly grid with daily activity
-- [ ] **STRK-05**: Calendar color coding: light blue (1-2 sessions) -> dark blue (5+ sessions)
+- [x] **STRK-04**: Streak calendar view showing monthly grid with daily activity
+- [x] **STRK-05**: Calendar color coding: light blue (1-2 sessions) -> dark blue (5+ sessions)
 - [x] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
 - [x] **STRK-07**: Streak data persisted to IndexedDB
 
@@ -77,8 +77,8 @@
 | STRK-01 | Phase 13 | Complete |
 | STRK-02 | Phase 13 | Complete |
 | STRK-03 | Phase 13 | Complete |
-| STRK-04 | Phase 13 | Pending |
-| STRK-05 | Phase 13 | Pending |
+| STRK-04 | Phase 13 | Complete |
+| STRK-05 | Phase 13 | Complete |
 | STRK-06 | Phase 13 | Complete |
 | STRK-07 | Phase 13 | Complete |
 | EXPT-01 | Phase 14 | Pending |
