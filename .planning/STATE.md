@@ -240,6 +240,7 @@ None currently.
 |---|-------------|------|--------|-----------|
 | 6 | fix task title not saving when switching tabs | 2026-02-23 | 0e1f849 | [6-fix-task-title-not-saving-when-switching](./quick/6-fix-task-title-not-saving-when-switching/) |
 | 7 | session complete modal shows untitled instead of typed title | 2026-02-23 | 980408e | [7-session-complete-modal-shows-untitled-in](./quick/7-session-complete-modal-shows-untitled-in/) |
+| 8 | display session title in history tab | 2026-02-23 | 6080e56 | [8-display-session-title-in-history-tab](./quick/8-display-session-title-in-history-tab/) |
 
 ### Phase Queue
 
