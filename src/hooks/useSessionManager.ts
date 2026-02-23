@@ -52,6 +52,7 @@ export function useSessionManager(
       completed,
       noteText: params.noteState.noteText,
       tags: params.noteState.tags,
+      taskTitle: params.noteState.taskTitle,
       createdAt: now,
     }
 

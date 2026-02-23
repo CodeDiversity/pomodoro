@@ -147,6 +147,7 @@ interface SessionSummaryProps {
     durationString: string
     noteText: string
     tags: string[]
+    taskTitle: string
     startTimestamp: string
   } | null
   onContinue: () => void
@@ -169,8 +170,9 @@ export default function SessionSummary({
     })
   }
 
-  // Extract title from first line of note
+  // Extract title from taskTitle or first line of note
   const getTitle = () => {
+    if (session.taskTitle) return session.taskTitle
     if (!session.noteText) return 'Untitled Session'
     const firstLine = session.noteText.split('\n')[0].trim()
     return firstLine.length > 50 ? firstLine.substring(0, 50) + '...' : firstLine

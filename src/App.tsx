@@ -199,6 +199,7 @@ function App() {
     durationString: string
     noteText: string
     tags: string[]
+    taskTitle: string
     startTimestamp: string
   } | null>(null)
 
@@ -312,7 +313,7 @@ function App() {
   })
 
   // Session manager hook - uses ref for timer state
-  const noteState = { noteText, tags, lastSaved, saveStatus }
+  const noteState = { noteText, tags, taskTitle, lastSaved, saveStatus }
 
   const sessionManager = useSessionManager(
     {
@@ -332,6 +333,7 @@ function App() {
           durationString: '25:00',
           noteText: noteText,
           tags: tags,
+          taskTitle: taskTitle,
           startTimestamp: new Date().toISOString(),
         })
         dispatch(showSummaryModal())
@@ -351,6 +353,7 @@ function App() {
         durationString: record.durationString,
         noteText: record.noteText,
         tags: record.tags,
+        taskTitle: record.taskTitle,
         startTimestamp: record.startTimestamp,
       })
       dispatch(showSummaryModal())
@@ -365,6 +368,7 @@ function App() {
         durationString: record.durationString,
         noteText: record.noteText,
         tags: record.tags,
+        taskTitle: record.taskTitle,
         startTimestamp: record.startTimestamp,
       })
       dispatch(showSummaryModal())

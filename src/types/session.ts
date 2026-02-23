@@ -12,6 +12,7 @@ export interface SessionRecord {
   completed: boolean
   noteText: string
   tags: string[]
+  taskTitle: string
   createdAt: number            // timestamp for indexing
 }
 
@@ -24,6 +25,7 @@ export interface TagData {
 export interface SessionNoteState {
   noteText: string
   tags: string[]
+  taskTitle: string
   lastSaved: number | null
   saveStatus: 'idle' | 'saving' | 'saved'
 }
