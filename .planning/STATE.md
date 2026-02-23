@@ -24,7 +24,7 @@
 **Phase:** 12-stats-visualization
 **Current Plan:** Not started
 **Next Plan:** Phase 12 Plan 02
-**Status:** Milestone complete
+**Status:** v2.1 milestone complete
 
 ### Phase 8 Status
 

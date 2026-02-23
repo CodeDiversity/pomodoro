@@ -82,3 +82,13 @@
 
 ---
 
+
+## v2.1 Enhancements (Shipped: 2026-02-23)
+
+**Phases completed:** 14 phases, 32 plans, 11 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

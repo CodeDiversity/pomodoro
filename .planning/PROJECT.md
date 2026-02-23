@@ -10,16 +10,19 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ## Current Milestone: v2.1 Enhancements
 
+**Status:** SHIPPED 2026-02-23
+
 **Goal:** Add advanced features and architectural improvements: Redux Toolkit state management, enhanced stats visualizations, data export, and settings page modernization.
 
-**Target features:**
+**Delivered features:**
 - Redux Toolkit for centralized state management (refactor from useReducer)
 - Modernized Settings page to match app design system
 - Weekly stats visualization with bar charts
+- Custom notification sounds with volume control
+
+**Not delivered (deferred to v2.2):**
 - Daily streak counter
 - Export history as CSV
-- Custom notification sounds
-- Performance optimizations
 
 ## Requirements
 
@@ -51,10 +54,13 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ### Active
 
-- [ ] Weekly stats visualization (bar charts)
-- [ ] Daily streak counter
-- [ ] Export history as CSV
-- [ ] Custom notification sounds
+- [ ] Daily streak counter (deferred to v2.2)
+- [ ] Export history as CSV (deferred to v2.2)
+
+### v2.1 Validated (Shipped 2026-02-23)
+
+- Weekly stats visualization (bar charts) — v2.1
+- Custom notification sounds with volume control — v2.1
 
 ### Out of Scope
 
@@ -70,18 +76,19 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ## Context
 
-- Tech stack: React 18, TypeScript, Vite, styled-components
+- Tech stack: React 18, TypeScript, Vite, styled-components, Redux Toolkit
 - Persistence: IndexedDB with versioned schema
-- ~6,363 lines of TypeScript code
+- ~7,558 lines of TypeScript code
 - v1.0 shipped: 2026-02-19
 - v2.0 shipped: 2026-02-21
+- v2.1 shipped: 2026-02-23
 
 ## Constraints
 
 - **Tech Stack**: React 18 + TypeScript + Vite
 - **Styling**: styled-components with centralized theme tokens
 - **Persistence**: IndexedDB with versioned schema
-- **State Management**: React hooks + useReducer for timer state
+- **State Management**: Redux Toolkit (migrated from useReducer in v2.1)
 - **Testing**: Vitest for pure function unit tests
 - **Validation**: Note max 2000 chars, max 10 tags, each max 20 chars (alphanumeric + dash)
 - **Duration Limits**: Focus 1-60 min, Short Break 1-30 min, Long Break 1-60 min
@@ -103,7 +110,12 @@ A focused productivity timer that helps users track work sessions with notes, an
 | Modal pattern for settings | Consistent UX, cleaner layout | ✅ v2.0 |
 | Circular progress ring | Visual appeal, clear progress indication | ✅ v2.0 |
 | Split-pane timer layout | Efficient use of screen real estate | ✅ v2.0 |
+| Redux Toolkit migration | Centralized state with DevTools visibility | ✅ v2.1 |
+| Custom persistence middleware | Control over IndexedDB sync with debouncing | ✅ v2.1 |
+| Memoized selectors (createSelector) | Performance optimization for derived state | ✅ v2.1 |
+| Chart.js for stats visualization | Lightweight bar charts with tooltips | ✅ v2.1 |
+| Web Audio API for sounds | Programmatic sound generation with volume control | ✅ v2.1 |
 
 ---
 
-*Last updated: 2026-02-21 after v2.0 milestone completion*
+*Last updated: 2026-02-23 after v2.1 milestone completion*
