@@ -1,119 +1,112 @@
 # Roadmap: Pomodoro Timer v2.2
 
 **Milestone:** v2.2 Features
-**Goal:** Add streak counter, data export/import, and complete remaining features
-**Phases:** 13-15 (3 phases)
-**Requirements:** 17 requirements
+**Goal:** Add daily streak tracking and data export/import capabilities
+**Created:** 2026-02-23
 **Depth:** Standard
 
 ---
 
 ## Overview
 
-This roadmap delivers v2.2 features building on the Redux foundation from v2.1.
+This roadmap delivers v2.2 features building on the foundation from v2.1.
 
-Phase structure:
-1. **Streak Counter** — Daily streak tracking with calendar view
-2. **Data Export/Import** — CSV export and import for data portability
-3. **Phase 7 Verification** — Complete verification for Redux Foundation
+## Phases
 
----
-
-## Phase 13: Streak Counter
-
-**Goal:** Daily streak tracking with calendar view and streak protection
-
-**Dependencies:** Phase 10 (History Selectors for session data)
-
-**Requirements:**
-| ID | Description |
-|----|-------------|
-| STRK-01 | Current streak displayed in header/badge |
-| STRK-02 | Best streak tracked and displayed |
-| STRK-03 | Streak calculated based on consecutive days with focus sessions |
-| STRK-04 | Streak calendar view showing daily activity |
-| STRK-05 | Calendar color coding: light blue (1-2 sessions) -> dark blue (5+ sessions) |
-| STRK-06 | Streak protection: 1 free miss allowed for 5+ day streaks |
-| STRK-07 | Streak data persisted to IndexedDB |
-
-**Plans:** 1 plan
+- [ ] **Phase 13: Streak Tracking** - Current/best streak display, calendar heatmap
+- [ ] **Phase 14: Data Export/Import** - CSV export from History, CSV import from Settings
+- [ ] **Phase 15: Integration & Polish** - Edge cases, UI polish, streak persistence
 
 ---
 
-## Phase 14: Data Export & Import
+## Phase Details
 
-**Goal:** Export and import session history as CSV for data portability between devices
+### Phase 13: Streak Tracking
 
-**Dependencies:** Phase 10 (History Slice for data access)
+**Goal:** Users can view their daily focus streaks and view activity in a calendar heatmap
 
-**Requirements:**
-| ID | Description |
-|----|-------------|
-| EXPT-01 | Export button in History view |
-| EXPT-02 | Date range filter for export (today/7 days/30 days/all) |
-| EXPT-03 | CSV format with columns: date, duration, mode, notes, tags |
-| EXPT-04 | Filename: pomodoro-sessions-YYYY-MM-DD.csv |
-| EXPT-05 | Download triggers browser file download |
-| IMPT-01 | Import button in Settings view |
-| IMPT-02 | File picker accepts CSV files exported from app |
-| IMPT-03 | Import validates CSV format and columns |
-| IMPT-04 | Imported sessions merged with existing (no duplicates) |
-| IMPT-05 | Import progress shown with success/error feedback |
+**Depends on:** Previous milestone (v2.1)
 
-**Plans:** 1 plan
+**Requirements:** STRK-01, STRK-02, STRK-03, STRK-04, STRK-05, STRK-06, STRK-07
 
----
+**Success Criteria** (what must be TRUE):
+1. Current streak count displays in the header/stats view and updates after each focus session
+2. Best (longest) streak is tracked and displayed, persisting across app restarts
+3. Streak increments only when user completes a focus session of at least 5 minutes on consecutive days
+4. Calendar view shows monthly grid with activity indicators for each day
+5. Calendar uses color coding: light blue for 1-2 sessions, progressively darker blue for 3-4 sessions, dark blue for 5+ sessions
+6. Users with 5+ day streaks can miss one day without losing their streak (streak protection)
+7. Streak data persists to IndexedDB and survives browser refresh
 
-## Phase 15: Phase 7 Verification
-
-**Goal:** Create VERIFICATION.md for Phase 7 (Redux Foundation) to confirm requirements satisfied
-
-**Dependencies:** Phase 7 (Redux Foundation) - complete
-
-**Requirements:** N/A (tech debt closure)
+**Plans:** TBD
 
 ---
 
-## Milestones
+### Phase 14: Data Export/Import
 
-- **v2.1 Enhancements** — Phases 7-12 (shipped 2026-02-23)
-- **v2.2 Features** — Phases 13-15 (in progress)
+**Goal:** Users can export their session history as CSV and import previously exported data
+
+**Depends on:** Phase 13
+
+**Requirements:** EXPT-01, EXPT-02, EXPT-03, EXPT-04, EXPT-05, IMPT-01, IMPT-02, IMPT-03, IMPT-04, IMPT-05
+
+**Success Criteria** (what must be TRUE):
+1. Export button appears in History view and triggers CSV download
+2. Export respects date range filter (today/7 days/30 days/all)
+3. CSV file contains columns: date, duration, mode, notes, tags
+4. Exported filename follows format: pomodoro-sessions-YYYY-MM-DD.csv
+5. Import button appears in Settings view and opens file picker
+6. File picker only accepts CSV file types
+7. Import validates CSV format and shows error for invalid files
+8. Imported sessions are merged with existing sessions without duplicates
+9. Import shows progress feedback during processing and success/error summary after
+
+**Plans:** TBD
+
+---
+
+### Phase 15: Integration & Polish
+
+**Goal:** Final integration, edge case handling, and UX refinement for streak and data features
+
+**Depends on:** Phase 14
+
+**Requirements:** None (cross-cutting polish)
+
+**Success Criteria** (what must be TRUE):
+1. Streak calculation handles timezone edge cases correctly (midnight boundaries)
+2. CSV import handles large files (1000+ sessions) without freezing the UI
+3. Import handles duplicate sessions gracefully (detects and skips duplicates)
+4. All new features follow existing app styling (light mode, blue accents)
+5. All features work correctly after app refresh (persistence verified)
+
+**Plans:** TBD
 
 ---
 
 ## Progress
 
-| Phase | Status | Requirements | Completion |
-|-------|--------|--------------|------------|
-| 7 - Redux Foundation | Complete | 2 | 100% |
-| 8 - Timer Slice Migration | Complete | 4 | 100% |
-| 9 - UI and Session Slices | Complete | 2 | 100% |
-| 10 - History Slice and Selectors | Complete | 2 | 100% |
-| 11 - Settings Modernization | Complete | 6 | 100% |
-| 12 - Stats Visualization | Complete | 4 | 100% |
-| 13 - Streak Counter | Pending | 7 | 0% |
-| 14 - Data Export & Import | Pending | 10 | 0% |
-| 15 - Phase 7 Verification | Pending | 0 | 0% |
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 13. Streak Tracking | 0/1 | Not started | - |
+| 14. Data Export/Import | 0/1 | Not started | - |
+| 15. Integration & Polish | 0/1 | Not started | - |
 
 ---
 
-## Dependencies Graph
+## Coverage
 
-```
-Phase 7 (Foundation)
-    ↓
-Phase 8 (Timer Slice)
-    ↓
-Phase 9 (UI + Session Slices)
-    ↓
-    ├──→ Phase 10 (History + Selectors)
-    │         ↓
-    │         ├──→ Phase 12 (Stats Visualization) - Complete
-    │         ├──→ Phase 13 (Streak Counter)
-    │         └──→ Phase 14 (Data Export)
-    │
-    └──→ Phase 11 (Settings Modernization) - Complete
-```
+**v2.2 Requirements:** 17 total
+- Streak Tracking: 7 requirements (STRK-01 through STRK-07)
+- Data Export: 5 requirements (EXPT-01 through EXPT-05)
+- Data Import: 5 requirements (IMPT-01 through IMPT-05)
+
+**Mapped to phases:** 17/17
+- Phase 13: 7 requirements (all streak)
+- Phase 14: 10 requirements (export + import)
+- Phase 15: 0 requirements (cross-cutting polish)
+
+**Unmapped:** 0
 
 ---
 

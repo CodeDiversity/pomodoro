@@ -11,7 +11,7 @@
 - [ ] **STRK-02**: Best (longest) streak tracked and displayed
 - [ ] **STRK-03**: Streak calculated based on consecutive days with focus sessions (minimum 5 minutes)
 - [ ] **STRK-04**: Streak calendar view showing monthly grid with daily activity
-- [ ] **STRK-05**: Calendar color coding: light blue (1-2 sessions) → dark blue (5+ sessions)
+- [ ] **STRK-05**: Calendar color coding: light blue (1-2 sessions) -> dark blue (5+ sessions)
 - [ ] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
 - [ ] **STRK-07**: Streak data persisted to IndexedDB
 
@@ -93,9 +93,9 @@
 | IMPT-05 | Phase 14 | Pending |
 
 **Coverage:**
-- v2.2 requirements: 16 total
-- Mapped to phases: 16
-- Unmapped: 0 ✓
+- v2.2 requirements: 17 total
+- Mapped to phases: 17
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-23*
