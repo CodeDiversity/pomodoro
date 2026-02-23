@@ -228,6 +228,7 @@ const SESSION_STATE_KEY = 'current'
 export async function saveSessionState(state: {
   noteText: string
   tags: string[]
+  taskTitle: string
   lastSaved?: number
 }): Promise<void> {
   try {
@@ -241,6 +242,7 @@ export async function saveSessionState(state: {
       id: SESSION_STATE_KEY,
       noteText: state.noteText,
       tags: state.tags,
+      taskTitle: state.taskTitle,
       lastSaved: state.lastSaved ?? Date.now(),
       version: 1,
     })
@@ -255,6 +257,7 @@ export async function saveSessionState(state: {
 export async function loadSessionState(): Promise<{
   noteText: string
   tags: string[]
+  taskTitle: string
   lastSaved: number | null
 } | null> {
   try {
@@ -273,6 +276,7 @@ export async function loadSessionState(): Promise<{
     return {
       noteText: stored.noteText || '',
       tags: stored.tags || [],
+      taskTitle: stored.taskTitle || '',
       lastSaved: stored.lastSaved || null,
     }
   } catch (error) {

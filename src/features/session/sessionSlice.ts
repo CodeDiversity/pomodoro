@@ -9,6 +9,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 export interface SessionState {
   noteText: string
   tags: string[]
+  taskTitle: string
   saveStatus: 'idle' | 'saving' | 'saved'
   lastSaved: number | null
 }
@@ -16,6 +17,7 @@ export interface SessionState {
 const initialState: SessionState = {
   noteText: '',
   tags: [],
+  taskTitle: '',
   saveStatus: 'idle',
   lastSaved: null,
 }
@@ -43,6 +45,10 @@ const sessionSlice = createSlice({
       state.tags = action.payload
       state.saveStatus = 'saving'
     },
+    setTaskTitle(state, action: PayloadAction<string>) {
+      state.taskTitle = action.payload
+      state.saveStatus = 'saving'
+    },
     setSaveStatus(state, action: PayloadAction<'idle' | 'saving' | 'saved'>) {
       state.saveStatus = action.payload
     },
@@ -53,12 +59,14 @@ const sessionSlice = createSlice({
     resetSession(state) {
       state.noteText = ''
       state.tags = []
+      state.taskTitle = ''
       state.saveStatus = 'idle'
       state.lastSaved = null
     },
     loadSession(state, action: PayloadAction<SessionState>) {
       state.noteText = action.payload.noteText
       state.tags = action.payload.tags
+      state.taskTitle = action.payload.taskTitle || ''
       state.saveStatus = 'saved'
       state.lastSaved = action.payload.lastSaved
     },
@@ -68,6 +76,7 @@ const sessionSlice = createSlice({
 export const {
   setNoteText,
   setTags,
+  setTaskTitle,
   setSaveStatus,
   markSaved,
   resetSession,

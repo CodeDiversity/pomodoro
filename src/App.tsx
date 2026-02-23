@@ -256,10 +256,12 @@ function App() {
   const {
     noteText,
     tags,
+    taskTitle,
     saveStatus,
     lastSaved,
     handleNoteChange,
     handleTagsChange,
+    handleTaskTitleChange,
     resetNotes,
   } = useSessionNotes(() => {
     // Background save - no action needed, status updates automatically
@@ -433,6 +435,8 @@ function App() {
                 <RightPane>
                   <NotePanel
                     isVisible={showNotePanel}
+                    taskTitle={taskTitle}
+                    onTaskTitleChange={handleTaskTitleChange}
                     noteText={noteText}
                     onNoteChange={handleNoteChange}
                     tags={tags}

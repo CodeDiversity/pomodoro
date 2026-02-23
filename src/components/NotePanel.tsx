@@ -303,6 +303,8 @@ const CompleteButton = styled.button`
 
 interface NotePanelProps {
   isVisible: boolean
+  taskTitle: string
+  onTaskTitleChange: (title: string) => void
   noteText: string
   onNoteChange: (text: string) => void
   tags: string[]
@@ -376,6 +378,8 @@ const AddIcon = () => (
 
 export default function NotePanel({
   isVisible,
+  taskTitle,
+  onTaskTitleChange,
   noteText,
   onNoteChange,
   tags,
@@ -383,7 +387,6 @@ export default function NotePanel({
   onTagsChange,
   onCompleteSession,
 }: NotePanelProps) {
-  const [taskInput, setTaskInput] = useState('')
   const [tagInput, setTagInput] = useState('')
   const [showTagInput, setShowTagInput] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -438,8 +441,8 @@ export default function NotePanel({
             <InputIcon><EditIcon /></InputIcon>
             <TaskInput
               type="text"
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
+              value={taskTitle}
+              onChange={(e) => onTaskTitleChange(e.target.value)}
               placeholder="What are you working on?"
             />
           </TaskInputContainer>

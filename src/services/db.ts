@@ -62,6 +62,7 @@ interface SessionStateData {
   id: string
   noteText: string
   tags: string[]
+  taskTitle: string
   lastSaved: number | null
   version: number
 }

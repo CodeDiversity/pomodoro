@@ -22,8 +22,8 @@ export const sessionPersistenceMiddleware: Middleware = (store) => (next) => (ac
     return result
   }
 
-  // Only persist on note/tags changes, not status updates
-  const relevantActions = ['session/setNoteText', 'session/setTags', 'session/resetSession']
+  // Only persist on note/tags/taskTitle changes, not status updates
+  const relevantActions = ['session/setNoteText', 'session/setTags', 'session/setTaskTitle', 'session/resetSession']
   if (!relevantActions.includes(action.type)) {
     return result
   }
@@ -43,6 +43,7 @@ export const sessionPersistenceMiddleware: Middleware = (store) => (next) => (ac
       await saveSessionState({
         noteText: sessionState.noteText,
         tags: sessionState.tags,
+        taskTitle: sessionState.taskTitle,
       })
       store.dispatch({ type: 'session/markSaved' })
     } catch (error) {

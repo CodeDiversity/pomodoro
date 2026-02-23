@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { setNoteText, setTags, resetSession, loadSession } from '../features/session/sessionSlice'
+import { setNoteText, setTags, setTaskTitle, resetSession, loadSession } from '../features/session/sessionSlice'
 import { loadSessionState } from '../services/persistence'
 
 const MAX_NOTE_LENGTH = 2000
 
 export function useSessionNotes(onSave?: (note: string, tags: string[]) => void) {
   const dispatch = useAppDispatch()
-  const { noteText, tags, saveStatus, lastSaved } = useAppSelector(state => state.session)
+  const { noteText, tags, taskTitle, saveStatus, lastSaved } = useAppSelector(state => state.session)
 
   // Load session state from IndexedDB on mount
   useEffect(() => {
@@ -16,6 +16,7 @@ export function useSessionNotes(onSave?: (note: string, tags: string[]) => void)
         dispatch(loadSession({
           noteText: savedState.noteText,
           tags: savedState.tags,
+          taskTitle: savedState.taskTitle,
           saveStatus: 'idle',
           lastSaved: savedState.lastSaved,
         }))
@@ -35,6 +36,10 @@ export function useSessionNotes(onSave?: (note: string, tags: string[]) => void)
     onSave?.(noteText, newTags)
   }, [dispatch, noteText, onSave])
 
+  const handleTaskTitleChange = useCallback((title: string) => {
+    dispatch(setTaskTitle(title))
+  }, [dispatch])
+
   const resetNotes = useCallback(() => {
     dispatch(resetSession())
   }, [dispatch])
@@ -42,11 +47,13 @@ export function useSessionNotes(onSave?: (note: string, tags: string[]) => void)
   return {
     noteText,
     tags,
+    taskTitle,
     saveStatus,
     lastSaved,
     maxNoteLength: MAX_NOTE_LENGTH,
     handleNoteChange,
     handleTagsChange,
+    handleTaskTitleChange,
     resetNotes,
   }
 }
