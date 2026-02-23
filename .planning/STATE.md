@@ -159,6 +159,16 @@
 
 ---
 
+### Phase 13 Status
+
+**Plan 13-01: PENDING** - Streak Redux infrastructure with persistence
+
+**Plan 13-02: PENDING** - Streak display and calendar heatmap UI
+
+**Plan 13-03: PENDING** - IndexedDB schema and session completion integration
+
+---
+
 ## Progress Bar
 
 ```
