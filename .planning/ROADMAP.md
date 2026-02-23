@@ -185,7 +185,7 @@ Plans:
 5. Days with zero focus time show minimal bar or distinct visual treatment
 6. Chart animates on initial render
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 12-01-PLAN.md — Weekly bar chart with Chart.js integration (COMPLETE)
@@ -280,7 +280,7 @@ Plans:
 | 9 - UI and Session Slices | ✓ Complete | 2 | 100% |
 | 10 - History Slice and Selectors | ✓ Complete | 2 | 100% |
 | 11 - Settings Modernization | ✓ Complete | 6 | 100% |
-| 12 - Stats Visualization | Planned | 4 | 0% |
+| 12 - Stats Visualization | Planned | Complete    | 2026-02-23 |
 | 13 - Streak Counter | Pending | 7 | 0% |
 | 14 - Data Export & Import | Pending | 10 | 0% |
 | 15 - Phase 7 Verification | Pending | 0 | 0% |
