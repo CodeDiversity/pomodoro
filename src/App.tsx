@@ -20,6 +20,7 @@ import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 import { useAppSelector, useAppDispatch } from './app/hooks'
 import { setViewMode, openDrawer, closeDrawer, showSummaryModal, hideSummaryModal } from './features/ui/uiSlice'
+import { useStreak } from './features/streak/useStreak'
 
 import styled from 'styled-components'
 import { transitions } from './components/ui/theme'
@@ -178,6 +179,9 @@ function App() {
     isLoading: historyLoading,
     refetch,
   } = useSessionHistory()
+
+  // Streak hook - provides recalculateStreak for session completion
+  const { recalculateStreak } = useStreak()
 
   // Find selected session from sessions list based on ID from Redux
   const selectedSession = sessions.find(s => s.id === selectedSessionId) || null
@@ -357,6 +361,8 @@ function App() {
         startTimestamp: record.startTimestamp,
       })
       dispatch(showSummaryModal())
+      // Recalculate streak after session completion
+      recalculateStreak()
     }
   }
 
