@@ -210,6 +210,7 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export & Import
 | 2026-02-22 | GainNode volume envelope control | Smooth attack/decay envelope for pleasant sounds |
 | 2026-02-22 | playBeep delegates to playSound | Backward compatibility with existing notification code |
 | 2026-02-22 | SoundSettings integrated into Settings page | Full-page view with sound type dropdown, preview, and volume slider |
+- [Phase 13-streak-tracking]: Streak Redux infrastructure complete with IndexedDB persistence
 
 ### Technical Debt
 

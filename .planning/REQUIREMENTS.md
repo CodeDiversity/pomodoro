@@ -7,13 +7,13 @@
 
 ### Streak Tracking
 
-- [ ] **STRK-01**: Current streak displayed in header/stats view
-- [ ] **STRK-02**: Best (longest) streak tracked and displayed
-- [ ] **STRK-03**: Streak calculated based on consecutive days with focus sessions (minimum 5 minutes)
+- [x] **STRK-01**: Current streak displayed in header/stats view
+- [x] **STRK-02**: Best (longest) streak tracked and displayed
+- [x] **STRK-03**: Streak calculated based on consecutive days with focus sessions (minimum 5 minutes)
 - [ ] **STRK-04**: Streak calendar view showing monthly grid with daily activity
 - [ ] **STRK-05**: Calendar color coding: light blue (1-2 sessions) -> dark blue (5+ sessions)
-- [ ] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
-- [ ] **STRK-07**: Streak data persisted to IndexedDB
+- [x] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
+- [x] **STRK-07**: Streak data persisted to IndexedDB
 
 ### Data Export
 
@@ -74,13 +74,13 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STRK-01 | Phase 13 | Pending |
-| STRK-02 | Phase 13 | Pending |
-| STRK-03 | Phase 13 | Pending |
+| STRK-01 | Phase 13 | Complete |
+| STRK-02 | Phase 13 | Complete |
+| STRK-03 | Phase 13 | Complete |
 | STRK-04 | Phase 13 | Pending |
 | STRK-05 | Phase 13 | Pending |
-| STRK-06 | Phase 13 | Pending |
-| STRK-07 | Phase 13 | Pending |
+| STRK-06 | Phase 13 | Complete |
+| STRK-07 | Phase 13 | Complete |
 | EXPT-01 | Phase 14 | Pending |
 | EXPT-02 | Phase 14 | Pending |
 | EXPT-03 | Phase 14 | Pending |
