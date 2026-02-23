@@ -215,9 +215,15 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed Phase 11 Plan 03 - SoundSettings integrated into Settings page
-**Completed at:** 2026-02-22
+**Last Action:** Completed quick task 6 - Fix task title not saving when switching tabs
+**Completed at:** 2026-02-23
 **Next Action:** Begin Phase 12 Plan 01 - stats visualization
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 6 | fix task title not saving when switching tabs | 2026-02-23 | 0e1f849 | [6-fix-task-title-not-saving-when-switching](./quick/6-fix-task-title-not-saving-when-switching/) |
 
 ### Phase Queue
 
