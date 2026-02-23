@@ -1,19 +1,10 @@
 import { Middleware, isAction } from '@reduxjs/toolkit'
-import { initDB, isIndexedDBAvailable } from '../../services/db'
+import { isIndexedDBAvailable } from '../../services/db'
+import { saveStreak } from '../../services/streakStore'
 import type { RootState } from '../../app/store'
 
 const DEBOUNCE_MS = 500
 let saveTimeout: ReturnType<typeof setTimeout> | null = null
-const STREAK_KEY = 'current'
-
-interface StreakData {
-  id: string
-  currentStreak: number
-  bestStreak: number
-  lastActiveDate: string | null
-  protectionUsed: boolean
-  version: number
-}
 
 /**
  * Streak Persistence Middleware
@@ -52,15 +43,12 @@ export const streakPersistenceMiddleware: Middleware = (store) => (next) => (act
         return
       }
 
-      const db = await initDB()
-      await db.put('streak', {
-        id: STREAK_KEY,
+      await saveStreak({
         currentStreak: streakState.currentStreak,
         bestStreak: streakState.bestStreak,
         lastActiveDate: streakState.lastActiveDate,
         protectionUsed: streakState.protectionUsed,
-        version: 1,
-      } as StreakData)
+      })
     } catch (error) {
       console.error('Failed to persist streak state:', error)
     }
