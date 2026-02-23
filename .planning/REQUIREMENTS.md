@@ -1,9 +1,37 @@
-# Requirements: Pomodoro Timer v2.1
+# Requirements: Pomodoro Timer v2.2
 
-**Defined:** 2026-02-21
+**Defined:** 2026-02-23
 **Core Value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## v2.1 Requirements
+## v2.2 Requirements
+
+### Streak Tracking
+
+- [ ] **STRK-01**: Current streak displayed in header/stats view
+- [ ] **STRK-02**: Best (longest) streak tracked and displayed
+- [ ] **STRK-03**: Streak calculated based on consecutive days with focus sessions (minimum 5 minutes)
+- [ ] **STRK-04**: Streak calendar view showing monthly grid with daily activity
+- [ ] **STRK-05**: Calendar color coding: light blue (1-2 sessions) → dark blue (5+ sessions)
+- [ ] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
+- [ ] **STRK-07**: Streak data persisted to IndexedDB
+
+### Data Export
+
+- [ ] **EXPT-01**: Export button in History view
+- [ ] **EXPT-02**: Date range filter for export (today/7 days/30 days/all)
+- [ ] **EXPT-03**: CSV format with columns: date, duration, mode, notes, tags
+- [ ] **EXPT-04**: Filename: pomodoro-sessions-YYYY-MM-DD.csv
+- [ ] **EXPT-05**: Download triggers browser file download
+
+### Data Import
+
+- [ ] **IMPT-01**: Import button in Settings view
+- [ ] **IMPT-02**: File picker accepts CSV files exported from app
+- [ ] **IMPT-03**: Import validates CSV format and required columns
+- [ ] **IMPT-04**: Imported sessions merged with existing (no duplicates based on ID)
+- [ ] **IMPT-05**: Import progress shown with success/error feedback
+
+## v2.1 Validated (Shipped 2026-02-23)
 
 ### State Management (Redux Toolkit)
 
@@ -34,94 +62,41 @@
 - [x] **STAT-03**: Chart uses app color scheme (blue primary)
 - [x] **STAT-04**: Hover shows exact duration for each day
 
-### Streak Counter
-
-- [x] **STRK-01**: Current streak displayed in header/badge
-- [x] **STRK-02**: Best streak tracked and displayed
-- [x] **STRK-03**: Streak calculated based on consecutive days with focus sessions
-- [x] **STRK-04**: Streak calendar view showing daily activity
-- [x] **STRK-05**: Calendar color coding: light blue (1-2 sessions) → dark blue (5+ sessions)
-- [x] **STRK-06**: Streak protection: 1 free miss allowed for 5+ day streaks
-- [x] **STRK-07**: Streak data persisted to IndexedDB
-
-### Data Export & Import
-
-- [x] **EXPT-01**: Export button in History view
-- [x] **EXPT-02**: Date range filter for export (today/7 days/30 days/all)
-- [x] **EXPT-03**: CSV format with columns: date, duration, mode, notes, tags
-- [x] **EXPT-04**: Filename: pomodoro-sessions-YYYY-MM-DD.csv
-- [x] **EXPT-05**: Download triggers browser file download
-- [x] **IMPT-01**: Import button in Settings view
-- [x] **IMPT-02**: File picker accepts CSV files exported from app
-- [x] **IMPT-03**: Import validates CSV format and columns
-- [x] **IMPT-04**: Imported sessions merged with existing (no duplicates)
-- [x] **IMPT-05**: Import progress shown with success/error feedback
-
-## v2.2+ Requirements (Deferred)
-
-### Notifications
-
-- **NOTF-01**: Streak reminder notification before midnight
-- **NOTF-02**: Milestone celebration share cards (7/30/100 days)
-
-### Performance
-
-- **PERF-01**: Virtual scrolling for large history lists (>1000 sessions)
-- **PERF-02**: Service worker for offline support
-
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Redux Persist library | Custom middleware preferred for control over IndexedDB |
-| RTK Query | No server state; IndexedDB is client-only |
-| Social leaderboards | No backend, no user accounts |
-| Streak sync across devices | Local-only app |
-| Complex analytics | Keep stats simple per core value |
+| Cloud sync | Local-only app, no backend |
+| Real-time sharing | Not needed |
+| Advanced analytics | Stats requirement is simple |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REDUX-01 | Phase 7 | Complete |
-| REDUX-02 | Phase 7 | Complete |
-| REDUX-03 | Phase 8 | Complete |
-| REDUX-04 | Phase 9 | Complete |
-| REDUX-05 | Phase 10 | Complete |
-| REDUX-06 | Phase 9 | Complete |
-| REDUX-07 | Phase 8 | Complete |
-| REDUX-08 | Phase 8 | Complete |
-| REDUX-09 | Phase 8 | Complete |
-| REDUX-10 | Phase 10 | Complete |
-| SETS-01 | Phase 11 | Complete |
-| SETS-02 | Phase 11 | Complete |
-| SETS-03 | Phase 11 | Complete |
-| SETS-04 | Phase 11 | Complete |
-| SETS-05 | Phase 11 | Complete |
-| SETS-06 | Phase 11 | Complete |
-| STAT-01 | Phase 12 | Complete |
-| STAT-02 | Phase 12 | Complete |
-| STAT-03 | Phase 12 | Complete |
-| STAT-04 | Phase 12 | Complete |
-| STRK-01 | Phase 13 | Complete |
-| STRK-02 | Phase 13 | Complete |
-| STRK-03 | Phase 13 | Complete |
-| STRK-04 | Phase 13 | Complete |
-| STRK-05 | Phase 13 | Complete |
-| STRK-06 | Phase 13 | Complete |
-| STRK-07 | Phase 13 | Complete |
-| EXPT-01 | Phase 14 | Complete |
-| EXPT-02 | Phase 14 | Complete |
-| EXPT-03 | Phase 14 | Complete |
-| EXPT-04 | Phase 14 | Complete |
-| EXPT-05 | Phase 14 | Complete |
+| STRK-01 | Phase 13 | Pending |
+| STRK-02 | Phase 13 | Pending |
+| STRK-03 | Phase 13 | Pending |
+| STRK-04 | Phase 13 | Pending |
+| STRK-05 | Phase 13 | Pending |
+| STRK-06 | Phase 13 | Pending |
+| STRK-07 | Phase 13 | Pending |
+| EXPT-01 | Phase 14 | Pending |
+| EXPT-02 | Phase 14 | Pending |
+| EXPT-03 | Phase 14 | Pending |
+| EXPT-04 | Phase 14 | Pending |
+| EXPT-05 | Phase 14 | Pending |
+| IMPT-01 | Phase 14 | Pending |
+| IMPT-02 | Phase 14 | Pending |
+| IMPT-03 | Phase 14 | Pending |
+| IMPT-04 | Phase 14 | Pending |
+| IMPT-05 | Phase 14 | Pending |
 
 **Coverage:**
-- v2.1 requirements: 32 total
-- Mapped to phases: 32
+- v2.2 requirements: 16 total
+- Mapped to phases: 16
 - Unmapped: 0 ✓
 
 ---
-
-*Requirements defined: 2026-02-21*
-*Last updated: 2026-02-21 after roadmap creation*
+*Requirements defined: 2026-02-23*
+*Last updated: 2026-02-23 after milestone v2.2 kickoff*
