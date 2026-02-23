@@ -1,147 +1,123 @@
-# Feature Landscape: Redux Toolkit Integration
+# Feature Research: Streak Counter & CSV Export/Import
 
-**Domain:** Redux Toolkit state management for Pomodoro Timer app
-**Researched:** 2026-02-21
-**Confidence:** HIGH (based on official Redux Toolkit documentation and current codebase analysis)
-
----
-
-## Executive Summary
-
-This research analyzes what Redux Toolkit (RTK) provides for migrating an existing React timer app from `useReducer` to centralized state management. The app currently uses:
-
-- `useTimer` hook with `useReducer` for timer state
-- `useSessionNotes` hook with `useState` for note editing
-- `useSessionManager` hook for session persistence coordination
-- Direct IndexedDB calls from components/hooks
-
-Redux Toolkit offers **createSlice** (boilerplate reduction), **createAsyncThunk** (async persistence), **RTK Query** (optional for data fetching), and **DevTools integration**. For this app, the primary value is centralizing scattered state logic and making async IndexedDB operations more predictable.
+**Domain:** Pomodoro productivity app (v2.2 features)
+**Researched:** 2026-02-23
+**Confidence:** MEDIUM (based on common productivity app patterns; web search unavailable)
 
 ---
 
 ## Feature Landscape
 
-### Table Stakes (Expected Redux Toolkit Features)
+### Table Stakes (Users Expect These)
 
-Features users (developers) expect when adopting Redux Toolkit. Missing these = migration feels incomplete.
+Features users assume exist. Missing these = product feels incomplete.
+
+#### Streak Counter
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **createSlice for timer state** | Core RTK abstraction; replaces manual reducer/action pairs | LOW | Timer reducer logic already well-structured; direct migration path |
-| **createAsyncThunk for IndexedDB** | Standard RTK pattern for async persistence | MEDIUM | Replaces direct DB calls in hooks; adds pending/fulfilled/rejected states |
-| **configureStore setup** | Required store initialization | LOW | Replaces any custom store logic; includes DevTools automatically |
-| **Typed hooks (useAppDispatch, useAppSelector)** | TypeScript best practice | LOW | Boilerplate file; essential for type safety |
-| **DevTools integration** | Expected debugging capability | LOW | Works automatically with configureStore |
+| Current streak display | Core motivation metric | LOW | Days in a row with at least one completed focus session |
+| Longest streak display | Achievement/progress tracking | LOW | All-time best, persists in settings store |
+| Streak reset indicator | Transparency | LOW | Show why streak broke (e.g., "Last session: 2 days ago") |
+| Calendar heatmap | Visual progress, gamification | MEDIUM | GitHub-style contribution grid or monthly calendar |
 
-### Differentiators (What RTK Enables Beyond useReducer)
+#### CSV Export/Import
 
-Features that become possible or significantly easier with RTK.
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Export all sessions as CSV | Data ownership/backup | LOW | Download complete history |
+| Import CSV with validation | Restore from backup | MEDIUM | Parse, validate, insert valid rows |
+| Error reporting on import | Usability | MEDIUM | Show which rows failed and why |
+
+---
+
+### Differentiators (Competitive Advantage)
+
+Features that set the product apart. Not required, but valuable.
+
+#### Streak Counter
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Centralized async state tracking** | Loading/error states for all async ops | MEDIUM | Currently implicit; RTK makes explicit with `status` fields |
-| **createEntityAdapter for sessions** | Normalized state for history data | MEDIUM | Enables O(1) lookups, easier filtering; overkill for small datasets |
-| **Memoized selectors (createSelector)** | Optimized derived data (stats, filtered lists) | LOW | Prevents unnecessary re-renders; useful for stats calculations |
-| **RTK Query for external APIs** | Eliminates hand-written data fetching | HIGH | Not needed now (no external APIs); future-proofing for cloud sync |
-| **Time-travel debugging** | Debug state changes across timer ticks | LOW | DevTools feature; useful for debugging timer state issues |
-| **Middleware for side effects** | Cross-cutting concerns (analytics, logging) | MEDIUM | Could track session completion events |
+| Streak milestones | Gamification, motivation | LOW | Celebrate 7-day, 30-day, 100-day streaks with visual feedback |
+| Daily goal setting | Motivation | MEDIUM | "Complete 4 sessions today" with progress indicator |
+| Weekly streak summary | Weekly context | LOW | Show week-at-a-glance alongside current streak |
 
-### Anti-Features (What to Avoid)
+#### CSV Export/Import
 
-Features that seem appealing but add complexity without value.
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Export filtered date range | Usefulness | MEDIUM | Export only today/7 days/30 days to match history filters |
+| Merge on import | Multi-device/backup | MEDIUM | Combine imported data with existing without duplicates |
+
+---
+
+### Anti-Features (Commonly Requested, Often Problematic)
+
+Features that seem good but create problems.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| **RTK Query for IndexedDB** | "It's the modern way" | RTK Query designed for HTTP APIs, not local DB | Use createAsyncThunk for IndexedDB ops |
-| **Normalizing all state** | "Normalization is best practice" | Overkill for simple scalar state (timer values) | Keep timer state as object; normalize only sessions if needed |
-| **Moving ALL state to Redux** | "Redux should own everything" | Local UI state (note draft, form inputs) belongs in React | Use Redux for shared/stateful data, useState for local UI |
-| **Complex middleware chain** | "Add logging, analytics, etc." | Unnecessary complexity for current scope | Add middleware only when specific need arises |
-| **Multiple slices for simple features** | "One slice per feature" | Fragmentation for tightly coupled data | Timer + settings can share slice; sessions separate |
+| Streak freeze/purchase | Forgiveness for missing days | Business model complexity, not aligned with free app | Keep streaks simple and free |
+| Cloud sync export | Automatic backup | Backend required, security concerns | Manual CSV export is explicit and controllable |
+| Import from other apps | Format compatibility | Too many variations to handle | Focus on clean export first |
+| Drag-drop import zone | Modern UX | Over-engineered for simple CSV | Simple file input is sufficient |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Core Redux Setup
-    ├──requires──> configureStore
-    ├──requires──> Provider wrapping app
-    └──enables──> All other features
+Streak Features
+├── Session data (EXISTS - SessionRecord in IndexedDB)
+├── Date grouping logic (NEW - group sessions by calendar day)
+├── Streak calculation (NEW - consecutive day algorithm)
+├── Calendar heatmap (NEW - visualization component)
+└── Settings storage for longest streak (NEW - extend settings store)
 
-createSlice for timer
-    ├──requires──> Timer state types migrated
-    ├──requires──> Action types defined
-    └──replaces──> useTimer reducer logic
-
-createAsyncThunk for persistence
-    ├──requires──> createSlice with extraReducers
-    ├──requires──> IndexedDB service functions
-    └──adds──> Pending/fulfilled/rejected states
-
-createEntityAdapter for sessions
-    ├──requires──> Normalized state structure
-    ├──requires──> Migration of existing session data
-    └──enables──> Efficient filtering/lookup
-
-Selectors for stats
-    ├──requires──> createSlice state structure
-    ├──optional──> createSelector for memoization
-    └──replaces──> useFilteredStats hook logic
+CSV Export/Import
+├── Session data (EXISTS - SessionRecord)
+├── CSV generation (NEW - convert SessionRecord to CSV format)
+├── File download (NEW - Blob URL + anchor click)
+├── CSV parsing (NEW - parse CSV string to SessionRecord)
+├── Import validation (NEW - validate required fields, dates)
+└── Duplicate detection (NEW - check id/createdAt before insert)
 ```
 
 ### Dependency Notes
 
-- **createAsyncThunk requires extraReducers:** Async thunks generate actions that must be handled in `extraReducers`, not `reducers`
-- **Entity adapter adds migration complexity:** Existing flat session arrays need conversion to `{ids, entities}` format
-- **Selectors can be added incrementally:** Start with basic selectors, add `createSelector` only if performance issues arise
+- **Streak calculation requires date grouping:** Must group sessions by calendar day (not 24-hour periods) using the `createdAt` timestamp
+- **CSV import requires validation:** Multiple fields need validation (UUID format, ISO timestamps, numeric durations)
+- **Export is simpler than import:** Export is a one-way conversion; import must handle errors gracefully
 
 ---
 
-## Comparison: useReducer vs Redux Toolkit
+## MVP Definition
 
-| Aspect | Current (useReducer) | With Redux Toolkit | Winner |
-|--------|---------------------|-------------------|--------|
-| **Boilerplate** | Medium (actions typed manually) | Low (auto-generated actions) | RTK |
-| **Async handling** | Manual (useEffect + callbacks) | Structured (thunks with lifecycle) | RTK |
-| **DevTools** | None | Time-travel, state inspection | RTK |
-| **Testing** | Straightforward (pure reducer) | Straightforward (same + thunks) | Tie |
-| **Bundle size** | Smaller (no Redux) | Larger (+~10kb gzipped) | useReducer |
-| **Learning curve** | React built-in | New API patterns | useReducer |
-| **Cross-component state** | Prop drilling or context | Direct selector access | RTK |
-| **Persistence integration** | Scattered in hooks | Centralized in thunks | RTK |
+### Launch With (v2.2)
 
----
+Minimum viable product - what's needed to validate the concept.
 
-## MVP Definition: Redux Toolkit Migration
+- [ ] Current streak display - Simple counter showing consecutive days with completed focus sessions
+- [ ] Longest streak storage - Persisted in settings store, displayed alongside current streak
+- [ ] Export all sessions as CSV - Single button exports complete history with all fields
+- [ ] Import CSV with basic validation - Parse file, validate structure, insert valid rows
 
-### Launch With (v2.1 Core)
+### Add After Validation (v2.2.x)
 
-Minimum viable RTK integration — what's needed for feature parity with current implementation.
+Features to add once core is working.
 
-- [ ] **configureStore setup** — Store with DevTools, typed hooks
-- [ ] **timerSlice** — createSlice with all current timer actions
-- [ ] **settingsSlice** — User preferences (durations, autoStart)
-- [ ] **sessionsSlice** — Basic CRUD for session history
-- [ ] **Persistence thunks** — createAsyncThunk for IndexedDB save/load
-- [ ] **Component migration** — Replace useTimer hook with dispatch/selectors
+- [ ] Calendar heatmap - Visual grid showing activity intensity per day
+- [ ] Export filtered date range - Align with existing history filters
+- [ ] Import error reporting - Show detailed errors for invalid rows
 
-### Add After Core Works (v2.1 Polish)
+### Future Consideration (v2.3+)
 
-Features to add once basic RTK integration is stable.
+Features to defer until product-market fit is established.
 
-- [ ] **Loading states** — Show "Saving..." indicators using thunk status
-- [ ] **Error handling** — Display persistence errors from rejected thunks
-- [ ] **Selectors for stats** — Derived data for stats display
-- [ ] **Middleware for logging** — Development-only action logging
-
-### Future Consideration (v2.2+)
-
-Features to defer until core RTK integration proves valuable.
-
-- [ ] **createEntityAdapter** — Only if session list performance becomes issue
-- [ ] **RTK Query** — Only if adding cloud sync or external API
-- [ ] **State normalization** — Only with entity adapter adoption
-- [ ] **Complex middleware** — Analytics, error reporting when needed
+- [ ] Streak milestones with celebration UI
+- [ ] Daily session goal tracking
+- [ ] Merge-on-import to avoid duplicates
 
 ---
 
@@ -149,198 +125,93 @@ Features to defer until core RTK integration proves valuable.
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| configureStore + DevTools | Medium | LOW | P1 |
-| timerSlice (createSlice) | High | LOW | P1 |
-| settingsSlice | Medium | LOW | P1 |
-| sessionsSlice | High | LOW | P1 |
-| Persistence thunks | High | MEDIUM | P1 |
-| Typed hooks | Medium | LOW | P1 |
-| Component migration | High | MEDIUM | P1 |
-| Loading state indicators | Low | LOW | P2 |
-| Error boundaries for thunks | Medium | LOW | P2 |
-| createSelector for stats | Low | LOW | P2 |
-| createEntityAdapter | Low | MEDIUM | P3 |
-| RTK Query adoption | None (no APIs) | HIGH | P3 |
+| Current streak display | HIGH | LOW | P1 |
+| Longest streak storage | HIGH | LOW | P1 |
+| Export all sessions CSV | HIGH | LOW | P1 |
+| Import CSV with validation | HIGH | MEDIUM | P1 |
+| Calendar heatmap | MEDIUM | MEDIUM | P2 |
+| Export filtered range | MEDIUM | LOW | P2 |
+| Import error reporting | MEDIUM | MEDIUM | P2 |
+| Streak milestones | LOW | LOW | P3 |
+| Daily goal tracking | LOW | MEDIUM | P3 |
+| Merge on import | LOW | MEDIUM | P3 |
+
+**Priority key:**
+- P1: Must have for v2.2 launch
+- P2: Should have, add when core is stable
+- P3: Nice to have, future consideration
 
 ---
 
-## What Redux Toolkit Makes Easier vs Harder
+## Implementation Notes
 
-### Easier
+### Streak Calculation Algorithm
 
-| Task | How RTK Helps |
-|------|---------------|
-| **Tracking async operation state** | `pending/fulfilled/rejected` auto-generated; no manual state management |
-| **Debugging state changes** | DevTools show every action, state diff, time-travel |
-| **Accessing state from any component** | `useSelector` anywhere vs prop drilling or context |
-| **Coordinating multiple state changes** | Single dispatch can update multiple slices via listeners |
-| **Adding persistence** | Thunks encapsulate async logic with clear status tracking |
-| **Optimizing re-renders** | `createSelector` prevents unnecessary recalculations |
-
-### Harder (or More Complex)
-
-| Task | Why It Gets Harder |
-|------|-------------------|
-| **Simple local state** | Need to decide: Redux or useState? Adds cognitive overhead |
-| **Bundle size** | +~10kb gzipped for Redux + RTK vs zero for useReducer |
-| **Initial setup** | More files to create (store, slices, typed hooks) |
-| **Testing components** | Need to wrap in Provider, mock store for tests |
-| **Understanding Immer** | "Mutating" state feels wrong; need to trust the abstraction |
-| **Thunk error handling** | Must handle rejected states explicitly vs try/catch in useEffect |
-
----
-
-## Specific Patterns for Timer App
-
-### Pattern 1: Timer Tick with RTK
-
-**Current (useReducer):**
 ```typescript
-// useTimer hook
-useEffect(() => {
-  if (state.isRunning) {
-    intervalRef.current = setInterval(() => {
-      dispatch({ type: 'TICK' })
-    }, 1000)
-  }
-}, [state.isRunning])
-```
+interface StreakData {
+  current: number      // consecutive days including today/yesterday
+  longest: number     // all-time best
+  lastSessionDate: string | null  // ISO date string for display
+}
 
-**With RTK:**
-```typescript
-// Component or custom hook maintains interval
-// Dispatches tick action to slice
-useEffect(() => {
-  if (isRunning) {
-    const interval = setInterval(() => {
-      dispatch(timerTick()) // Auto-generated action creator
-    }, 1000)
-    return () => clearInterval(interval)
-  }
-}, [isRunning, dispatch])
+function calculateStreak(sessions: SessionRecord[]): StreakData {
+  // 1. Group sessions by calendar day (YYYY-MM-DD)
+  const sessionDays = new Set(
+    sessions
+      .filter(s => s.completed && s.mode === 'focus')
+      .map(s => new Date(s.createdAt).toISOString().split('T')[0])
+  )
 
-// Slice reducer handles tick
-reducers: {
-  timerTick: (state) => {
-    if (state.timeRemaining > 0) {
-      state.timeRemaining -= 1
+  // 2. Sort days descending
+  const sortedDays = Array.from(sessionDays).sort((a, b) => b.localeCompare(a))
+
+  // 3. Calculate current streak
+  // Allow 1 day gap (yesterday counts even if today not done)
+  let current = 0
+  const today = new Date().toISOString().split('T')[0]
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+
+  if (sortedDays.includes(today)) {
+    current = 1
+    // Count backwards
+    for (let i = 1; i < sortedDays.length; i++) {
+      const expected = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+      if (sortedDays.includes(expected)) current++
+      else break
     }
+  } else if (sortedDays.includes(yesterday)) {
+    current = 1
   }
+
+  // 4. Track longest (iterate all sorted days, count consecutive)
+  // ... similar logic
+
+  return { current, longest, lastSessionDate: sortedDays[0] || null }
 }
 ```
 
-### Pattern 2: IndexedDB Persistence with Thunks
+### CSV Format
 
-**Current:**
-```typescript
-// Direct call in useEffect
-useEffect(() => {
-  saveTimerState(state)
-}, [state])
+```csv
+id,startTimestamp,endTimestamp,plannedDurationSeconds,actualDurationSeconds,mode,startType,completed,noteText,tags,taskTitle,createdAt
+abc123,2026-02-23T10:00:00.000Z,2026-02-23T10:25:00.000Z,1500,1500,focus,manual,true,"Working on project","tag1|tag2","My Task",1708684800000
 ```
 
-**With RTK:**
-```typescript
-// Async thunk
-export const saveTimerState = createAsyncThunk(
-  'timer/saveState',
-  async (state: TimerState, { rejectWithValue }) => {
-    try {
-      await db.put('timerState', toStorableState(state))
-      return state
-    } catch (error) {
-      return rejectWithValue(error)
-    }
-  }
-)
-
-// Slice handles lifecycle
-extraReducers: (builder) => {
-  builder
-    .addCase(saveTimerState.pending, (state) => {
-      state.saveStatus = 'saving'
-    })
-    .addCase(saveTimerState.fulfilled, (state) => {
-      state.saveStatus = 'saved'
-    })
-    .addCase(saveTimerState.rejected, (state, action) => {
-      state.saveStatus = 'error'
-      state.error = action.payload
-    })
-}
-```
-
-### Pattern 3: Session Completion Side Effects
-
-**Current:**
-```typescript
-useEffect(() => {
-  if (timeRemaining === 0 && !hasCompleted) {
-    notifySessionComplete(mode)
-    onSessionComplete?.()
-    dispatch({ type: 'SKIP' })
-  }
-}, [timeRemaining])
-```
-
-**With RTK (options):**
-
-Option A: Keep in component (recommended for side effects)
-```typescript
-useEffect(() => {
-  if (timeRemaining === 0 && !hasCompleted) {
-    notifySessionComplete(mode)
-    dispatch(sessionComplete()) // Thunk handles notification + state change
-  }
-}, [timeRemaining, dispatch])
-```
-
-Option B: Middleware for cross-cutting concerns
-```typescript
-// Middleware for analytics/logging
-const analyticsMiddleware = store => next => action => {
-  if (action.type === 'timer/sessionComplete') {
-    analytics.track('Session Completed', action.payload)
-  }
-  return next(action)
-}
-```
-
----
-
-## Confidence Assessment
-
-| Area | Confidence | Notes |
-|------|------------|-------|
-| createSlice patterns | HIGH | Well-documented, direct replacement for current reducer |
-| createAsyncThunk for IndexedDB | HIGH | Standard pattern, matches current persistence needs |
-| State structure | HIGH | Current state is already well-factored |
-| Component migration | MEDIUM | Need to decide which hooks to keep vs replace |
-| Bundle impact | HIGH | Known ~10kb cost, acceptable for this app |
-| Testing strategy | MEDIUM | Need to add Provider wrapper for component tests |
-
----
-
-## Gaps to Address in Implementation
-
-1. **Timer interval management:** Keep in hook or move to middleware? (Recommendation: keep in hook, dispatch ticks to Redux)
-2. **Session note draft state:** Keep in useState (local) or move to Redux? (Recommendation: keep local, only save final note)
-3. **Error handling strategy:** How to display persistence errors? (Needs UI design)
-4. **Migration of existing IndexedDB data:** Data format unchanged, but loading pattern changes
+**Format decisions:**
+- Tags joined with pipe `|` delimiter (avoids CSV quoting issues)
+- ISO 8601 timestamps for universal date compatibility
+- createdAt as Unix timestamp for easy sorting/parsing
 
 ---
 
 ## Sources
 
-- [Redux Toolkit Usage Guide](https://redux-toolkit.js.org/usage/usage-guide) — HIGH confidence
-- [Redux Essentials Tutorial: App Structure](https://redux.js.org/tutorials/essentials/part-2-app-structure) — HIGH confidence
-- [Redux Essentials Tutorial: Async Logic](https://redux.js.org/tutorials/essentials/part-5-async-logic) — HIGH confidence
-- [Redux Essentials Tutorial: Performance & Normalization](https://redux.js.org/tutorials/essentials/part-6-performance-normalization) — HIGH confidence
-- [Redux Toolkit createSlice API](https://redux-toolkit.js.org/api/createSlice) — HIGH confidence
-- [Redux Toolkit configureStore API](https://redux-toolkit.js.org/api/configureStore) — HIGH confidence
-- Current codebase analysis: `/Users/dev/Documents/youtube/pomodoro/src/hooks/useTimer.ts`, `/Users/dev/Documents/youtube/pomodoro/src/services/persistence.ts` — HIGH confidence
+- Common productivity app patterns (Duolingo streaks, GitHub contributions, Habitica)
+- Standard CSV export patterns (Blob + URL.createObjectURL for downloads)
+- IndexedDB session structure verified from `/src/services/db.ts`
+- SessionRecord type verified from `/src/types/session.ts`
 
 ---
 
-*Feature research for: Redux Toolkit integration in Pomodoro Timer*
-*Researched: 2026-02-21*
+*Feature research for: Pomodoro Timer v2.2 (streak counter, CSV export/import)*
+*Researched: 2026-02-23*

@@ -4,6 +4,17 @@
 **Researched:** 2026-02-21
 **Confidence:** HIGH
 
+---
+
+# v2.2 Update: Streak Tracking + CSV Export/Import
+
+**Added:** 2026-02-23
+**Confidence:** HIGH
+
+This section covers integration architecture for new v2.2 features: daily streak tracking and CSV data export/import.
+
+---
+
 ## Executive Summary
 
 This research document outlines the architecture for migrating an existing Pomodoro Timer application from React hooks (useReducer, useState) to Redux Toolkit. The existing architecture uses a well-structured hook-based approach with clear separation of concerns. The migration path prioritizes incremental adoption, maintaining existing IndexedDB persistence, and preserving the component API surface while centralizing state management.
@@ -52,6 +63,402 @@ This research document outlines the architecture for migrating an existing Pomod
 
 ---
 
+## v2.2 Integration: Streak Tracking
+
+### Overview
+
+Streak tracking is **purely derived from existing session data** — no new IndexedDB schema, no new Redux slice required.
+
+### Component Boundaries
+
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `streakUtils.ts` | Pure functions: calculateCurrentStreak, calculateLongestStreak, getStreakDays | Returns streak data, no side effects |
+| `historySelectors.ts` (extend) | Memoized selectors: selectCurrentStreak, selectLongestStreak, selectStreakDays | Uses selectAllSessions, streakUtils |
+| `StreakCounter.tsx` | Display current streak number | Uses selectors via useAppSelector |
+| `StreakCalendar.tsx` | Visual calendar showing streak days | Uses selectors, renders grid of days |
+
+### Data Flow
+
+```
+IndexedDB sessions
+       ↓
+selectAllSessions (existing)
+       ↓
+streakUtils.calculateCurrentStreak()
+       ↓
+selectCurrentStreak (new selector)
+       ↓
+StreakCounter component
+```
+
+### Implementation: streakUtils.ts
+
+```typescript
+import { SessionRecord } from '../types/session';
+
+export interface StreakData {
+  currentStreak: number;      // Consecutive days including today
+  longestStreak: number;      // All-time best
+  streakDays: Date[];         // Array of dates with sessions
+  hasToday: boolean;          // Whether user has session today
+}
+
+export function calculateStreak(sessions: SessionRecord[]): StreakData {
+  // Group sessions by date (YYYY-MM-DD)
+  const sessionDates = new Set(
+    sessions.map(s => s.startTimestamp.split('T')[0])
+  );
+
+  const sortedDates = Array.from(sessionDates).sort().reverse();
+  const today = new Date().toISOString().split('T')[0];
+  const hasToday = sessionDates.has(today);
+
+  // Calculate current streak (consecutive days from today/yesterday)
+  let currentStreak = 0;
+  const checkDate = new Date();
+
+  // Start from today if exists, else yesterday
+  if (!hasToday) {
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+
+  while (sessionDates.has(checkDate.toISOString().split('T')[0])) {
+    currentStreak++;
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+
+  // Calculate longest streak
+  let longestStreak = 0;
+  let tempStreak = 1;
+  const ascendingDates = sortedDates.reverse();
+
+  for (let i = 1; i < ascendingDates.length; i++) {
+    const prev = new Date(ascendingDates[i - 1]);
+    const curr = new Date(ascendingDates[i]);
+    const diffDays = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diffDays === 1) {
+      tempStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, tempStreak);
+      tempStreak = 1;
+    }
+  }
+  longestStreak = Math.max(longestStreak, tempStreak);
+
+  return {
+    currentStreak,
+    longestStreak,
+    streakDays: sortedDates.map(d => new Date(d)),
+    hasToday,
+  };
+}
+```
+
+### Implementation: New Selectors
+
+Add to `src/features/history/historySelectors.ts`:
+
+```typescript
+import { calculateStreak, StreakData } from '../../utils/streakUtils';
+
+// Select streak data computed from all sessions
+export const selectStreakData = createSelector(
+  [selectAllSessions],
+  (sessions): StreakData => {
+    return calculateStreak(sessions);
+  }
+);
+
+// Convenience selectors
+export const selectCurrentStreak = createSelector(
+  [selectStreakData],
+  (streak) => streak.currentStreak
+);
+
+export const selectLongestStreak = createSelector(
+  [selectStreakData],
+  (streak) => streak.longestStreak
+);
+```
+
+### No Changes Required
+
+- **IndexedDB**: No schema changes — sessions already have `startTimestamp`
+- **Redux store**: No new slice needed — streak is derived via selectors
+- **sessionStore.ts**: No changes needed
+
+---
+
+## v2.2 Integration: CSV Export/Import
+
+### Overview
+
+- **Export**: Generate CSV from existing sessions in Redux/IndexedDB
+- **Import**: Parse CSV, validate, bulk-add to IndexedDB, reload Redux
+
+### Component Boundaries
+
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `csvUtils.ts` | Pure functions: sessionsToCSV, csvToSessions, validateCSV | Parsing/serialization, validation |
+| `sessionStore.ts` (extend) | Bulk import function | IndexedDB |
+| `historySlice.ts` (extend) | Import status state + actions | Redux store |
+| `ExportButton.tsx` | Trigger CSV download | Uses sessionStore + csvUtils |
+| `ImportButton.tsx` | File input + import flow | Uses historySlice actions |
+| `ImportModal.tsx` | Show import results/errors | Uses import state from Redux |
+
+### Data Flow
+
+**Export:**
+```
+User clicks Export
+       ↓
+getAllSessions() from sessionStore
+       ↓
+csvUtils.sessionsToCSV(sessions)
+       ↓
+Download file (blob URL)
+```
+
+**Import:**
+```
+User selects CSV file
+       ↓
+FileReader reads content
+       ↓
+csvUtils.csvToSessions(csvString) → validated sessions
+       ↓
+sessionStore.bulkImportSessions(sessions)
+       ↓
+historySlice.loadSessions (reload all from IndexedDB)
+       ↓
+UI shows success/error count
+```
+
+### Implementation: csvUtils.ts
+
+```typescript
+import { SessionRecord } from '../types/session';
+
+const CSV_HEADERS = [
+  'id',
+  'startTimestamp',
+  'endTimestamp',
+  'plannedDurationSeconds',
+  'actualDurationSeconds',
+  'durationString',
+  'mode',
+  'startType',
+  'completed',
+  'noteText',
+  'tags',
+  'taskTitle',
+  'createdAt',
+].join(',');
+
+export function sessionsToCSV(sessions: SessionRecord[]): string {
+  const rows = sessions.map(session => [
+    session.id,
+    session.startTimestamp,
+    session.endTimestamp,
+    session.plannedDurationSeconds,
+    session.actualDurationSeconds,
+    session.durationString,
+    session.mode,
+    session.startType,
+    session.completed,
+    // Escape quotes in text fields
+    `"${session.noteText.replace(/"/g, '""')}"`,
+    `"${session.tags.join(';')}"`,
+    `"${session.taskTitle.replace(/"/g, '""')}"`,
+    session.createdAt,
+  ].join(','));
+
+  return [CSV_HEADERS, ...rows].join('\n');
+}
+
+export interface CSVParseResult {
+  sessions: SessionRecord[];
+  errors: string[];
+}
+
+export function csvToSessions(csv: string): CSVParseResult {
+  const lines = csv.trim().split('\n');
+  const errors: string[] = [];
+  const sessions: SessionRecord[] = [];
+
+  // Skip header
+  for (let i = 1; i < lines.length; i++) {
+    try {
+      const session = parseCSVLine(lines[i]);
+      if (validateSession(session)) {
+        sessions.push(session);
+      } else {
+        errors.push(`Line ${i + 1}: Invalid session data`);
+      }
+    } catch (e) {
+      errors.push(`Line ${i + 1}: ${e instanceof Error ? e.message : 'Parse error'}`);
+    }
+  }
+
+  return { sessions, errors };
+}
+
+function parseCSVLine(line: string): Partial<SessionRecord> {
+  // Simple CSV parser handling quoted fields
+  const values: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      values.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  values.push(current);
+
+  const [id, startTimestamp, endTimestamp, plannedDurationSeconds,
+    actualDurationSeconds, durationString, mode, startType,
+    completed, noteText, tags, taskTitle, createdAt] = values;
+
+  return {
+    id,
+    startTimestamp,
+    endTimestamp,
+    plannedDurationSeconds: Number(plannedDurationSeconds),
+    actualDurationSeconds: Number(actualDurationSeconds),
+    durationString,
+    mode: mode as SessionRecord['mode'],
+    startType: startType as SessionRecord['startType'],
+    completed: completed === 'true',
+    noteText,
+    tags: tags ? tags.split(';') : [],
+    taskTitle,
+    createdAt: Number(createdAt),
+  };
+}
+
+function validateSession(s: Partial<SessionRecord>): s is SessionRecord {
+  return !!(s.id && s.startTimestamp && s.endTimestamp && s.mode);
+}
+```
+
+### Implementation: sessionStore.ts Extension
+
+Add to `src/services/sessionStore.ts`:
+
+```typescript
+export async function bulkImportSessions(records: SessionRecord[]): Promise<number> {
+  const db = await initDB();
+  const tx = db.transaction('sessions', 'readwrite');
+  let imported = 0;
+
+  for (const record of records) {
+    // Check for existing ID to avoid duplicates
+    const existing = await tx.store.get(record.id);
+    if (!existing) {
+      await tx.store.put(record);
+      imported++;
+    }
+  }
+
+  await tx.done;
+  return imported;
+}
+```
+
+### Implementation: historySlice.ts Extension
+
+Add import state to `HistoryState` and new actions:
+
+```typescript
+export interface HistoryState {
+  // ... existing fields
+  dateFilter: DateFilter
+  searchQuery: string
+  sessions: SessionRecord[]
+  isLoading: boolean
+  // NEW: Import state
+  importStatus: 'idle' | 'importing' | 'success' | 'error'
+  importResult: { imported: number; errors: string[] } | null
+}
+
+// New actions
+setImportStatus(state, action: PayloadAction<HistoryState['importStatus']>) {
+  state.importStatus = action.payload
+},
+setImportResult(state, action: PayloadAction<HistoryState['importResult']>) {
+  state.importResult = action.payload
+  state.importStatus = action.payload?.errors.length ? 'error' : 'success'
+},
+```
+
+---
+
+## Build Order for v2.2 Features
+
+### Phase 1: Streak Infrastructure
+1. **Create `src/utils/streakUtils.ts`** — Pure calculation functions (no dependencies)
+2. **Add selectors to `src/features/history/historySelectors.ts`** — Memoized streak selectors
+3. **Create `src/components/streak/StreakCounter.tsx`** — Simple display component
+4. **Integrate into Stats view** — Add streak to existing stats panel
+
+### Phase 2: Streak Calendar
+5. **Create `src/components/streak/StreakCalendar.tsx`** — Visual calendar grid
+6. **Add to History screen** — Calendar below session list
+
+### Phase 3: CSV Export
+7. **Create `src/utils/csvUtils.ts`** — CSV serialization/parsing
+8. **Add Export button to History screen** — Downloads CSV file
+
+### Phase 4: CSV Import
+9. **Extend `src/services/sessionStore.ts`** — Add `bulkImportSessions()`
+10. **Extend `src/features/history/historySlice.ts`** — Add import status state
+11. **Create `src/components/import/ImportModal.tsx`** — File picker + results display
+12. **Wire up import flow** — Button triggers modal, modal dispatches import
+
+### Phase 5: Integration & Polish
+13. **Connect import to reload** — After import, call `loadSessions` to refresh Redux
+14. **Error handling** — Show validation errors in ImportModal
+15. **Edge cases** — Handle empty CSV, duplicate IDs, malformed data
+
+---
+
+## Integration Points Summary
+
+| Feature | New Files | Modify Existing | Redux Changes | IndexedDB Changes |
+|---------|-----------|-----------------|---------------|-------------------|
+| Streak Counter | `streakUtils.ts` | `historySelectors.ts` | None | None |
+| Streak Calendar | `StreakCalendar.tsx`, `StreakCounter.tsx` | — | None | None |
+| CSV Export | `csvUtils.ts` | — | None | None |
+| CSV Import | `ImportModal.tsx` | `sessionStore.ts`, `historySlice.ts` | Add import state | Add bulk import |
+
+---
+
+## Key Design Decisions (v2.2)
+
+| Decision | Rationale | Alternative Considered |
+|----------|-----------|------------------------|
+| Streak as derived selector | Sessions already have timestamps — no duplication | Store streak in settings — adds sync complexity |
+| CSV in-memory parse | Small datasets (<10k sessions) — no streaming needed | Use worker — overkill for app scale |
+| Import via bulk ID check | Simple deduplication strategy | Upsert — more complex, same outcome |
+| Import reloads all sessions | Ensures Redux/IndexedDB consistency | Optimistic update — risks state drift |
+
+---
+
 ## Recommended Redux Architecture
 
 ### System Overview
@@ -83,7 +490,7 @@ This research document outlines the architecture for migrating an existing Pomod
 │  │ timeRemaining│ │ tags        │ │ filters    │ │ isDrawerOpen│ │
 │  │ isRunning   │ │ saveStatus  │ │ searchQuery │ │ showSummary│ │
 │  │ duration    │ │ lastSaved   │ │ isLoading   │ │ selected   │ │
-│  │ sessionCount│ │             │ │             │ │            │ │
+│  │ sessionCount│ │             │ │ importStatus│ │            │ │
 │  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘ │
 └─────────────────────────────────────────────────────────────────┘
                                   │
@@ -158,6 +565,9 @@ interface HistorySliceState {
   }
   isLoading: boolean
   error: string | null
+  // v2.2: Import state
+  importStatus: 'idle' | 'importing' | 'success' | 'error'
+  importResult: { imported: number; errors: string[] } | null
 }
 
 // UI slice — replaces App.tsx component state
@@ -204,732 +614,17 @@ src/
 ├── selectors/
 │   ├── timerSelectors.ts        # Memoized timer selectors
 │   ├── sessionSelectors.ts      # Memoized session selectors
-│   └── historySelectors.ts      # Memoized history selectors
-└── types/
-    └── redux.ts                 # Redux-specific type definitions
+│   └── historySelectors.ts      # Memoized history selectors (v2.2: streak)
+├── components/
+│   ├── streak/                  # v2.2: Streak components
+│   │   ├── StreakCounter.tsx
+│   │   └── StreakCalendar.tsx
+│   └── import/                  # v2.2: Import components
+│       └── ImportModal.tsx
+└── utils/
+    ├── streakUtils.ts           # v2.2: Streak calculation
+    └── csvUtils.ts              # v2.2: CSV export/import
 ```
-
-### Structure Rationale
-
-- **`store/slices/`**: Each slice corresponds to a logical domain that previously had its own hook. This makes migration incremental — one slice at a time.
-- **`store/middleware/`**: Persistence logic moves from hooks into middleware, keeping slices pure and testable.
-- **`hooks/`**: Existing hook APIs are preserved but implementations switch to Redux. Components require zero or minimal changes.
-- **`selectors/`**: Complex filtering (like history search) moves to memoized selectors for performance.
-
----
-
-## Slice Implementation Details
-
-### Timer Slice
-
-**Replaces:** `useTimer.ts` reducer logic
-
-```typescript
-// src/store/slices/timerSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { TimerMode } from '../../types/timer'
-
-interface TimerState {
-  mode: TimerMode
-  duration: number
-  timeRemaining: number
-  isRunning: boolean
-  sessionCount: number
-  startTime: number | null
-  pausedTimeRemaining: number | null
-  settings: {
-    autoStart: boolean
-    focusDuration: number
-    shortBreakDuration: number
-    longBreakDuration: number
-  }
-}
-
-const DEFAULT_DURATIONS = {
-  focus: 25 * 60,
-  shortBreak: 5 * 60,
-  longBreak: 15 * 60,
-}
-
-const initialState: TimerState = {
-  mode: 'focus',
-  duration: DEFAULT_DURATIONS.focus,
-  timeRemaining: DEFAULT_DURATIONS.focus,
-  isRunning: false,
-  sessionCount: 1,
-  startTime: null,
-  pausedTimeRemaining: null,
-  settings: {
-    autoStart: false,
-    ...DEFAULT_DURATIONS,
-  },
-}
-
-const timerSlice = createSlice({
-  name: 'timer',
-  initialState,
-  reducers: {
-    start: (state) => {
-      state.isRunning = true
-      state.startTime = Date.now()
-      state.pausedTimeRemaining = null
-    },
-    pause: (state) => {
-      state.isRunning = false
-      state.pausedTimeRemaining = state.timeRemaining
-      state.startTime = null
-    },
-    resume: (state) => {
-      state.isRunning = true
-      state.startTime = Date.now()
-    },
-    reset: (state) => {
-      state.timeRemaining = state.duration
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    tick: (state) => {
-      if (state.startTime) {
-        const elapsed = Math.floor((Date.now() - state.startTime) / 1000)
-        state.timeRemaining = Math.max(0, state.duration - elapsed)
-      }
-    },
-    skip: (state) => {
-      // Logic for mode transition (focus -> break, break -> focus)
-      const isFocusMode = state.mode === 'focus'
-      if (isFocusMode) {
-        if (state.sessionCount >= 4) {
-          state.mode = 'longBreak'
-          state.sessionCount = 1
-        } else {
-          state.mode = 'shortBreak'
-        }
-      } else {
-        state.mode = 'focus'
-        if (state.mode === 'shortBreak') {
-          state.sessionCount += 1
-        }
-      }
-      state.duration = state.settings[`${state.mode}Duration`]
-      state.timeRemaining = state.duration
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    setMode: (state, action: PayloadAction<TimerMode>) => {
-      state.mode = action.payload
-      state.duration = state.settings[`${action.payload}Duration`]
-      state.timeRemaining = state.duration
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    setCustomDurations: (state, action: PayloadAction<{
-      focus: number
-      shortBreak: number
-      longBreak: number
-    }>) => {
-      state.settings = { ...state.settings, ...action.payload }
-      state.duration = action.payload[state.mode]
-      state.timeRemaining = state.duration
-      state.isRunning = false
-      state.startTime = null
-    },
-    setAutoStart: (state, action: PayloadAction<boolean>) => {
-      state.settings.autoStart = action.payload
-    },
-    // Used by persistence middleware to hydrate state
-    hydrateTimerState: (state, action: PayloadAction<Partial<TimerState>>) => {
-      return { ...state, ...action.payload }
-    },
-  },
-})
-
-export const {
-  start, pause, resume, reset, tick, skip,
-  setMode, setCustomDurations, setAutoStart, hydrateTimerState
-} = timerSlice.actions
-
-export default timerSlice.reducer
-```
-
-### Session Slice
-
-**Replaces:** `useSessionNotes.ts` + `useSessionManager.ts` state
-
-```typescript
-// src/store/slices/sessionSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { SessionRecord, TagData } from '../../types/session'
-
-interface SessionState {
-  currentSession: {
-    noteText: string
-    tags: string[]
-    saveStatus: 'idle' | 'saving' | 'saved'
-    lastSaved: number | null
-  }
-  activeSession: {
-    id: string
-    startTime: number
-    plannedDuration: number
-    checkpointCount: number
-  } | null
-  tags: {
-    allTags: TagData[]
-    suggestions: string[]
-    isLoading: boolean
-  }
-}
-
-const initialState: SessionState = {
-  currentSession: {
-    noteText: '',
-    tags: [],
-    saveStatus: 'idle',
-    lastSaved: null,
-  },
-  activeSession: null,
-  tags: {
-    allTags: [],
-    suggestions: [],
-    isLoading: false,
-  },
-}
-
-const MAX_NOTE_LENGTH = 2000
-
-const sessionSlice = createSlice({
-  name: 'session',
-  initialState,
-  reducers: {
-    // Note editing
-    setNoteText: (state, action: PayloadAction<string>) => {
-      if (action.payload.length <= MAX_NOTE_LENGTH) {
-        state.currentSession.noteText = action.payload
-        state.currentSession.saveStatus = 'saving'
-      }
-    },
-    setTags: (state, action: PayloadAction<string[]>) => {
-      state.currentSession.tags = action.payload
-      state.currentSession.saveStatus = 'saving'
-    },
-    markNoteSaved: (state) => {
-      state.currentSession.saveStatus = 'saved'
-      state.currentSession.lastSaved = Date.now()
-    },
-    resetNotes: (state) => {
-      state.currentSession = {
-        noteText: '',
-        tags: [],
-        saveStatus: 'idle',
-        lastSaved: null,
-      }
-    },
-    // Active session lifecycle
-    startSession: (state, action: PayloadAction<{
-      id: string
-      startTime: number
-      plannedDuration: number
-    }>) => {
-      state.activeSession = {
-        ...action.payload,
-        checkpointCount: 0,
-      }
-    },
-    incrementCheckpoint: (state) => {
-      if (state.activeSession) {
-        state.activeSession.checkpointCount += 1
-      }
-    },
-    endSession: (state) => {
-      state.activeSession = null
-    },
-    // Tags
-    setTagSuggestions: (state, action: PayloadAction<string[]>) => {
-      state.tags.suggestions = action.payload
-    },
-    setAllTags: (state, action: PayloadAction<TagData[]>) => {
-      state.tags.allTags = action.payload
-    },
-  },
-})
-
-export const {
-  setNoteText, setTags, markNoteSaved, resetNotes,
-  startSession, incrementCheckpoint, endSession,
-  setTagSuggestions, setAllTags
-} = sessionSlice.actions
-
-export default sessionSlice.reducer
-```
-
-### History Slice
-
-**Replaces:** `useSessionHistory.ts`
-
-```typescript
-// src/store/slices/historySlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { SessionRecord } from '../../types/session'
-import { DateFilter } from '../../utils/dateUtils'
-
-interface HistoryState {
-  sessions: SessionRecord[]
-  filters: {
-    dateFilter: DateFilter
-    searchQuery: string
-  }
-  isLoading: boolean
-  error: string | null
-}
-
-const initialState: HistoryState = {
-  sessions: [],
-  filters: {
-    dateFilter: 'all',
-    searchQuery: '',
-  },
-  isLoading: false,
-  error: null,
-}
-
-const historySlice = createSlice({
-  name: 'history',
-  initialState,
-  reducers: {
-    setSessions: (state, action: PayloadAction<SessionRecord[]>) => {
-      state.sessions = action.payload
-    },
-    addSession: (state, action: PayloadAction<SessionRecord>) => {
-      state.sessions.unshift(action.payload)
-    },
-    updateSession: (state, action: PayloadAction<SessionRecord>) => {
-      const index = state.sessions.findIndex(s => s.id === action.payload.id)
-      if (index !== -1) {
-        state.sessions[index] = action.payload
-      }
-    },
-    deleteSession: (state, action: PayloadAction<string>) => {
-      state.sessions = state.sessions.filter(s => s.id !== action.payload)
-    },
-    setDateFilter: (state, action: PayloadAction<DateFilter>) => {
-      state.filters.dateFilter = action.payload
-    },
-    setSearchQuery: (state, action: PayloadAction<string>) => {
-      state.filters.searchQuery = action.payload
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload
-    },
-  },
-})
-
-export const {
-  setSessions, addSession, updateSession, deleteSession,
-  setDateFilter, setSearchQuery, setLoading, setError
-} = historySlice.actions
-
-export default historySlice.reducer
-```
-
-### UI Slice
-
-**Replaces:** Component-level state in `App.tsx`
-
-```typescript
-// src/store/slices/uiSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { SessionRecord } from '../../types/session'
-
-type ViewMode = 'timer' | 'history' | 'stats' | 'settings'
-
-interface UISliceState {
-  viewMode: ViewMode
-  modals: {
-    showSummary: boolean
-    completedSession: {
-      durationString: string
-      noteText: string
-      tags: string[]
-      startTimestamp: string
-    } | null
-  }
-  drawer: {
-    isOpen: boolean
-    selectedSessionId: string | null
-  }
-}
-
-const initialState: UISliceState = {
-  viewMode: 'timer',
-  modals: {
-    showSummary: false,
-    completedSession: null,
-  },
-  drawer: {
-    isOpen: false,
-    selectedSessionId: null,
-  },
-}
-
-const uiSlice = createSlice({
-  name: 'ui',
-  initialState,
-  reducers: {
-    setViewMode: (state, action: PayloadAction<ViewMode>) => {
-      state.viewMode = action.payload
-    },
-    showSessionSummary: (state, action: PayloadAction<UISliceState['modals']['completedSession']>) => {
-      state.modals.showSummary = true
-      state.modals.completedSession = action.payload
-    },
-    hideSessionSummary: (state) => {
-      state.modals.showSummary = false
-      state.modals.completedSession = null
-    },
-    openDrawer: (state, action: PayloadAction<string>) => {
-      state.drawer.isOpen = true
-      state.drawer.selectedSessionId = action.payload
-    },
-    closeDrawer: (state) => {
-      state.drawer.isOpen = false
-      state.drawer.selectedSessionId = null
-    },
-  },
-})
-
-export const {
-  setViewMode, showSessionSummary, hideSessionSummary,
-  openDrawer, closeDrawer
-} = uiSlice.actions
-
-export default uiSlice.reducer
-```
-
----
-
-## Middleware for Persistence
-
-### Persistence Middleware
-
-**Replaces:** Direct IndexedDB calls in hooks
-
-```typescript
-// src/store/middleware/persistenceMiddleware.ts
-import { Middleware } from '@reduxjs/toolkit'
-import { RootState } from '../index'
-import { saveTimerState, saveTimerStateImmediate, saveSettings } from '../../services/persistence'
-
-let timerSaveTimeout: ReturnType<typeof setTimeout> | null = null
-
-export const persistenceMiddleware: Middleware<{}, RootState> = store => next => action => {
-  const result = next(action)
-  const state = store.getState()
-
-  // Handle timer state persistence
-  if (action.type.startsWith('timer/')) {
-    if (timerSaveTimeout) {
-      clearTimeout(timerSaveTimeout)
-    }
-
-    const timerState = state.timer
-    if (timerState.isRunning) {
-      // Debounce while running
-      timerSaveTimeout = setTimeout(() => {
-        saveTimerState({
-          mode: timerState.mode,
-          duration: timerState.duration,
-          timeRemaining: timerState.timeRemaining,
-          isRunning: timerState.isRunning,
-          sessionCount: timerState.sessionCount,
-          startTime: timerState.startTime,
-          pausedTimeRemaining: timerState.pausedTimeRemaining,
-        })
-      }, 2000)
-    } else {
-      // Immediate when stopped
-      saveTimerStateImmediate({
-        mode: timerState.mode,
-        duration: timerState.duration,
-        timeRemaining: timerState.timeRemaining,
-        isRunning: timerState.isRunning,
-        sessionCount: timerState.sessionCount,
-        startTime: timerState.startTime,
-        pausedTimeRemaining: timerState.pausedTimeRemaining,
-      })
-    }
-  }
-
-  // Handle settings persistence
-  if (action.type === 'timer/setAutoStart' || action.type === 'timer/setCustomDurations') {
-    saveSettings(state.timer.settings)
-  }
-
-  return result
-}
-```
-
----
-
-## Hook Compatibility Layer
-
-### useTimer Hook (Redux Version)
-
-Maintains the same API as the original hook.
-
-```typescript
-// src/hooks/useTimer.ts (Redux version)
-import { useCallback, useEffect, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState, AppDispatch } from '../store'
-import {
-  start, pause, resume, reset, skip, tick,
-  setMode, setCustomDurations, setAutoStart
-} from '../store/slices/timerSlice'
-import { notifySessionComplete, requestPermission } from '../services/notifications'
-import { loadTimerState, loadSettings } from '../services/persistence'
-import { hydrateTimerState } from '../store/slices/timerSlice'
-
-interface UseTimerOptions {
-  onSessionComplete?: () => void
-}
-
-export function useTimer(options: UseTimerOptions = {}) {
-  const { onSessionComplete } = options
-  const dispatch = useDispatch<AppDispatch>()
-  const state = useSelector((state: RootState) => state.timer)
-  const intervalRef = useRef<number | null>(null)
-  const isInitializedRef = useRef(false)
-  const previousTimeRef = useRef<number>(state.timeRemaining)
-
-  // Hydrate from IndexedDB on mount
-  useEffect(() => {
-    async function hydrate() {
-      const [timerState, settings] = await Promise.all([
-        loadTimerState(),
-        loadSettings(),
-      ])
-
-      dispatch(hydrateTimerState({
-        ...timerState,
-        settings: {
-          autoStart: settings.autoStart,
-          focusDuration: settings.focusDuration,
-          shortBreakDuration: settings.shortBreakDuration,
-          longBreakDuration: settings.longBreakDuration,
-        }
-      }))
-
-      isInitializedRef.current = true
-    }
-
-    hydrate()
-  }, [dispatch])
-
-  // Handle tick updates
-  useEffect(() => {
-    if (state.isRunning && state.startTime) {
-      intervalRef.current = window.setInterval(() => {
-        dispatch(tick())
-      }, 1000)
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [state.isRunning, state.startTime, dispatch])
-
-  // Handle session completion
-  useEffect(() => {
-    if (!isInitializedRef.current) return
-
-    const wasRunning = previousTimeRef.current > 0
-    const isNowComplete = state.timeRemaining === 0
-
-    if (wasRunning && isNowComplete) {
-      notifySessionComplete(state.mode)
-
-      if (state.mode === 'focus') {
-        onSessionComplete?.()
-      }
-
-      setTimeout(() => {
-        dispatch(skip())
-        if (state.settings.autoStart) {
-          setTimeout(() => dispatch(start()), 100)
-        }
-      }, 100)
-    }
-
-    previousTimeRef.current = state.timeRemaining
-  }, [state.timeRemaining, state.mode, state.settings.autoStart, dispatch, onSessionComplete])
-
-  // Action wrappers (maintain existing API)
-  const startTimer = useCallback(() => dispatch(start()), [dispatch])
-  const pauseTimer = useCallback(() => dispatch(pause()), [dispatch])
-  const resumeTimer = useCallback(() => dispatch(resume()), [dispatch])
-  const resetTimer = useCallback(() => dispatch(reset()), [dispatch])
-  const skipTimer = useCallback(() => dispatch(skip()), [dispatch])
-  const changeMode = useCallback((mode: TimerMode) => dispatch(setMode(mode)), [dispatch])
-  const updateDurations = useCallback((durations: {
-    focus: number
-    shortBreak: number
-    longBreak: number
-  }) => dispatch(setCustomDurations(durations)), [dispatch])
-  const updateAutoStart = useCallback((value: boolean) => dispatch(setAutoStart(value)), [dispatch])
-
-  return {
-    state,
-    start: startTimer,
-    pause: pauseTimer,
-    resume: resumeTimer,
-    reset: resetTimer,
-    skip: skipTimer,
-    setMode: changeMode,
-    autoStart: state.settings.autoStart,
-    setAutoStart: updateAutoStart,
-    setCustomDurations: updateDurations,
-  }
-}
-```
-
----
-
-## Build Order (Incremental Migration)
-
-### Phase 1: Foundation
-1. **Install dependencies**: `@reduxjs/toolkit`, `react-redux`
-2. **Create store structure**: `store/index.ts` with basic configuration
-3. **Add provider**: Wrap App with Redux Provider
-
-### Phase 2: Timer Slice (Highest Impact)
-1. **Create timerSlice.ts**: Migrate useTimer reducer logic
-2. **Create persistenceMiddleware.ts**: Handle IndexedDB sync
-3. **Update useTimer.ts**: Connect to Redux while maintaining API
-4. **Verify**: Timer functionality unchanged
-
-### Phase 3: UI Slice
-1. **Create uiSlice.ts**: Migrate App.tsx component state
-2. **Update App.tsx**: Connect viewMode, modals, drawer to Redux
-3. **Verify**: View switching, modals, drawer work correctly
-
-### Phase 4: Session Slice
-1. **Create sessionSlice.ts**: Migrate useSessionNotes + useSessionManager
-2. **Create sessionThunks.ts**: Async session save operations
-3. **Update useSessionNotes.ts**: Connect to Redux
-4. **Update useSessionManager.ts**: Connect to Redux
-5. **Verify**: Note editing, session saving work correctly
-
-### Phase 5: History Slice
-1. **Create historySlice.ts**: Migrate useSessionHistory
-2. **Create historySelectors.ts**: Memoized filtering logic
-3. **Create historyThunks.ts**: Async history fetching
-4. **Update useSessionHistory.ts**: Connect to Redux
-5. **Verify**: History list, filtering, search work correctly
-
-### Phase 6: Cleanup
-1. **Remove legacy code**: Old hook implementations (keep Redux versions)
-2. **Add tests**: Slice reducers, selectors, thunks
-3. **Performance audit**: Selector memoization, unnecessary re-renders
-
----
-
-## Data Flow
-
-### Timer Tick Flow
-
-```
-[setInterval in useTimer]
-         ↓
-   dispatch(tick())
-         ↓
-   timerSlice reducer
-         ↓
-   state.timeRemaining updated
-         ↓
-   persistenceMiddleware (debounced save)
-         ↓
-   IndexedDB (timerState store)
-         ↓
-   React re-renders TimerDisplay
-```
-
-### Session Complete Flow
-
-```
-[Timer reaches 0]
-         ↓
-   useTimer effect detects completion
-         ↓
-   onSessionComplete callback
-         ↓
-   sessionThunks.saveSession (async)
-         ↓
-   IndexedDB (sessions store)
-         ↓
-   dispatch(addSession())
-         ↓
-   historySlice updated
-         ↓
-   dispatch(showSessionSummary())
-         ↓
-   uiSlice updated → modal displayed
-```
-
-### Note Auto-Save Flow
-
-```
-[User types in NotePanel]
-         ↓
-   dispatch(setNoteText(text))
-         ↓
-   sessionSlice reducer (saveStatus: 'saving')
-         ↓
-   sessionMiddleware (debounced)
-         ↓
-   dispatch(markNoteSaved())
-         ↓
-   sessionSlice reducer (saveStatus: 'saved')
-```
-
----
-
-## Integration Points
-
-### New vs Modified Components
-
-| Component | Change Type | Changes Required |
-|-----------|-------------|------------------|
-| `App.tsx` | Modified | Remove useState for viewMode, modals, drawer; use useSelector/useDispatch |
-| `TimerDisplay.tsx` | Unchanged | Already receives props from useTimer |
-| `TimerControls.tsx` | Unchanged | Already receives props from useTimer |
-| `NotePanel.tsx` | Unchanged | Already receives props from useSessionNotes |
-| `HistoryList.tsx` | Unchanged | Already receives props from useSessionHistory |
-| `HistoryDrawer.tsx` | Unchanged | Already receives props via callbacks |
-| `useTimer.ts` | Modified | Internal implementation switches to Redux |
-| `useSessionNotes.ts` | Modified | Internal implementation switches to Redux |
-| `useSessionManager.ts` | Modified | Internal implementation switches to Redux |
-| `useSessionHistory.ts` | Modified | Internal implementation switches to Redux |
-
-### External Service Integrations
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| IndexedDB | Middleware | All DB calls move to middleware |
-| Notifications | Hook (useTimer) | Keep in useTimer, triggered by completion |
-| Keyboard shortcuts | Hook (useKeyboardShortcuts) | Unchanged, operates on timer actions |
 
 ---
 
@@ -974,9 +669,9 @@ dispatch(saveSessionThunk(record))  // Thunk handles async
 
 ### Anti-Pattern 3: Storing Derived Data in Redux
 
-**What people do:** Store `filteredSessions` as state instead of computing it.
+**What people do:** Store `filteredSessions` or streak data as state instead of computing it.
 
-**Why it's wrong:** Creates synchronization bugs. Derived data should be computed.
+**Why it's wrong:** Creates synchronization bugs. Derived data should be computed via selectors.
 
 **Do this instead:** Use createSelector for memoized derived data.
 
@@ -1014,7 +709,7 @@ const selectFilteredSessions = createSelector(
 
 ### Performance Optimizations
 
-1. **Selector Memoization**: Use `createSelector` for all filtered/computed data
+1. **Selector Memoization**: Use `createSelector` for all filtered/computed data (including streak)
 2. **Component Memoization**: Wrap display components with `React.memo`
 3. **Action Batching**: Redux Toolkit automatically batches actions
 4. **Lazy Loading**: History data fetched only when viewMode === 'history'
@@ -1025,10 +720,14 @@ const selectFilteredSessions = createSelector(
 
 - Redux Toolkit Documentation: https://redux-toolkit.js.org/
 - Redux Style Guide: https://redux.js.org/style-guide/
-- Existing codebase: `/Users/dev/Documents/youtube/pomodoro/src/hooks/*.ts`
-- Existing persistence: `/Users/dev/Documents/youtube/pomodoro/src/services/persistence.ts`
+- Existing codebase:
+  - `src/features/history/historySlice.ts`
+  - `src/features/history/historySelectors.ts`
+  - `src/services/sessionStore.ts`
+  - `src/types/session.ts`
+  - `src/utils/dateUtils.ts`
 
 ---
 
-*Architecture research for: Redux Toolkit integration into Pomodoro Timer*
-*Researched: 2026-02-21*
+*Architecture research for: Redux Toolkit integration + v2.2 features (streak, CSV export/import)*
+*Researched: 2026-02-21 (base), 2026-02-23 (v2.2 update)*

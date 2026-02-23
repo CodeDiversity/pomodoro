@@ -1,248 +1,263 @@
-# Pitfalls Research
+# Pitfalls Research: v2.2 Features (Streak & Export/Import)
 
-**Domain:** Pomodoro Timer Web App
-**Researched:** 2026-02-19
-**Confidence:** MEDIUM
+**Domain:** Pomodoro Timer Web App - Streak Tracking & Data Export/Import
+**Researched:** 2026-02-23
+**Confidence:** MEDIUM (based on established patterns, web search unavailable for verification)
 
 ## Critical Pitfalls
 
-### Pitfall 1: Timer Drift and Background Tab Throttling
+### Pitfall 1: Timezone Handling Breaks Streak Calculations
 
 **What goes wrong:**
-The timer stops or slows significantly when the browser tab is in the background. Browsers throttle `setInterval` and `setTimeout` to conserve battery, causing the Pomodoro timer to lose accuracy. A 25-minute focus session might take 30+ minutes in a background tab.
+Users in different timezones see incorrect streaks, or streaks reset unexpectedly when crossing midnight. A user completes a session at 11:30 PM in their local timezone, but the app records it as the next day's session due to UTC conversion issues.
 
 **Why it happens:**
-Modern browsers implement aggressive power-saving measures. When a tab is inactive, they reduce timer precision from milliseconds to ~1000ms minimum, and may further throttle based on CPU load. This is a deliberate browser optimization, not a bug.
+- Storing timestamps in UTC but calculating "today" using local date boundaries
+- Server/client timezone mismatch (not applicable here - client-only app)
+- JavaScript's `Date` object behavior with timezone offsets
+- Daylight saving time transitions causing midnight to shift
 
 **How to avoid:**
-1. Use Web Workers for timer logic (runs on separate thread, unaffected by tab throttling)
-2. Store a target end timestamp in localStorage, calculate remaining time on tab focus
-3. Use the Page Visibility API (`document.hidden`) to detect when tab becomes active and recalculate
+1. Store timestamps as UTC ISO strings
+2. Use a date library (date-fns, dayjs) with explicit timezone handling
+3. Calculate streak days using the user's local timezone consistently
 
 ```typescript
-// RECOMMENDED: Use timestamps, not tick counting
-const startTime = Date.now();
-const duration = 25 * 60 * 1000;
+// CORRECT: Use local date boundaries for streak calculation
+import { startOfDay, isYesterday, format } from 'date-fns';
 
-function getRemainingTime() {
-  const elapsed = Date.now() - startTime;
-  return Math.max(0, duration - elapsed);
+function getStreakDays(sessions: Session[]): number {
+  const uniqueDays = new Set(
+    sessions.map(s => format(new Date(s.timestamp), 'yyyy-MM-dd'))
+  );
+  // Sort and count consecutive days
+  // ...
+}
+
+// WRONG: UTC midnight doesn't match user's midnight
+const utcMidnight = new Date();
+utcMidnight.setUTCHours(0, 0, 0, 0);
+```
+
+**Warning signs:**
+- Streak shows "0" after completing a session
+- Calendar view shows sessions on wrong dates
+- Users in late-night timezones report issues
+
+**Phase to address:**
+Streak Implementation Phase (Phase 1 of v2.2)
+
+---
+
+### Pitfall 2: Streak Resets at Midnight Even With Today's Session
+
+**What goes wrong:**
+A user completes a session at 11:59 PM, then another at 12:01 AM the next day. The streak shows as "2 days" but should show as continuing (same user activity spanning midnight).
+
+**Why it happens:**
+Naive implementation treats each calendar day as a discrete unit without considering the session timestamps around midnight boundaries.
+
+**How to avoid:**
+1. Query sessions for both "today" and "yesterday" to handle midnight edge case
+2. Display clear feedback: "1 day - last session: X hours ago"
+3. Show "streak active" indicator for sessions completed within 48 hours
+
+```typescript
+// Handle midnight edge case
+function hasRecentSession(sessions: Session[]): boolean {
+  const now = new Date();
+  const today = format(now, 'yyyy-MM-dd');
+  const yesterday = format(new Date(now.getTime() - 86400000), 'yyyy-MM-dd');
+
+  const hasToday = sessions.some(s => format(new Date(s.timestamp), 'yyyy-MM-dd') === today);
+  const hasYesterday = sessions.some(s => format(new Date(s.timestamp), 'yyyy-MM-dd') === yesterday);
+
+  return hasToday || hasYesterday;
 }
 ```
 
 **Warning signs:**
-- Timer shows different times on different devices
-- Users report "timer is slow" or "sessions take too long"
-- Tests pass locally but fail in CI (headless browsers)
+- Inconsistent streak counts around midnight
+- User complaints about "losing" a day in their streak
 
 **Phase to address:**
-Foundation Phase (Core Timer Implementation)
+Streak Implementation Phase (Phase 1 of v2.2)
 
 ---
 
-### Pitfall 2: React Stale Closures with useEffect Timers
+### Pitfall 3: CSV Export Creates Invalid Files for Re-import
 
 **What goes wrong:**
-The timer displays stale state values, or the timer stops updating after the first tick. The callback captures the initial state value and never sees updates.
+Users export their history, then cannot re-import it. The CSV has encoding issues, missing columns, or formatting that doesn't match the import expectations.
 
 **Why it happens:**
-Using `setInterval` in `useEffect` with an empty dependency array `[]` while referencing state inside the callback. The closure captures the state from the first render and never updates.
-
-```typescript
-// BROKEN - stale closure
-useEffect(() => {
-  const interval = setInterval(() => {
-    setTime(time - 1); // Always uses time from first render!
-  }, 1000);
-  return () => clearInterval(interval);
-}, []); // Bug: 'time' is used but not in deps
-```
+- Using inconsistent date formats (ISO 8601 vs localized)
+- Not escaping commas or newlines in notes/tags
+- Missing BOM (Byte Order Mark) for UTF-8 in Excel
+- Exporting internal IDs that conflict on import
+- No header row or incorrect column names
 
 **How to avoid:**
-1. Use functional state updates: `setTime(prev => prev - 1)`
-2. Use a custom `useInterval` hook that handles cleanup properly
-3. Consider using a ref for mutable values that don't need re-renders
+1. Use RFC 4180 compliant CSV format
+2. Always include BOM for UTF-8: `\uFEFF`
+3. Escape quotes: wrap fields containing commas/quotes in quotes, double internal quotes
+4. Use ISO 8601 dates (YYYY-MM-DDTHH:MM:SSZ)
+5. Include version header for future schema changes
 
 ```typescript
-// CORRECT - functional update
-useEffect(() => {
-  const interval = setInterval(() => {
-    setTime(prev => prev - 1); // Always gets current value
-  }, 1000);
-  return () => clearInterval(interval);
-}, []);
-```
-
-**Warning signs:**
-- Timer stuck at initial value
-- Linting warnings about missing dependencies
-- Component re-renders but timer doesn't update
-
-**Phase to address:**
-Foundation Phase (Core Timer Implementation)
-
----
-
-### Pitfall 3: Losing Timer State on Page Refresh
-
-**What goes wrong:**
-When users refresh the page mid-session, they lose their progress. The timer resets to 25:00, and the session is lost.
-
-**Why it happens:**
-No state persistence mechanism. Timer state exists only in React memory, which is cleared on refresh.
-
-**How to avoid:**
-1. Persist timer state to localStorage on every tick (debounced)
-2. Store: `startTime`, `duration`, `sessionType`, `isPaused`, `pausedAt` (if applicable)
-3. On app load, check for persisted state and resume if a session was in progress
-
-```typescript
-// Persist state
-localStorage.setItem('timerState', JSON.stringify({
-  startTime: Date.now(),
-  duration: 25 * 60,
-  sessionType: 'focus',
-  isPaused: false
-}));
-
-// Restore on load
-const saved = JSON.parse(localStorage.getItem('timerState'));
-if (saved && Date.now() < saved.startTime + saved.duration * 1000) {
-  // Resume session
-}
-```
-
-**Warning signs:**
-- Users complain about losing progress on refresh
-- No "restore session" behavior after browser crash
-- History shows incomplete sessions without explanation
-
-**Phase to address:**
-Foundation Phase (Core Timer Implementation)
-
----
-
-### Pitfall 4: Audio Notification Fails to Play
-
-**What goes wrong:**
-When the timer completes, no sound plays. Users miss the notification and don't know the session ended.
-
-**Why it happens:**
-Browser autoplay policies block audio that hasn't been triggered by user interaction. If the user hasn't clicked anything since page load, audio.play() fails with a NotAllowedError.
-
-**How to avoid:**
-1. Require user interaction before playing any audio (e.g., a "Start" button that also preloads audio)
-2. Use the AudioContext API which requires user gesture anyway
-3. Handle the promise rejection and show a visual fallback
-
-```typescript
-// Must be triggered by user click first
-const playAlarm = async () => {
-  try {
-    await alarmAudio.play();
-  } catch (error) {
-    if (error.name === 'NotAllowedError') {
-      showVisualNotification(); // Fallback
-    }
+// Proper CSV escaping
+function escapeCSVField(field: string): string {
+  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`;
   }
-};
+  return field;
+}
 
-// Preload on first user interaction
-document.addEventListener('click', () => {
-  alarmAudio.load(); // Prepare for future play()
-}, { once: true });
+// Export with BOM for Excel compatibility
+function exportToCSV(sessions: Session[]): void {
+  const BOM = '\uFEFF';
+  const header = 'timestamp,duration,type,note,tags';
+  const rows = sessions.map(s =>
+    [s.timestamp, s.duration, s.type, escapeCSVField(s.note), s.tags.join(';')].join(',')
+  );
+  const csv = BOM + [header, ...rows].join('\n');
+  // Trigger download
+}
 ```
 
 **Warning signs:**
-- Audio works in development but fails in production
-- Works on first session but fails after idle time
-- Different behavior across browsers
+- Exported CSV fails to open in Excel
+- Import shows "0 sessions imported" or errors
+- Special characters (emojis, accents) display incorrectly
 
 **Phase to address:**
-Foundation Phase (Notifications & Alerts)
+CSV Export/Import Phase (Phase 2 of v2.2)
 
 ---
 
-### Pitfall 5: localStorage Data Corruption and Quota Limits
+### Pitfall 4: CSV Import Creates Duplicate Sessions
 
 **What goes wrong:**
-The app crashes or throws errors when accessing history. Old sessions disappear, or the app fails to save new sessions.
+Users import the same file twice, resulting in duplicate sessions. Or, sessions imported from backup overwrite existing data unexpectedly.
 
 **Why it happens:**
-- localStorage has a 5-10MB limit per origin
-- Storage can be corrupted by malformed JSON
-- Private/incognito mode clears data when tab closes
-- Third-party extensions can clear or restrict storage
+- No duplicate detection based on timestamp + duration + note hash
+- Import doesn't check for existing sessions
+- No "merge" strategy for conflicting data
+- Missing import mode options (append vs replace)
 
 **How to avoid:**
-1. Wrap all localStorage access in try-catch
-2. Implement data validation before reading
-3. Set a maximum session history limit (e.g., 1000 sessions)
-4. Implement data migration for schema changes
+1. Generate import ID from timestamp + content hash
+2. Check for existing records before inserting
+3. Offer import modes: "Add only new", "Replace all", "Merge"
+4. Show preview: "Found X new sessions, Y duplicates will be skipped"
 
 ```typescript
-// Safe localStorage access
-function getHistory(): Session[] {
-  try {
-    const data = localStorage.getItem('sessions');
-    if (!data) return [];
-    const parsed = JSON.parse(data);
-    if (!Array.isArray(parsed)) return []; // Validate structure
-    return parsed.slice(-1000); // Limit size
-  } catch (e) {
-    console.error('Failed to load history:', e);
-    return [];
+// Detect duplicates
+function isDuplicate(newSession: Session, existing: Session[]): boolean {
+  return existing.some(existing =>
+    existing.timestamp === newSession.timestamp &&
+    existing.duration === newSession.duration &&
+    existing.note === newSession.note
+  );
+}
+
+// Or use a content hash
+function generateSessionHash(s: Session): string {
+  return hash(`${s.timestamp}-${s.duration}-${s.note}`);
+}
+```
+
+**Warning signs:**
+- History shows duplicate entries after import
+- User reports "my sessions doubled"
+- No feedback about duplicates during import
+
+**Phase to address:**
+CSV Export/Import Phase (Phase 2 of v2.2)
+
+---
+
+### Pitfall 5: Large CSV Imports Block the UI
+
+**What goes wrong:**
+Importing a large history file (1000+ sessions) freezes the browser. The app becomes unresponsive during the import process.
+
+**Why it happens:**
+- Processing all rows synchronously in one JavaScript tick
+- Bulk IndexedDB operations without batching
+- No progress feedback, leading users to think it crashed
+
+**How to avoid:**
+1. Process in chunks using requestAnimationFrame or setTimeout
+2. Batch IndexedDB writes (e.g., 50 sessions per transaction)
+3. Show progress indicator: "Importing... 250/1000"
+4. Use Web Workers for heavy processing (if needed)
+
+```typescript
+// Chunked import with progress
+async function importSessions(sessions: Session[], onProgress: (n: number) => void): Promise<void> {
+  const CHUNK_SIZE = 50;
+
+  for (let i = 0; i < sessions.length; i += CHUNK_SIZE) {
+    const chunk = sessions.slice(i, i + CHUNK_SIZE);
+
+    await db.transaction('rw', db.sessions, async () => {
+      for (const session of chunk) {
+        if (!isDuplicate(session)) {
+          await db.sessions.add(session);
+        }
+      }
+    });
+
+    onProgress(Math.min(i + CHUNK_SIZE, sessions.length));
+    await new Promise(r => setTimeout(r, 0)); // Yield to UI
   }
 }
 ```
 
 **Warning signs:**
-- Console errors about quota exceeded
-- App breaks after extended use
-- History appears empty or corrupted
+- "Page Unresponsive" warning during import
+- Progress bar stuck at 0%
+- Import appears to hang
 
 **Phase to address:**
-Foundation Phase (Data Persistence)
+CSV Export/Import Phase (Phase 2 of v2.2)
 
 ---
 
-### Pitfall 6: Browser Notifications Denied or Unavailable
+### Pitfall 6: Streak Calculation Ignores Session Validity
 
 **What goes wrong:**
-Users don't receive desktop notifications when the timer ends, especially on mobile or in browsers with strict privacy settings.
+A 1-second "fake" session counts towards the streak. Users game the system by starting and immediately stopping the timer. Or, very short sessions are counted but shouldn't be.
 
 **Why it happens:**
-- Notifications require HTTPS in production
-- Users must explicitly grant permission (prompted by user gesture)
-- Permission can be denied or revoked
-- Safari has limited notification support
-- Private browsing often blocks notifications
+- No minimum session duration threshold for streak credit
+- No validation that session was actually completed
+- Counting break sessions as streak contributors (or not, depending on requirements)
 
 **How to avoid:**
-1. Always provide in-app visual notifications as primary method
-2. Request permission early but with clear explanation
-3. Handle permission denial gracefully
-4. Don't rely solely on notifications - include audio and visual cues
+1. Define minimum focus duration for streak credit (e.g., 5 minutes)
+2. Only count "completed" sessions (reached timer end naturally)
+3. Document streak rules clearly in UI
 
 ```typescript
-async function requestNotificationPermission(): Promise<boolean> {
-  if (!('Notification' in window)) return false;
+// Only count valid focus sessions
+const MIN_STREAK_DURATION = 5 * 60 * 1000; // 5 minutes
 
-  if (Notification.permission === 'granted') return true;
-  if (Notification.permission === 'denied') return false;
-
-  const permission = await Notification.requestPermission();
-  return permission === 'granted';
+function isValidForStreak(session: Session): boolean {
+  return session.type === 'focus' &&
+         session.duration >= MIN_STREAK_DURATION &&
+         session.completed; // Session reached end naturally
 }
 ```
 
 **Warning signs:**
-- Permission prompt appears too late (after timer ends)
-- No fallback when notifications fail
-- Different behavior across browsers
+- Users posting about "hacking" streaks with 1-second sessions
+- Streak shows high numbers but total focus time is low
 
 **Phase to address:**
-Foundation Phase (Notifications & Alerts)
+Streak Implementation Phase (Phase 1 of v2.2)
 
 ---
 
@@ -250,11 +265,24 @@ Foundation Phase (Notifications & Alerts)
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Using `setInterval` without Web Worker | Simpler code | Timer drift in background tabs | MVP only, must fix before launch |
-| Storing full session objects in localStorage | Easy to implement | Storage quota issues | With strict size limits |
-| Skipping error handling for localStorage | Faster initial dev | App crashes on storage errors | Never acceptable |
-| Using `Date.now()` without timezone handling | Works locally | Time display issues for international users | MVP only |
-| No data migration strategy | Fast initial release | Breaking changes when schema updates | Never acceptable |
+| Using local timezone without DST handling | Simple date math | Broken streaks during DST transitions | Never |
+| Skipping duplicate detection | Faster initial import | Data corruption, user trust loss | Never |
+| Exporting without BOM | Smaller file | Breaks Excel, user frustration | Never |
+| Using synchronous IndexedDB in bulk | Simpler code | UI freeze on large imports | Never |
+| Hardcoding "today" as UTC midnight | Works in one timezone | Breaks for rest of world | Never |
+| No import validation | Faster to implement | Garbage data in database | Never |
+
+---
+
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| IndexedDB | Bulk add without transaction | Use single transaction for atomicity |
+| File API | Not handling file encoding | Detect encoding, use TextDecoder |
+| CSV parsing | Regex-based parsing fails on edge cases | Use a parser library or careful state machine |
+| Date libraries | Importing entire library | Use tree-shaking (date-fns) |
+| Blob downloads | Not handling blob URL cleanup | Revoke object URLs after download |
 
 ---
 
@@ -262,10 +290,10 @@ Foundation Phase (Notifications & Alerts)
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Storing too much history | Slow app startup, storage quota | Implement pagination, limit to 1000 sessions | After ~500 sessions |
-| Too many re-renders | Timer display flickers, poor performance | Use refs for frequently updating values | Always |
-| Large localStorage writes on every tick | UI jank, storage lag | Debounce writes (every 1-5 seconds) | Always |
-| Uncompressed history data | Storage quota hit faster | Compress old sessions, keep recent JSON | After 200+ sessions |
+| Re-calculating streak on every session | Slow UI after each session | Cache streak, invalidate only on new day | After 1000+ sessions |
+| Full history load for calendar view | Slow history screen | Paginate or virtualize | After 500+ sessions |
+| Parsing CSV entirely in memory | Memory spike, potential crash | Stream parse large files | Files > 1MB |
+| Rendering calendar for all months | Slow initial render | Render visible months only | After 2+ years of data |
 
 ---
 
@@ -273,9 +301,10 @@ Foundation Phase (Notifications & Alerts)
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Storing sensitive notes in plain localStorage | Data exposure via XSS | Don't store sensitive data, warn users |
-| No input sanitization for session notes | XSS via stored notes | Sanitize user input before rendering |
-| Executing user notes as code | Critical: Code execution | Never use eval(), innerHTML with user data |
+| Importing CSV without sanitization | Malicious CSV could contain XSS | Sanitize note content before rendering |
+| Importing without size limits | DoS via huge file | Limit import to reasonable session count (e.g., 10,000) |
+| Exporting sensitive note content | Data exposure | Warn users that export includes all data |
+| No CSRF on export (not applicable) | N/A - client-only | N/A |
 
 ---
 
@@ -283,24 +312,25 @@ Foundation Phase (Notifications & Alerts)
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No way to pause mid-session | Users lose progress when interrupted | Implement pause functionality |
-| Timer continues in background without indication | Users think timer stopped | Show visual indicator, use Page Visibility API |
-| No confirmation before resetting | Accidental reset loses session | Add confirmation dialog |
-| Sessions don't auto-start next phase | Disrupts workflow | Offer auto-start option for breaks |
-| No visual feedback during breaks | Hard to know break status | Distinct UI for focus vs break |
+| No streak visibility until after session | Users forget about streak feature | Show current streak on timer screen |
+| Export buried in settings menu | Users can't find export | Surface in history screen header |
+| No import feedback | User unsure if import worked | Show success message with count |
+| Import doesn't indicate merge behavior | Data loss or duplication confusion | Always show preview before importing |
+| No way to clear streak | Accidental break feels permanent | Allow "streak recovery" or show grace period |
+| Calendar doesn't show session details | Hard to verify streak accuracy | Click calendar day to see sessions |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Timer:** Works in foreground but drifts in background tabs - verify with multiple tabs open
-- [ ] **Notifications:** Permission requested but no fallback when denied - test with notifications blocked
-- [ ] **Audio:** Plays in Chrome but fails in Safari - test across browsers
-- [ ] **History:** Loads 10 sessions but slows with 1000 - test pagination
-- [ ] **Refresh:** Timer state lost on refresh - verify with hard refresh mid-session
-- [ ] **Private mode:** App crashes in incognito - test in private window
-- [ ] **Long break:** Long break never triggers after 4 sessions - verify Pomodoro cycle logic
-- [ ] **Timezone:** Session times appear wrong for international users - use UTC internally
+- [ ] **Streak:** Works locally but breaks for international users — verify with UTC+12 and UTC-12 timezones
+- [ ] **Streak:** Counts 1-second sessions — verify minimum duration enforcement
+- [ ] **Export:** Works in Chrome but shows garbled text in Excel — verify BOM added
+- [ ] **Import:** Fails silently on malformed CSV — verify error handling
+- [ ] **Import:** Creates duplicates on re-import — verify duplicate detection
+- [ ] **Import:** Freezes browser with large file — verify chunked processing
+- [ ] **Calendar:** Doesn't load old months efficiently — verify virtualization
+- [ ] **Streak:** Resets incorrectly at midnight — verify midnight boundary handling
 
 ---
 
@@ -308,11 +338,11 @@ Foundation Phase (Notifications & Alerts)
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Timer drift | LOW | Recalculate from stored timestamp on tab focus |
-| Lost session on refresh | LOW | Restore from localStorage on mount |
-| Corrupted localStorage | MEDIUM | Clear and reinitialize with empty state |
-| Audio autoplay blocked | LOW | Show visual notification as primary, audio as enhancement |
-| History quota exceeded | MEDIUM | Implement cleanup of old sessions, migrate to compressed format |
+| Wrong timezone streaks | LOW | Recalculate from stored timestamps with correct timezone |
+| Duplicate sessions from import | MEDIUM | Add deduplication logic, prompt user to clean duplicates |
+| Corrupted CSV import | LOW | Show clear error message, suggest fixes |
+| Streak calculation bug | LOW | Fix logic, recalculate, notify user of correction |
+| Lost export file | N/A | User must have backup (educate about exports) |
 
 ---
 
@@ -320,27 +350,26 @@ Foundation Phase (Notifications & Alerts)
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Timer drift | Foundation - Core Timer | Test with background tab for 5+ minutes |
-| Stale closures | Foundation - Core Timer | Lint rules, manual testing |
-| State refresh loss | Foundation - Core Timer | Refresh mid-session, verify restoration |
-| Audio autoplay | Foundation - Notifications | Test after idle period |
-| localStorage corruption | Foundation - Data Persistence | Test with quota exceeded |
-| Notifications unavailable | Foundation - Notifications | Test with permissions denied |
-| History performance | Features - History | Load 1000+ sessions |
-| Pomodoro cycle logic | Features - Timer Logic | Complete 4 focus sessions |
+| Timezone streak bugs | Streak Implementation | Test with mock dates across timezones |
+| Midnight edge cases | Streak Implementation | Complete session at 11:59 PM, verify streak |
+| Invalid CSV export | CSV Export/Import | Re-import exported file, verify data integrity |
+| Duplicate imports | CSV Export/Import | Import same file twice, verify no duplicates |
+| Large import UI freeze | CSV Export/Import | Import 2000+ session file, verify responsiveness |
+| Short session streak gaming | Streak Implementation | Complete 1-second session, verify it doesn't count |
+| Missing BOM in CSV | CSV Export/Import | Open export in Excel, verify special characters |
 
 ---
 
 ## Sources
 
-- [MDN: setInterval](https://developer.mozilla.org/en-US/docs/Web/API/setInterval) - Timer accuracy and throttling
-- [MDN: localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) - Storage limitations
-- [MDN: Notifications API](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API) - Notification requirements
-- [MDN: Autoplay Guide](https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide) - Audio restrictions
-- [Overreacted: A Complete Guide to useEffect](https://overreacted.io/a-complete-guide-to-useEffect/) - React timer patterns
-- [GitHub Topics: Pomodoro Timer](https://github.com/topics/pomodoro-timer) - Platform challenges
+- [MDN: Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) - JavaScript date handling caveats
+- [RFC 4180](https://tools.ietf.org/html/rfc4180) - CSV format specification
+- [OWASP: CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection) - CSV security considerations
+- [date-fns Documentation](https://date-fns.org/) - Recommended date library
+- [Dexie.js: Transactions](https://dexie.org/docs/Transaction/Transaction) - IndexedDB transaction patterns
+- [Common Streak App Issues](https://github.com/topics/streak-tracker) - Community patterns
 
 ---
 
-*Pitfalls research for: Pomodoro Timer Web App*
-*Researched: 2026-02-19*
+*Pitfalls research for: v2.2 Features - Streak Tracking & CSV Export/Import*
+*Researched: 2026-02-23*

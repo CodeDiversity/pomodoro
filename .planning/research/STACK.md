@@ -1,534 +1,359 @@
-# Stack Research: Redux Toolkit Migration
+# Stack Research: v2.2 Features (Streak Tracking + CSV Export/Import)
 
-**Domain:** Redux Toolkit State Management for React 18 + TypeScript + Vite
-**Researched:** 2026-02-21
+**Domain:** React 18 + TypeScript Pomodoro Timer - Streak Counter & Data Export
+**Researched:** 2026-02-23
 **Confidence:** HIGH
 
-## Summary
+## Executive Summary
 
-For migrating from `useReducer` to Redux Toolkit in an existing React 18 + TypeScript + Vite + styled-components app:
+For adding daily streak tracking and CSV export/import to an existing Pomodoro timer app:
 
-1. **Core packages:** Redux Toolkit 2.5+ and React-Redux 9.2+ (React 18 required)
-2. **Persistence:** Custom middleware preferred over Redux Persist for IndexedDB control
-3. **TypeScript:** Modern `.withTypes<>()` pattern for type-safe hooks
-4. **No RTK Query needed:** Existing IndexedDB persistence layer is sufficient
+1. **No new dependencies needed for streak calculation** — existing `createdAt` timestamps and native Date APIs are sufficient
+2. **Custom calendar component recommended** — lightweight, matches existing styled-components pattern
+3. **papaparse for CSV** — industry standard, handles edge cases, TypeScript support built-in
+4. **Existing IndexedDB and Redux integration points identified**
 
 ---
 
 ## Recommended Stack Additions
 
-### Core Redux Packages
+### CSV Parsing/Generation
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| @reduxjs/toolkit | ^2.5.0 | State management | Latest stable with RTK 2.0 improvements. Includes Immer, Reselect, Redux Thunk. ESM-first, better TypeScript inference. |
-| react-redux | ^9.2.0 | React bindings | Native `useSyncExternalStore` for React 18 concurrent features. Requires React 18+. |
-| @types/react-redux | ^7.1.34 | Type definitions | TypeScript support for hooks and APIs. |
+| Library | Version | Purpose | Why Recommended |
+|---------|---------|---------|-----------------|
+| papaparse | ^5.4.1 | CSV parsing and generation | Industry standard (12M+ weekly downloads). Handles edge cases (quoted fields, newlines, special chars). TypeScript types included. No dependencies. |
 
 **Installation:**
 ```bash
-npm install @reduxjs/toolkit@^2.5.0 react-redux@^9.2.0
-npm install -D @types/react-redux@^7.1.34
+npm install papaparse@^5.4.1
 ```
 
-### Version Compatibility Matrix
+### Calendar/Streak UI
 
-| Package | Version | React Requirement | Notes |
-|---------|---------|-------------------|-------|
-| @reduxjs/toolkit | 2.5.x | React 18+ | ESM/CJS dual package, ES2020 output |
-| react-redux | 9.2.x | **React 18 required** | Uses native `useSyncExternalStore`, no legacy shim |
-| redux (core) | 5.0.x | - | Improved TypeScript types |
-| reselect | 5.1.x | - | `weakMapMemoize` default, better performance |
+| Approach | Purpose | Why Recommended |
+|----------|---------|-----------------|
+| Custom styled-components | Calendar grid with streak visualization | Lightweight (~100 LOC). Matches existing theme tokens. Full control over styling. No bloat from calendar libraries. |
+| Native Date APIs | Date manipulation | Already used in `dateUtils.ts` and `statsUtils.ts`. Sufficient for streak logic. |
 
-**Critical:** React-Redux v9+ requires React 18 as minimum. The app already uses React 18.3.1, so this is compatible.
+### What NOT to Add
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| react-big-calendar | Overkill for streak display | Custom grid (simpler, lighter) |
+| react-datepicker | Date picker, not calendar display | Custom component |
+| date-fns | Adds 70KB+ bundle for simple needs | Native Date APIs already in codebase |
+| moment.js | Deprecated, large bundle | Native Date APIs |
+| csv-parse / csv-stringify | Lower level than papaparse | papaparse (easier API) |
 
 ---
 
-## Migration Strategy: useReducer to Redux Toolkit
+## Integration with Existing Architecture
 
-### Current State Architecture
-
-```
-Current (useReducer pattern):
-- useTimer.ts: timerReducer + useReducer hook
-- useSessionManager.ts: Session management logic
-- useSessionNotes.ts: Local state for notes
-- useSessionHistory.ts: Local state for history/filters
-- persistence.ts: IndexedDB save/load
-```
-
-### Target Redux Architecture
+### Data Flow for Streak Tracking
 
 ```
-Target (Redux Toolkit pattern):
-src/
-├── store/
-│   ├── index.ts              # Store configuration
-│   ├── hooks.ts              # Typed useAppDispatch/useAppSelector
-│   └── middleware/
-│       └── persistence.ts    # Custom IndexedDB middleware
-├── slices/
-│   ├── timerSlice.ts         # Timer state + actions
-│   ├── settingsSlice.ts      # App settings
-│   └── uiSlice.ts            # UI state (drawer, viewMode)
-└── hooks/                    # (kept for non-state logic)
-    ├── useSessionManager.ts  # Business logic only
-    └── useKeyboardShortcuts.ts
+SessionRecord (IndexedDB)
+    ↓
+Session saved with createdAt timestamp
+    ↓
+HistorySlice selectors → getAllSessions()
+    ↓
+Streak calculation (in statsUtils.ts or new streakUtils.ts)
+    ↓
+Redux state → StreakDisplay component
+    ↓
+styled-components calendar grid
 ```
 
-### Slice Design Mapping
+### Existing Integration Points
 
-| Current Hook/Reducer | Redux Slice | State Shape |
-|---------------------|-------------|-------------|
-| `useTimer` reducer | `timerSlice` | `mode`, `timeRemaining`, `isRunning`, `duration`, `sessionCount`, `startTime`, `pausedTimeRemaining` |
-| `useSessionNotes` | `notesSlice` | `noteText`, `tags`, `saveStatus`, `lastSaved` |
-| `useSessionHistory` filters | `uiSlice` | `dateFilter`, `searchQuery`, `viewMode`, `isDrawerOpen` |
-| Settings from persistence | `settingsSlice` | `autoStart`, `focusDuration`, `shortBreakDuration`, `longBreakDuration` |
+| Existing File | What It Provides |
+|---------------|------------------|
+| `src/types/session.ts` | `SessionRecord` interface with `createdAt: number` |
+| `src/utils/dateUtils.ts` | `getDateRange()`, `formatDateShort()` |
+| `src/utils/statsUtils.ts` | `getTodayStart()`, `getWeekAgo()`, date calculations |
+| `src/services/sessionStore.ts` | `getAllSessions()` to fetch history |
+| `src/features/history/historySlice.ts` | Redux slice with sessions |
+| `src/features/history/historySelectors.ts` | Memoized selectors |
+| `src/services/db.ts` | IndexedDB schema (sessions store with `by-date` index) |
 
-**Session history data stays in IndexedDB**, not Redux. Use thunks to fetch/filter.
-
----
-
-## TypeScript Setup (Modern Pattern)
-
-### Store Configuration with Type Inference
+### Streak Calculation Logic (Pseudo-code)
 
 ```typescript
-// src/store/index.ts
-import { configureStore } from '@reduxjs/toolkit'
-import timerReducer from '../slices/timerSlice'
-import settingsReducer from '../slices/settingsSlice'
-import notesReducer from '../slices/notesSlice'
-import uiReducer from '../slices/uiSlice'
-import { persistenceMiddleware } from './middleware/persistence'
+// src/utils/streakUtils.ts
 
-export const store = configureStore({
-  reducer: {
-    timer: timerReducer,
-    settings: settingsReducer,
-    notes: notesReducer,
-    ui: uiReducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        // Ignore non-serializable values (Date objects, etc.)
-        ignoredActions: ['timer/tick'],
-        ignoredPaths: ['timer.startTime'],
+interface StreakData {
+  currentStreak: number      // Consecutive days including today
+  longestStreak: number       // All-time best
+  lastActiveDate: string      // ISO date string "YYYY-MM-DD"
+  activeDates: Set<string>   // All dates with sessions
+}
+
+/**
+ * Calculate streak data from session records
+ * Uses createdAt timestamp (already in SessionRecord)
+ */
+export function calculateStreak(sessions: SessionRecord[]): StreakData {
+  // Extract unique dates (YYYY-MM-DD format) from sessions
+  const activeDates = new Set<string>()
+
+  sessions.forEach(session => {
+    const date = new Date(session.createdAt).toISOString().split('T')[0]
+    activeDates.add(date)
+  })
+
+  // Sort dates for streak calculation
+  const sortedDates = Array.from(activeDates).sort()
+
+  // Calculate current streak (consecutive days ending today/yesterday)
+  let currentStreak = 0
+  const today = new Date().toISOString().split('T')[0]
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+
+  // If no activity today or yesterday, streak is broken
+  if (!activeDates.has(today) && !activeDates.has(yesterday)) {
+    currentStreak = 0
+  } else {
+    // Count backwards from today/yesterday
+    let checkDate = activeDates.has(today) ? today : yesterday
+    while (activeDates.has(checkDate)) {
+      currentStreak++
+      const prev = new Date(checkDate)
+      prev.setDate(prev.getDate() - 1)
+      checkDate = prev.toISOString().split('T')[0]
+    }
+  }
+
+  // Calculate longest streak
+  let longestStreak = 0
+  let tempStreak = 0
+  let prevDate: Date | null = null
+
+  sortedDates.forEach(dateStr => {
+    const date = new Date(dateStr)
+    if (prevDate) {
+      const diffDays = Math.floor((date.getTime() - prevDate.getTime()) / 86400000)
+      if (diffDays === 1) {
+        tempStreak++
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak)
+        tempStreak = 1
+      }
+    } else {
+      tempStreak = 1
+    }
+    prevDate = date
+  })
+  longestStreak = Math.max(longestStreak, tempStreak)
+
+  return {
+    currentStreak,
+    longestStreak,
+    lastActiveDate: sortedDates[sortedDates.length - 1] || '',
+    activeDates,
+  }
+}
+```
+
+### CSV Export/Import Integration
+
+#### Export: Sessions to CSV
+
+```typescript
+// src/utils/csvExport.ts
+import Papa from 'papaparse'
+import { SessionRecord } from '../types/session'
+
+export function sessionsToCSV(sessions: SessionRecord[]): string {
+  const data = sessions.map(session => ({
+    id: session.id,
+    startTimestamp: session.startTimestamp,
+    endTimestamp: session.endTimestamp,
+    plannedDurationSeconds: session.plannedDurationSeconds,
+    actualDurationSeconds: session.actualDurationSeconds,
+    durationString: session.durationString,
+    mode: session.mode,
+    startType: session.startType,
+    completed: session.completed,
+    noteText: session.noteText,
+    tags: session.tags.join(', '),
+    taskTitle: session.taskTitle,
+    createdAt: session.createdAt,
+  }))
+
+  return Papa.unparse(data)
+}
+
+export function downloadCSV(csv: string, filename: string): void {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+```
+
+#### Import: CSV to Sessions
+
+```typescript
+// src/utils/csvImport.ts
+import Papa from 'papaparse'
+import { SessionRecord } from '../types/session'
+
+interface CSVRow {
+  id?: string
+  startTimestamp: string
+  endTimestamp: string
+  plannedDurationSeconds: string
+  actualDurationSeconds: string
+  durationString: string
+  mode: string
+  startType: string
+  completed: string
+  noteText: string
+  tags: string
+  taskTitle: string
+  createdAt: string
+}
+
+export function parseCSVFile(file: File): Promise<SessionRecord[]> {
+  return new Promise((resolve, reject) => {
+    Papa.parse<CSVRow>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        if (results.errors.length > 0) {
+          reject(new Error(`CSV parse errors: ${results.errors.map(e => e.message).join(', ')}`))
+          return
+        }
+
+        const sessions: SessionRecord[] = results.data.map(row => ({
+          id: row.id || crypto.randomUUID(),
+          startTimestamp: row.startTimestamp,
+          endTimestamp: row.endTimestamp,
+          plannedDurationSeconds: parseInt(row.plannedDurationSeconds, 10),
+          actualDurationSeconds: parseInt(row.actualDurationSeconds, 10),
+          durationString: row.durationString,
+          mode: row.mode as 'focus',
+          startType: row.startType as 'manual' | 'auto',
+          completed: row.completed === 'true',
+          noteText: row.noteText || '',
+          tags: row.tags ? row.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+          taskTitle: row.taskTitle || '',
+          createdAt: row.createdAt ? parseInt(row.createdAt, 10) : Date.now(),
+        }))
+
+        resolve(sessions)
       },
-    }).concat(persistenceMiddleware),
-  devTools: process.env.NODE_ENV !== 'production',
-})
-
-// Infer types from store itself (no manual maintenance)
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+      error: (error) => {
+        reject(error)
+      },
+    })
+  })
+}
 ```
 
-### Typed Hooks (React-Redux 9+ Pattern)
+### Redux Integration
+
+#### New Streak Slice (Optional — can be derived selector)
 
 ```typescript
-// src/store/hooks.ts
-import { useDispatch, useSelector, useStore } from 'react-redux'
-import type { RootState, AppDispatch, AppStore } from './index'
+// src/features/stats/streakSlice.ts
+import { createSlice, createSelector } from '@reduxjs/toolkit'
+import type { RootState } from '../../store'
+import { calculateStreak } from '../../utils/streakUtils'
+import { selectAllSessions } from '../history/historySelectors'
 
-// Modern .withTypes<> pattern (React-Redux 9+)
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
-export const useAppSelector = useSelector.withTypes<RootState>()
-export const useAppStore = useStore.withTypes<AppStore>()
-```
-
-### Slice Example: Timer
-
-```typescript
-// src/slices/timerSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
-import type { TimerMode } from '../types/timer'
-import { DURATIONS } from '../constants/timer'
-
-export interface TimerState {
-  mode: TimerMode
-  duration: number
-  timeRemaining: number
-  isRunning: boolean
-  sessionCount: number
-  startTime: number | null
-  pausedTimeRemaining: number | null
+interface StreakState {
+  currentStreak: number
+  longestStreak: number
+  lastActiveDate: string
+  activeDates: string[]
 }
 
-const initialState: TimerState = {
-  mode: 'focus',
-  duration: DURATIONS.focus,
-  timeRemaining: DURATIONS.focus,
-  isRunning: false,
-  sessionCount: 1,
-  startTime: null,
-  pausedTimeRemaining: null,
+const initialState: StreakState = {
+  currentStreak: 0,
+  longestStreak: 0,
+  lastActiveDate: '',
+  activeDates: [],
 }
 
-export const timerSlice = createSlice({
-  name: 'timer',
+export const streakSlice = createSlice({
+  name: 'streak',
   initialState,
   reducers: {
-    start: (state) => {
-      state.isRunning = true
-      state.startTime = Date.now()
-      state.pausedTimeRemaining = null
-    },
-    pause: (state) => {
-      state.isRunning = false
-      state.pausedTimeRemaining = state.timeRemaining
-      state.startTime = null
-    },
-    resume: (state) => {
-      state.isRunning = true
-      state.startTime = Date.now()
-    },
-    reset: (state) => {
-      state.timeRemaining = state.duration
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    tick: (state) => {
-      if (state.startTime) {
-        const elapsed = Math.floor((Date.now() - state.startTime) / 1000)
-        state.timeRemaining = Math.max(0, state.duration - elapsed)
-      }
-    },
-    setMode: (state, action: PayloadAction<TimerMode>) => {
-      state.mode = action.payload
-      state.duration = DURATIONS[action.payload]
-      state.timeRemaining = DURATIONS[action.payload]
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    skipSession: (state) => {
-      // Logic from existing SKIP action
-      const isFocusMode = state.mode === 'focus'
-      if (isFocusMode) {
-        if (state.sessionCount >= 4) {
-          state.mode = 'longBreak'
-          state.sessionCount = 1
-        } else {
-          state.mode = 'shortBreak'
-        }
-      } else {
-        state.mode = 'focus'
-        if (state.mode === 'shortBreak') {
-          state.sessionCount += 1
-        }
-      }
-      state.duration = DURATIONS[state.mode]
-      state.timeRemaining = DURATIONS[state.mode]
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    setCustomDurations: (state, action: PayloadAction<{
-      focus: number
-      shortBreak: number
-      longBreak: number
-    }>) => {
-      const durationMap = {
-        focus: action.payload.focus,
-        shortBreak: action.payload.shortBreak,
-        longBreak: action.payload.longBreak,
-      }
-      state.duration = durationMap[state.mode]
-      state.timeRemaining = durationMap[state.mode]
-      state.isRunning = false
-      state.startTime = null
-      state.pausedTimeRemaining = null
-    },
-    // For loading persisted state
-    hydrate: (state, action: PayloadAction<TimerState>) => {
-      return action.payload
+    updateStreak: (state, action) => {
+      state.currentStreak = action.payload.currentStreak
+      state.longestStreak = action.payload.longestStreak
+      state.lastActiveDate = action.payload.lastActiveDate
+      state.activeDates = Array.from(action.payload.activeDates)
     },
   },
 })
 
-export const {
-  start,
-  pause,
-  resume,
-  reset,
-  tick,
-  setMode,
-  skipSession,
-  setCustomDurations,
-  hydrate,
-} = timerSlice.actions
+export const { updateStreak } = streakSlice.actions
 
-// Selectors
-export const selectTimer = (state: RootState) => state.timer
-export const selectIsRunning = (state: RootState) => state.timer.isRunning
-export const selectTimeRemaining = (state: RootState) => state.timer.timeRemaining
-export const selectCurrentMode = (state: RootState) => state.timer.mode
-
-export default timerSlice.reducer
-```
-
----
-
-## Persistence Approach: Custom Middleware vs Redux Persist
-
-### Recommendation: Custom Middleware
-
-**Why custom over Redux Persist:**
-
-| Factor | Redux Persist | Custom Middleware |
-|--------|---------------|-------------------|
-| IndexedDB control | Limited (needs adapter) | Full control via existing `idb` |
-| Debouncing | Manual implementation | Already implemented in codebase |
-| Bundle size | +8KB with adapter | 0 additional deps |
-| Migration complexity | New API to learn | Reuse existing persistence.ts |
-| Versioned schema | Manual | Already implemented |
-| Granular control | Limited | Full (save while running vs immediate) |
-
-### Custom Persistence Middleware
-
-```typescript
-// src/store/middleware/persistence.ts
-import { Middleware } from '@reduxjs/toolkit'
-import type { RootState } from '../index'
-import { saveTimerState, saveTimerStateImmediate, saveSettings } from '../../services/persistence'
-
-let saveTimeout: ReturnType<typeof setTimeout> | null = null
-const DEBOUNCE_MS = 2000
-
-export const persistenceMiddleware: Middleware<{}, RootState> =
-  (store) => (next) => (action) => {
-    const result = next(action)
-    const state = store.getState()
-    const { type } = action as { type: string }
-
-    // Persist timer state
-    if (type.startsWith('timer/')) {
-      const timerState = state.timer
-
-      // Clear pending debounced save
-      if (saveTimeout) {
-        clearTimeout(saveTimeout)
-      }
-
-      // Immediate save for pause/stop/reset
-      if (
-        type === 'timer/pause' ||
-        type === 'timer/reset' ||
-        type === 'timer/setMode'
-      ) {
-        saveTimerStateImmediate(timerState)
-      } else if (timerState.isRunning) {
-        // Debounced save while running
-        saveTimeout = setTimeout(() => {
-          saveTimerState(timerState)
-        }, DEBOUNCE_MS)
-      }
-    }
-
-    // Persist settings
-    if (type.startsWith('settings/')) {
-      saveSettings(state.settings)
-    }
-
-    return result
-  }
-```
-
-### State Hydration Pattern
-
-```typescript
-// src/store/hydration.ts
-import { store } from './index'
-import { hydrate as hydrateTimer } from '../slices/timerSlice'
-import { hydrate as hydrateSettings } from '../slices/settingsSlice'
-import { loadTimerState, loadSettings } from '../services/persistence'
-
-export async function hydrateStore(): Promise<void> {
-  const [timerState, settings] = await Promise.all([
-    loadTimerState(),
-    loadSettings(),
-  ])
-
-  store.dispatch(hydrateTimer(timerState))
-  store.dispatch(hydrateSettings(settings))
-}
-```
-
----
-
-## Integration with Existing React 18 Patterns
-
-### Provider Setup
-
-```typescript
-// src/main.tsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { Provider } from 'react-redux'
-import { store } from './store'
-import { hydrateStore } from './store/hydration'
-import App from './App'
-
-// Hydrate store before rendering
-await hydrateStore()
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+// Selector that derives streak from sessions (no separate state needed)
+export const selectStreak = createSelector(
+  [selectAllSessions],
+  (sessions) => calculateStreak(sessions)
 )
-```
 
-### Component Usage Pattern
-
-```typescript
-// Before (useReducer)
-function TimerView() {
-  const { state, start, pause, setMode } = useTimer()
-  // ...
-}
-
-// After (Redux Toolkit)
-import { useAppSelector, useAppDispatch } from '../store/hooks'
-import { start, pause, setMode, selectTimer, selectIsRunning } from '../slices/timerSlice'
-
-function TimerView() {
-  const dispatch = useAppDispatch()
-  const timer = useAppSelector(selectTimer)
-  const isRunning = useAppSelector(selectIsRunning)
-
-  const handleStart = () => dispatch(start())
-  const handlePause = () => dispatch(pause())
-  const handleSetMode = (mode: TimerMode) => dispatch(setMode(mode))
-  // ...
-}
-```
-
-### Keeping Business Logic in Hooks
-
-Not all logic moves to Redux. Keep complex orchestration in hooks:
-
-```typescript
-// src/hooks/useTimerOrchestration.ts
-import { useEffect, useRef } from 'react'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { tick, skipSession, selectTimer, selectIsRunning } from '../slices/timerSlice'
-
-export function useTimerOrchestration(onComplete?: () => void) {
-  const dispatch = useAppDispatch()
-  const timer = useAppSelector(selectTimer)
-  const isRunning = useAppSelector(selectIsRunning)
-  const intervalRef = useRef<number | null>(null)
-  const previousTimeRef = useRef(timer.timeRemaining)
-
-  // Handle tick interval
-  useEffect(() => {
-    if (isRunning && timer.startTime) {
-      intervalRef.current = window.setInterval(() => {
-        dispatch(tick())
-      }, 1000)
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [isRunning, timer.startTime, dispatch])
-
-  // Handle completion
-  useEffect(() => {
-    const wasRunning = previousTimeRef.current > 0
-    const isNowComplete = timer.timeRemaining === 0
-
-    if (wasRunning && isNowComplete) {
-      onComplete?.()
-      setTimeout(() => {
-        dispatch(skipSession())
-      }, 100)
-    }
-
-    previousTimeRef.current = timer.timeRemaining
-  }, [timer.timeRemaining, timer.mode, dispatch, onComplete])
-}
+export default streakSlice.reducer
 ```
 
 ---
 
-## What NOT to Add
+## Version Compatibility
 
-| Avoid | Why | Alternative |
-|-------|-----|-------------|
-| Redux Persist | Adds deps, less control than custom middleware | Custom persistence middleware (already have IndexedDB layer) |
-| RTK Query | No server state, IndexedDB is client-only | Keep existing IndexedDB service layer |
-| redux-thunk (standalone) | Included in RTK | Use `createAsyncThunk` or built-in thunk |
-| redux-devtools (standalone) | Included in RTK `configureStore` | Already enabled via `devTools: true` |
-| reselect (standalone) | Included in RTK | Import from `@reduxjs/toolkit` |
-| Immer (standalone) | Included in RTK | Mutative syntax in slices just works |
-| Multiple stores | Anti-pattern, breaks DevTools | Single store with slice composition |
-| Normalized state for sessions | Overkill for local app | Keep in IndexedDB, fetch as needed |
+| Package | Version | Compatible With | Notes |
+|---------|---------|-----------------|-------|
+| papaparse | 5.4.x | React 18, TypeScript, Vite | ESM + CJS, no React peer dep |
+| styled-components | 6.3.x | Already in project | Use existing theme tokens |
+| @reduxjs/toolkit | 2.5.x | Already in project | Use existing patterns |
+| React | 18.3.x | Already in project | No changes needed |
 
 ---
 
-## Migration Checklist
+## Implementation Approach
 
-### Phase 1: Setup
-- [ ] Install `@reduxjs/toolkit`, `react-redux`, `@types/react-redux`
-- [ ] Create `src/store/index.ts` with store configuration
-- [ ] Create `src/store/hooks.ts` with typed hooks
-- [ ] Create `src/store/middleware/persistence.ts`
-- [ ] Create `src/store/hydration.ts`
-- [ ] Add Provider to `main.tsx`
+### Option 1: Minimal Dependencies (Recommended)
 
-### Phase 2: Slices (one at a time)
-- [ ] Create `settingsSlice` (simplest, no UI deps)
-- [ ] Create `timerSlice` (migrates useTimer reducer)
-- [ ] Create `notesSlice` (migrates useSessionNotes state)
-- [ ] Create `uiSlice` (migrates view/filter state)
+1. **Streak calculation**: Add `streakUtils.ts` with pure functions
+2. **Calendar UI**: Custom styled-components grid (not a library)
+3. **CSV**: Use `papaparse` only
 
-### Phase 3: Component Migration
-- [ ] Update TimerView to use Redux
-- [ ] Update Settings component
-- [ ] Update NoteEditor component
-- [ ] Update HistoryView filters
+**Bundle impact:**
+- papaparse: ~8KB gzipped
+- Custom calendar: ~100-200 LOC, no additional bundle
 
-### Phase 4: Cleanup
-- [ ] Remove useReducer from useTimer
-- [ ] Remove local state from useSessionNotes
-- [ ] Remove local state from useSessionHistory
-- [ ] Verify persistence still works
-- [ ] Verify DevTools integration
+**Total new dependencies: 1** (papaparse)
 
----
+### Option 2: If Calendar Library Needed Later
 
-## Bundle Impact
+Only add if requirements expand beyond simple streak display (e.g., date range picker, multiple month view with complex interactions).
 
-| Package | Size (gzipped) |
-|---------|----------------|
-| @reduxjs/toolkit | ~11KB |
-| react-redux | ~5KB |
-| **Total** | **~16KB** |
+| Library | Size | Use Case |
+|---------|------|----------|
+| react-calendar | ~50KB | Full calendar features |
+| dayzed | ~8KB | Lightweight, headless |
 
-**Removed:**
-- useReducer complexity (no size change, but simpler mental model)
+For current requirements (show which days have sessions), custom component is best.
 
 ---
 
 ## Sources
 
-- [Redux Toolkit TypeScript Usage Guide](https://redux-toolkit.js.org/usage/usage-with-typescript) — Official TypeScript patterns
-- [Redux Toolkit 2.0 Migration Guide](https://redux-toolkit.js.org/usage/migrating-rtk-2) — Breaking changes and new features
-- [React-Redux v9.2.0 Release](https://github.com/reduxjs/react-redux/releases/tag/v9.2.0) — React 18/19 compatibility
-- [npm @reduxjs/toolkit](https://www.npmjs.com/package/@reduxjs/toolkit) — v2.5.0 current
-- [npm react-redux](https://www.npmjs.com/package/react-redux) — v9.2.0 current
+- [papaparse npm](https://www.npmjs.com/package/papaparse) — v5.4.1 current (2025)
+- [papaparse TypeScript](https://www.papaparse.com/docs#typescript) — Types included in package
+- [MDN Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) — Native Date API sufficient
+- Existing codebase: `src/utils/dateUtils.ts`, `src/utils/statsUtils.ts`, `src/services/sessionStore.ts`
 
 ---
 
-*Research for: Pomodoro Timer v2.1 Redux Toolkit Migration*
-*Researched: 2026-02-21*
+*Research for: Pomodoro Timer v2.2 Streak Tracking + CSV Export/Import*
+*Researched: 2026-02-23*
