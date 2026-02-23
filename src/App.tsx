@@ -7,13 +7,14 @@ import SessionSummary from './components/SessionSummary'
 import { HistoryList } from './components/history/HistoryList'
 import { HistoryDrawer } from './components/history/HistoryDrawer'
 import { StatsGrid } from './components/stats/StatsGrid'
+import { WeeklyChart, DailyFocusData } from './components/stats/WeeklyChart'
 import Sidebar from './components/Sidebar'
 import { useTimer } from './hooks/useTimer'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSessionNotes } from './hooks/useSessionNotes'
 import { useSessionManager } from './hooks/useSessionManager'
 import { useSessionHistory } from './hooks/useSessionHistory'
-import { getTagSuggestions } from './services/sessionStore'
+import { getTagSuggestions, getAllSessions } from './services/sessionStore'
 import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './services/persistence'
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
@@ -211,6 +212,10 @@ function App() {
     longBreak: number
   } | null>(null)
 
+  // Weekly chart data state
+  const [weeklyData, setWeeklyData] = useState<DailyFocusData[]>([])
+  const [weeklyLoading, setWeeklyLoading] = useState(true)
+
   // Timer state ref for session manager
   const timerStateRef = useRef({
     mode: 'focus' as TimerMode,
@@ -233,6 +238,45 @@ function App() {
         longBreak: settings.longBreakDuration,
       })
     })
+  }, [])
+
+  // Load weekly chart data on mount
+  useEffect(() => {
+    async function loadWeeklyData() {
+      try {
+        const allSessions = await getAllSessions()
+        // Filter focus sessions only
+        const focusSessions = allSessions.filter(s => s.mode === 'focus')
+
+        // Get last 7 days
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const data: DailyFocusData[] = []
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          date.setHours(0, 0, 0, 0)
+
+          const nextDate = new Date(date)
+          nextDate.setDate(nextDate.getDate() + 1)
+
+          // Sum focus time for this day
+          const dayTotal = focusSessions
+            .filter(s => s.createdAt >= date.getTime() && s.createdAt < nextDate.getTime())
+            .reduce((sum, s) => sum + s.actualDurationSeconds, 0)
+
+          data.push({ date, totalSeconds: dayTotal })
+        }
+
+        setWeeklyData(data)
+      } catch (error) {
+        console.error('Failed to load weekly data:', error)
+      } finally {
+        setWeeklyLoading(false)
+      }
+    }
+    loadWeeklyData()
   }, [])
 
   // Handle saving custom durations
@@ -478,6 +522,38 @@ function App() {
           {/* Stats View */}
           {viewMode === 'stats' && (
             <div style={{ width: '100%', maxWidth: '800px', padding: '24px' }}>
+              {/* Weekly Chart */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                marginBottom: '16px'
+              }}>
+                {/* Date range title */}
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#64748b',
+                  marginBottom: '16px'
+                }}>
+                  {weeklyData.length > 0 && (() => {
+                    const firstDate = new Date(weeklyData[0].date)
+                    const lastDate = new Date(weeklyData[weeklyData.length - 1].date)
+                    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+                    return `${firstDate.toLocaleDateString('en-US', formatOptions)} - ${lastDate.toLocaleDateString('en-US', formatOptions)}`
+                  })()}
+                </div>
+                {weeklyLoading ? (
+                  <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                    Loading...
+                  </div>
+                ) : (
+                  <WeeklyChart data={weeklyData} />
+                )}
+              </div>
+
+              {/* Stats Grid */}
               <div style={{
                 background: 'white',
                 borderRadius: '12px',
