@@ -127,13 +127,18 @@ function formatTimeRange(startTimestamp: string, durationSeconds: number): strin
 }
 
 function extractSessionTitle(session: SessionRecord): string {
+  // First priority: taskTitle from session input
+  if (session.taskTitle) {
+    return truncateText(session.taskTitle, 50)
+  }
+  // Second priority: first line of noteText
   if (session.noteText) {
-    // Get first line, remove leading/trailing whitespace
     const firstLine = session.noteText.split('\n')[0].trim()
     if (firstLine) {
       return truncateText(firstLine, 50)
     }
   }
+  // Default fallback
   return 'Focus Session'
 }
 
