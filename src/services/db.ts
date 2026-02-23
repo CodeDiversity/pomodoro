@@ -283,4 +283,5 @@ export async function clearDatabase(): Promise<void> {
   await db.clear('tags')
   await db.clear('timerState')
   await db.clear('settings')
+  await db.clear('streak')
 }
