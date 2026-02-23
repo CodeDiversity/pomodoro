@@ -13,7 +13,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 
 ## Phases
 
-- [ ] **Phase 13: Streak Tracking** - Current/best streak display, calendar heatmap
+- [x] **Phase 13: Streak Tracking** - Current/best streak display, calendar heatmap
 - [ ] **Phase 14: Data Export/Import** - CSV export from History, CSV import from Settings
 - [ ] **Phase 15: Integration & Polish** - Edge cases, UI polish, streak persistence
 
@@ -38,12 +38,12 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 6. Users with 5+ day streaks can miss one day without losing their streak (streak protection)
 7. Streak data persists to IndexedDB and survives browser refresh
 
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans executed
 
 **Plan list:**
-- [ ] 13-01-PLAN.md - Streak Redux infrastructure with persistence
-- [ ] 13-02-PLAN.md - Streak display and calendar heatmap UI
-- [ ] 13-03-PLAN.md - IndexedDB schema and session completion integration
+- [x] 13-01-PLAN.md - Streak Redux infrastructure with persistence
+- [x] 13-02-PLAN.md - Streak display and calendar heatmap UI
+- [x] 13-03-PLAN.md - IndexedDB schema and session completion integration
 
 ---
 
@@ -93,7 +93,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 13. Streak Tracking | 1/3 | In Progress|  |
+| 13. Streak Tracking | 3/3 | Complete | 2026-02-23 |
 | 14. Data Export/Import | 0/1 | Not started | - |
 | 15. Integration & Polish | 0/1 | Not started | - |
 

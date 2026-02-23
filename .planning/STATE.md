@@ -161,11 +161,11 @@
 
 ### Phase 13 Status
 
-**Plan 13-01: PENDING** - Streak Redux infrastructure with persistence
+**Plan 13-01: COMPLETE** - Streak Redux infrastructure with persistence
 
-**Plan 13-02: PENDING** - Streak display and calendar heatmap UI
+**Plan 13-02: COMPLETE** - Streak display and calendar heatmap UI
 
-**Plan 13-03: PENDING** - IndexedDB schema and session completion integration
+**Plan 13-03: COMPLETE** - IndexedDB schema and session completion integration
 
 ---
 
@@ -211,6 +211,8 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export & Import
 | 2026-02-22 | playBeep delegates to playSound | Backward compatibility with existing notification code |
 | 2026-02-22 | SoundSettings integrated into Settings page | Full-page view with sound type dropdown, preview, and volume slider |
 - [Phase 13-streak-tracking]: Streak Redux infrastructure complete with IndexedDB persistence
+- [Phase 13-streak-tracking]: Streak UI components (StreakDisplay, CalendarHeatmap) use Redux selectors from streakSlice
+- [Phase 13-streak-tracking]: Session completion triggers streak recalculation, streak data persists via streakStore abstraction
 
 ### Technical Debt
 
