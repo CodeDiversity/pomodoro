@@ -381,9 +381,9 @@ function App() {
     }
   }
 
-  // Handle session reset
+  // Handle session reset - save partial session credit
   const handleSessionReset = () => {
-    sessionManager.handleSessionReset()
+    sessionManager.handleSessionSkip()
   }
 
   // Timer hook with session completion callback
