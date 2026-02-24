@@ -15,7 +15,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 
 - [x] **Phase 13: Streak Tracking** - Current/best streak display, calendar heatmap
 - [x] **Phase 14: Data Export/Import** - CSV export from History, CSV import from Settings (completed 2026-02-24)
-- [ ] **Phase 15: Integration & Polish** - Edge cases, UI polish, streak persistence
+- [x] **Phase 15: Integration & Polish** - Edge cases, UI polish, streak persistence
 
 ---
 
@@ -93,7 +93,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 
 **Plan list:**
 - [x] 15-01-PLAN.md — Fix styling inconsistencies (Import button, StreakDisplay, import spinner)
-- [ ] 15-02-PLAN.md — Verify timezone, persistence, and batch processing implementations
+- [x] 15-02-PLAN.md — Verify timezone, persistence, and batch processing implementations
 
 ---
 
@@ -103,7 +103,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 |-------|----------------|--------|-----------|
 | 13. Streak Tracking | 3/3 | Complete    | 2026-02-23 |
 | 14. Data Export/Import | 2/2 | Complete    | 2026-02-24 |
-| 15. Integration & Polish | 1/2 | In progress | - |
+| 15. Integration & Polish | 2/2 | Complete    | 2026-02-24 |
 
 ---
 
