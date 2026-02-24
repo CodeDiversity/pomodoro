@@ -5,6 +5,7 @@ import { saveSession, deleteSession } from '../../services/sessionStore'
 import { formatDateFull } from '../../utils/dateUtils'
 import { formatDurationFull } from '../../utils/durationUtils'
 import { colors, transitions } from '../ui/theme'
+import RichTextDisplay from '../RichTextDisplay'
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -262,6 +263,7 @@ export function HistoryDrawer({ session, isOpen, onClose, onDelete, onSave }: Hi
   const [tagsInput, setTagsInput] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [isEditingNotes, setIsEditingNotes] = useState(true)
 
   // Reset local state when session changes
   useEffect(() => {
@@ -365,15 +367,29 @@ export function HistoryDrawer({ session, isOpen, onClose, onDelete, onSave }: Hi
             <ModeBadge>{session?.mode || 'focus'}</ModeBadge>
           </DetailRow>
           <DetailRow>
-            <DetailLabel>Note</DetailLabel>
-            <NoteTextArea
-              value={noteText}
-              onChange={(e) => handleNoteChange(e.target.value)}
-              placeholder="Add a note..."
-            />
-            <SaveStatus $saving={isSaving}>
-              {isSaving ? 'Saving...' : 'Saved'}
-            </SaveStatus>
+            <DetailLabel style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              Note
+              <button
+                onClick={() => setIsEditingNotes(!isEditingNotes)}
+                style={{ fontSize: '12px', padding: '4px 8px', cursor: 'pointer' }}
+              >
+                {isEditingNotes ? 'View' : 'Edit'}
+              </button>
+            </DetailLabel>
+            {isEditingNotes ? (
+              <>
+                <NoteTextArea
+                  value={noteText}
+                  onChange={(e) => handleNoteChange(e.target.value)}
+                  placeholder="Add a note..."
+                />
+                <SaveStatus $saving={isSaving}>
+                  {isSaving ? 'Saving...' : 'Saved'}
+                </SaveStatus>
+              </>
+            ) : (
+              <RichTextDisplay content={noteText || ''} />
+            )}
           </DetailRow>
           <DetailRow>
             <DetailLabel>Tags (comma separated)</DetailLabel>
