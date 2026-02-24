@@ -89,7 +89,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 4. All new features follow existing app styling (light mode, blue accents)
 5. All features work correctly after app refresh (persistence verified)
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 **Plan list:**
 - [x] 15-01-PLAN.md — Fix styling inconsistencies (Import button, StreakDisplay, import spinner)
