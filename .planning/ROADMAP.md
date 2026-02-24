@@ -12,7 +12,7 @@
 
 ## Phases
 
-- [ ] **Phase 18: Editor Infrastructure** — Install Tiptap, create RichTextDisplay with sanitization, handle legacy notes
+- [x] **Phase 18: Editor Infrastructure** — Install Tiptap, create RichTextDisplay with sanitization, handle legacy notes
 - [ ] **Phase 19: Editor Component** — Create RichTextEditor with Bold, Bullet, Link toolbar buttons
 - [ ] **Phase 20: NotePanel Integration** — Replace textarea with RichTextEditor in active session
 - [ ] **Phase 21: Read-Only Display** — Update SessionSummary and HistoryDrawer with RichTextDisplay
@@ -36,10 +36,10 @@
 4. Existing plain-text notes display correctly without formatting artifacts
 5. Session notes autosave preserves rich text formatting
 
-**Plans:** 1 plan
+**Plans:** 1 plan (COMPLETE)
 
 Plan:
-- [ ] 18-01-PLAN.md — Install dependencies and create RichTextDisplay with sanitization
+- [x] 18-01-PLAN.md — Install dependencies and create RichTextDisplay with sanitization
 
 ---
 
@@ -123,7 +123,7 @@ Plan:
 | 5-12 (v2.0) | Complete | Shipped | 2026-02-21 |
 | 7-12 (v2.1) | Complete | Shipped | 2026-02-23 |
 | 13-17 (v2.2) | Complete | Shipped | 2026-02-24 |
-| 18 - Editor Infrastructure | 1/1 | Planned | - |
+| 18 - Editor Infrastructure | 1/1 | Complete | 2026-02-24 |
 | 19 - Editor Component | 0/1 | Not started | - |
 | 20 - NotePanel Integration | 0/1 | Not started | - |
 | 21 - Read-Only Display | 0/1 | Not started | - |
