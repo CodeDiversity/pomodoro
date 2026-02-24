@@ -126,6 +126,71 @@ const Avatar = styled.div`
   }
 `
 
+const NotificationsPanel = styled.div`
+  position: absolute;
+  top: 60px;
+  right: 60px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 16px;
+`
+
+const NotificationsHeader = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+`
+
+const StreakNotification = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+
+  svg {
+    color: #f59e0b;
+  }
+`
+
+const StreakInfo = styled.div`
+  flex: 1;
+
+  .streak-count {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .streak-message {
+    font-size: 12px;
+    color: #64748b;
+  }
+`
+
+const NotificationItem = styled.div`
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #475569;
+  background: #f8fafc;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+`
+
 
 // Split-pane layout for timer view
 const SplitPaneContainer = styled.div`
@@ -181,7 +246,7 @@ function App() {
   } = useSessionHistory()
 
   // Streak hook - provides recalculateStreak for session completion
-  const { recalculateStreak } = useStreak()
+  const { currentStreak, recalculateStreak } = useStreak()
 
   // Find selected session from sessions list based on ID from Redux
   const selectedSession = sessions.find(s => s.id === selectedSessionId) || null
@@ -220,6 +285,31 @@ function App() {
   // Weekly chart data state
   const [weeklyData, setWeeklyData] = useState<DailyFocusData[]>([])
   const [weeklyLoading, setWeeklyLoading] = useState(true)
+
+  // Notifications panel state
+  const [showNotifications, setShowNotifications] = useState(false)
+  const notificationsRef = useRef<HTMLDivElement>(null)
+
+  // Close notifications panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        // Check if the click was on the notification button
+        const notificationButton = document.querySelector('[aria-label="Notifications"]')
+        if (notificationButton && !notificationButton.contains(event.target as Node)) {
+          setShowNotifications(false)
+        }
+      }
+    }
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showNotifications])
 
   // Timer state ref for session manager
   const timerStateRef = useRef({
@@ -447,12 +537,34 @@ function App() {
             Focus Session Active
           </StatusIndicator>
           <TopBarActions>
-            <NotificationButton aria-label="Notifications">
+            <NotificationButton aria-label="Notifications" onClick={() => setShowNotifications(!showNotifications)}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
                 <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
               </svg>
             </NotificationButton>
+            {showNotifications && (
+              <NotificationsPanel ref={notificationsRef}>
+                <NotificationsHeader>Notifications</NotificationsHeader>
+                <StreakNotification>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  <StreakInfo>
+                    <div className="streak-count">{currentStreak} day streak</div>
+                    <div className="streak-message">
+                      {currentStreak === 0
+                        ? "Complete a session to start your streak!"
+                        : currentStreak >= 7
+                        ? "Amazing focus! Keep it up!"
+                        : "You're building momentum!"}
+                    </div>
+                  </StreakInfo>
+                </StreakNotification>
+                <NotificationItem>Session completed - Great work!</NotificationItem>
+                <NotificationItem>Tip: Use keyboard shortcuts for quick control</NotificationItem>
+              </NotificationsPanel>
+            )}
             <Avatar>
               <img src="https://ui-avatars.com/api/?name=User&background=136dec&color=fff" alt="User Profile" />
             </Avatar>
