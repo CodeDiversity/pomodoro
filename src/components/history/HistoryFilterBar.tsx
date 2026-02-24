@@ -108,11 +108,42 @@ const CalendarIcon = styled.svg`
   color: ${colors.text};
 `
 
+const ExportButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 40px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all ${transitions.fast};
+  font-size: 0.9rem;
+  color: ${colors.text};
+
+  &:hover {
+    background: #F5F5F5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colors.primary};
+    outline-offset: 2px;
+  }
+`
+
+const ExportIcon = styled.svg`
+  width: 18px;
+  height: 18px;
+`
+
 interface HistoryFilterBarProps {
   dateFilter: DateFilter
   searchQuery: string
   onDateFilterChange: (filter: DateFilter) => void
   onSearchChange: (query: string) => void
+  onExport?: () => void
 }
 
 const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
@@ -127,6 +158,7 @@ export function HistoryFilterBar({
   searchQuery,
   onDateFilterChange,
   onSearchChange,
+  onExport,
 }: HistoryFilterBarProps) {
   return (
     <FilterBarContainer>
@@ -173,6 +205,17 @@ export function HistoryFilterBar({
           <line x1="3" x2="21" y1="10" y2="10" />
         </CalendarIcon>
       </CalendarButton>
+
+      {onExport && (
+        <ExportButton onClick={onExport} aria-label="Export sessions to CSV">
+          <ExportIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" x2="12" y1="15" y2="3" />
+          </ExportIcon>
+          Export
+        </ExportButton>
+      )}
     </FilterBarContainer>
   )
 }
