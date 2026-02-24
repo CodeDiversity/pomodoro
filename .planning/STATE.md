@@ -19,6 +19,7 @@ See: .planning/PROJECT.md
 
 - Integrated RichTextEditor component from phase 19 into NotePanel
 - Removed duplicate toolbar/button code since RichTextEditor has its own toolbar
+- [Phase 21-read-only-display]: Integrated RichTextDisplay in SessionSummary and HistoryDrawer
 
 ## Completion
 

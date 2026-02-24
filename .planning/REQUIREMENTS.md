@@ -17,12 +17,12 @@
 
 ### Rich Text Display
 
-- [ ] **RTD-01**: Session notes display bold text correctly in session summary modal
-- [ ] **RTD-02**: Session notes display bullet lists correctly in session summary modal
-- [ ] **RTD-03**: Session notes display clickable links in session summary modal
-- [ ] **RTD-04**: Session notes display bold text correctly in history details drawer
-- [ ] **RTD-05**: Session notes display bullet lists correctly in history details drawer
-- [ ] **RTD-06**: Session notes display clickable links in history details drawer
+- [x] **RTD-01**: Session notes display bold text correctly in session summary modal
+- [x] **RTD-02**: Session notes display bullet lists correctly in session summary modal
+- [x] **RTD-03**: Session notes display clickable links in session summary modal
+- [x] **RTD-04**: Session notes display bold text correctly in history details drawer
+- [x] **RTD-05**: Session notes display bullet lists correctly in history details drawer
+- [x] **RTD-06**: Session notes display clickable links in history details drawer
 
 ### Infrastructure
 
@@ -86,12 +86,12 @@
 | RTE-03 | Phase 19 | Complete |
 | RTE-04 | Phase 20 | Planned |
 | RTE-05 | Phase 20 | Planned |
-| RTD-01 | Phase 21 | Pending |
-| RTD-02 | Phase 21 | Pending |
-| RTD-03 | Phase 21 | Pending |
-| RTD-04 | Phase 21 | Pending |
-| RTD-05 | Phase 21 | Pending |
-| RTD-06 | Phase 21 | Pending |
+| RTD-01 | Phase 21 | Complete |
+| RTD-02 | Phase 21 | Complete |
+| RTD-03 | Phase 21 | Complete |
+| RTD-04 | Phase 21 | Complete |
+| RTD-05 | Phase 21 | Complete |
+| RTD-06 | Phase 21 | Complete |
 
 **Coverage:**
 - v2.3 requirements: 14 total
