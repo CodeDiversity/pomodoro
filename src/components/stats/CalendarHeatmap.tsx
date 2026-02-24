@@ -14,6 +14,12 @@ const HeatmapContainer = styled.div`
   gap: 12px;
 `
 
+const SectionTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+`
+
 const MonthHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -179,6 +185,7 @@ export const CalendarHeatmap: React.FC<CalendarHeatmapProps> = ({ dailyActivity 
 
   return (
     <HeatmapContainer>
+      <SectionTitle>Activity Calendar</SectionTitle>
       <MonthHeader>
         <NavButton onClick={goToPreviousMonth} aria-label="Previous month">
           <FaChevronLeft size={14} />

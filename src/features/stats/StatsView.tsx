@@ -72,6 +72,16 @@ export const StatsView: React.FC<StatsViewProps> = ({ weeklyData, weeklyLoading 
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         gridColumn: '1 / -1'
       }}>
+        {/* Section title */}
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 600,
+          color: '#1e293b',
+          marginBottom: '8px'
+        }}>
+          Weekly Focus Time
+        </div>
+
         {/* Date range title */}
         <div style={{
           fontSize: '14px',
