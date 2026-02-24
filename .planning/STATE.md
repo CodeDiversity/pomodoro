@@ -25,7 +25,7 @@
 **Phase:** 15-integration-polish
 **Plan:** 02 (COMPLETE)
 **Status:** v2.2 milestone complete
-**Last activity:** 2026-02-24 — Completed quick task 14: the left button has no action at the moment
+**Last activity:** 2026-02-24 — Completed quick task 16: the reset session modal shows actual time spent
 
 ### Phase 8 Status
 
@@ -283,6 +283,7 @@ None currently.
 | 13 | when I complete session after 10 seconds it says I focused for 24:50 should be 10 seconds | 2026-02-24 | 3c2a112 | [13-when-i-complete-session-after-10-seconds](./quick/13-when-i-complete-session-after-10-seconds/) |
 | 14 | the left button has no action at the moment | 2026-02-24 | 0b1b1d6 | [14-the-left-button-has-no-action-at-the-mom](./quick/14-the-left-button-has-no-action-at-the-mom/) |
 | 15 | clicking that reset button next to the play button should give credit for time spent | 2026-02-24 | 8961f2c | [15-clicking-that-reset-button-next-to-the-p](./quick/15-clicking-that-reset-button-next-to-the-p/) |
+| 16 | the reset session modal still shows 25 minutes instead of actual time spent | 2026-02-24 | 2c8600f | [16-the-reset-session-modal-still-shows-25-m](./quick/16-the-reset-session-modal-still-shows-25-m/) |
 
 ### Phase Queue
 
