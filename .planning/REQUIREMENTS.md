@@ -26,9 +26,9 @@
 
 ### Infrastructure
 
-- [ ] **INF-01**: Rich text display components sanitize HTML to prevent XSS
-- [ ] **INF-02**: Existing plain-text notes render correctly without formatting
-- [ ] **INF-03**: Session notes autosave preserves rich text formatting
+- [x] **INF-01**: Rich text display components sanitize HTML to prevent XSS
+- [x] **INF-02**: Existing plain-text notes render correctly without formatting
+- [x] **INF-03**: Session notes autosave preserves rich text formatting
 
 ---
 
@@ -78,9 +78,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INF-01 | Phase 18 | Pending |
-| INF-02 | Phase 18 | Pending |
-| INF-03 | Phase 18 | Pending |
+| INF-01 | Phase 18 | Complete |
+| INF-02 | Phase 18 | Complete |
+| INF-03 | Phase 18 | Complete |
 | RTE-01 | Phase 19 | Pending |
 | RTE-02 | Phase 19 | Pending |
 | RTE-03 | Phase 19 | Pending |

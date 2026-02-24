@@ -24,7 +24,7 @@
 
 **Phase:** 18 - Editor Infrastructure
 **Plan:** 01 (Complete)
-**Status:** Completed
+**Status:** Milestone complete
 **Last activity:** 2026-02-24 — Editor infrastructure complete (rich text deps, sanitization, RichTextDisplay)
 
 ### Phase 18 Status
