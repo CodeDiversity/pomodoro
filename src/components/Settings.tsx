@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { clearDatabase } from '../services/db'
+import { parseCsvFile, ImportResult } from '../utils/csvImport'
 import { colors, transitions } from './ui/theme'
 import SoundSettings from './settings/SoundSettings'
 
@@ -452,6 +453,38 @@ const ResetButton = styled.button`
   }
 `
 
+const ImportButton = styled.button`
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #10b981;
+  transition: all ${transitions.normal};
+  margin-top: 8px;
+
+  &:hover {
+    background-color: #ecfdf5;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px #10b981;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`
+
+const HiddenFileInput = styled.input`
+  display: none;
+`
+
 const Toast = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 24px;
@@ -481,6 +514,11 @@ const CheckIcon = () => (
 export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations, viewMode = 'modal' }: SettingsProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showToast, setShowToast] = useState(false)
+
+  // Import state
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
 
   // Initialize duration state from props (convert seconds to minutes)
   const [focusMinutes, setFocusMinutes] = useState(() => {
@@ -563,6 +601,43 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
     }
   }
 
+  // Handle import button click
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  // Handle file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    setImportResult(null)
+
+    try {
+      const result = await parseCsvFile(file)
+      setImportResult(result)
+
+      // Show toast with result
+      if (result.imported > 0) {
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+      }
+    } catch (err) {
+      setImportResult({
+        imported: 0,
+        skipped: 0,
+        errors: ['Failed to import file'],
+      })
+    } finally {
+      setIsImporting(false)
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   // Close on overlay click
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -628,9 +703,27 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
         <SoundSettings />
 
         <SectionTitle>Data</SectionTitle>
+        <HiddenFileInput
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+        />
+        <ImportButton
+          onClick={handleImportClick}
+          disabled={isImporting}
+        >
+          {isImporting ? 'Importing...' : 'Import Sessions from CSV'}
+        </ImportButton>
         <ResetButton onClick={handleReset}>
           Reset All Data
         </ResetButton>
+        {importResult && (
+          <Toast $visible={true}>
+            <CheckIcon />
+            Imported {importResult.imported} sessions, skipped {importResult.skipped} rows
+          </Toast>
+        )}
 
         {onSaveDurations && (
           <Footer style={{ marginTop: '24px', padding: '16px 0 0' }}>
@@ -723,9 +816,27 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
               )}
 
               <SectionTitle>Data</SectionTitle>
+              <HiddenFileInput
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+              />
+              <ImportButton
+                onClick={handleImportClick}
+                disabled={isImporting}
+              >
+                {isImporting ? 'Importing...' : 'Import Sessions from CSV'}
+              </ImportButton>
               <ResetButton onClick={handleReset}>
                 Reset All Data
               </ResetButton>
+              {importResult && (
+                <Toast $visible={true}>
+                  <CheckIcon />
+                  Imported {importResult.imported} sessions, skipped {importResult.skipped} rows
+                </Toast>
+              )}
             </Content>
 
             {onSaveDurations && (
