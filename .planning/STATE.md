@@ -22,10 +22,10 @@
 
 ## Current Position
 
-**Phase:** Not started (defining requirements)
-**Plan:** —
-**Status:** Milestone complete
-**Last activity:** 2026-02-23 — Milestone v2.2 started
+**Phase:** 14-data-export-import
+**Plan:** 01 (COMPLETE)
+**Status:** Milestone in progress
+**Last activity:** 2026-02-24 — Completed CSV export from History view
 
 ### Phase 8 Status
 
@@ -169,12 +169,18 @@
 
 ---
 
+### Phase 14 Status
+
+**Plan 14-01: COMPLETE** - CSV export from History view
+
+---
+
 ## Progress Bar
 
 ```
-Milestone v2.2: [░░░░░░░░░░░░░░░░░░░░] 0%
-Phase 13: [░░░░░░░░░░] 0% - Streak Counter
-Phase 14: [░░░░░░░░░░] 0% - Data Export & Import
+Milestone v2.2: [▓▓▓▓▓▓▓░░░░░░░░░░░░░] 50%
+Phase 13: [████████████████████] 100% - Streak Counter
+Phase 14: [▓▓░░░░░░░░░░░░░░░░░] 10% - Data Export & Import
 ```
 
 ---
@@ -213,6 +219,9 @@ Phase 14: [░░░░░░░░░░] 0% - Data Export & Import
 - [Phase 13-streak-tracking]: Streak Redux infrastructure complete with IndexedDB persistence
 - [Phase 13-streak-tracking]: Streak UI components (StreakDisplay, CalendarHeatmap) use Redux selectors from streakSlice
 - [Phase 13-streak-tracking]: Session completion triggers streak recalculation, streak data persists via streakStore abstraction
+- [Phase 14-export]: CSV export from History view implemented with exportSessionsToCsv utility
+- [Phase 14-export]: Export button added to HistoryFilterBar, respects current date filter
+- [Phase 14-export]: Uses Redux selectors (selectFilteredSessions, selectDateFilter) for current filter state
 
 ### Technical Debt
 
@@ -238,9 +247,9 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed quick task 11 - put activity calendar and weekly focus time side by side
+**Last Action:** Completed plan 14-01 - CSV export from History view
 **Completed at:** 2026-02-24
-**Next Action:** Ready for next quick task or milestone work
+**Next Action:** Ready for plan 14-02 (CSV import functionality)
 
 ### Quick Tasks Completed
 
@@ -255,10 +264,10 @@ None currently.
 
 ### Phase Queue
 
-v2.2 Features (next):
+v2.2 Features (in progress):
 
-1. Phase 13: Streak Counter
-2. Phase 14: Data Export & Import
+1. Phase 13: Streak Counter - COMPLETE
+2. Phase 14: Data Export & Import - Plan 01 complete, Plan 02 (import) pending
 
 ---
 
