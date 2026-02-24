@@ -36,7 +36,10 @@
 4. Existing plain-text notes display correctly without formatting artifacts
 5. Session notes autosave preserves rich text formatting
 
-**Plans:** TBD
+**Plans:** 1 plan
+
+Plan:
+- [ ] 18-01-PLAN.md — Install dependencies and create RichTextDisplay with sanitization
 
 ---
 
@@ -120,7 +123,7 @@
 | 5-12 (v2.0) | Complete | Shipped | 2026-02-21 |
 | 7-12 (v2.1) | Complete | Shipped | 2026-02-23 |
 | 13-17 (v2.2) | Complete | Shipped | 2026-02-24 |
-| 18 - Editor Infrastructure | 0/1 | Not started | - |
+| 18 - Editor Infrastructure | 1/1 | Planned | - |
 | 19 - Editor Component | 0/1 | Not started | - |
 | 20 - NotePanel Integration | 0/1 | Not started | - |
 | 21 - Read-Only Display | 0/1 | Not started | - |
