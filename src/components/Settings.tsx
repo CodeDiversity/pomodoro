@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { clearDatabase } from '../services/db'
 import { parseCsvFile, ImportResult } from '../utils/csvImport'
 import { colors, transitions } from './ui/theme'
@@ -515,6 +515,21 @@ const CheckIcon = () => (
   </svg>
 )
 
+const spinAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+const SpinnerIcon = styled.svg`
+  animation: ${spinAnimation} 1s linear infinite;
+  width: 16px;
+  height: 16px;
+`
+
 export default function Settings({ autoStart, onAutoStartChange, customDurations, onSaveDurations, viewMode = 'modal' }: SettingsProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showToast, setShowToast] = useState(false)
@@ -717,7 +732,14 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
           onClick={handleImportClick}
           disabled={isImporting}
         >
-          {isImporting ? 'Importing...' : 'Import Sessions from CSV'}
+          {isImporting ? (
+            <>
+              <SpinnerIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </SpinnerIcon>
+              Importing...
+            </>
+          ) : 'Import Sessions from CSV'}
         </ImportButton>
         <ResetButton onClick={handleReset}>
           Reset All Data
@@ -830,7 +852,14 @@ export default function Settings({ autoStart, onAutoStartChange, customDurations
                 onClick={handleImportClick}
                 disabled={isImporting}
               >
-                {isImporting ? 'Importing...' : 'Import Sessions from CSV'}
+                {isImporting ? (
+                  <>
+                    <SpinnerIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </SpinnerIcon>
+                    Importing...
+                  </>
+                ) : 'Import Sessions from CSV'}
               </ImportButton>
               <ResetButton onClick={handleReset}>
                 Reset All Data
