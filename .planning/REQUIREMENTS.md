@@ -78,20 +78,20 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RTE-01 | Phase 1 | Pending |
-| RTE-02 | Phase 1 | Pending |
-| RTE-03 | Phase 1 | Pending |
-| RTE-04 | Phase 1 | Pending |
-| RTE-05 | Phase 1 | Pending |
-| RTD-01 | Phase 2 | Pending |
-| RTD-02 | Phase 2 | Pending |
-| RTD-03 | Phase 2 | Pending |
-| RTD-04 | Phase 2 | Pending |
-| RTD-05 | Phase 2 | Pending |
-| RTD-06 | Phase 2 | Pending |
-| INF-01 | Phase 1 | Pending |
-| INF-02 | Phase 1 | Pending |
-| INF-03 | Phase 1 | Pending |
+| INF-01 | Phase 18 | Pending |
+| INF-02 | Phase 18 | Pending |
+| INF-03 | Phase 18 | Pending |
+| RTE-01 | Phase 19 | Pending |
+| RTE-02 | Phase 19 | Pending |
+| RTE-03 | Phase 19 | Pending |
+| RTE-04 | Phase 20 | Pending |
+| RTE-05 | Phase 20 | Pending |
+| RTD-01 | Phase 21 | Pending |
+| RTD-02 | Phase 21 | Pending |
+| RTD-03 | Phase 21 | Pending |
+| RTD-04 | Phase 21 | Pending |
+| RTD-05 | Phase 21 | Pending |
+| RTD-06 | Phase 21 | Pending |
 
 **Coverage:**
 - v2.3 requirements: 14 total
@@ -100,4 +100,4 @@
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-24 after v2.3 milestone started*
+*Last updated: 2026-02-24 after v2.3 roadmap created*
