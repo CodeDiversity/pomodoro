@@ -53,24 +53,22 @@ export const StatsView: React.FC<StatsViewProps> = ({ weeklyData, weeklyLoading 
         <StatsGrid dateFilter="7days" />
       </div>
 
-      {/* Row 2: CalendarHeatmap (full width) */}
+      {/* Row 2: CalendarHeatmap and WeeklyChart side by side */}
+      {/* Calendar (left) - 1fr, Weekly (right) - 1.5fr (2:1 ratio) */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        gridColumn: '1 / -1'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         <CalendarHeatmap dailyActivity={dailyActivity} />
       </div>
 
-      {/* Row 3: WeeklyChart (full width) */}
       <div style={{
         background: 'white',
         borderRadius: '12px',
         padding: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        gridColumn: '1 / -1'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         {/* Section title */}
         <div style={{
