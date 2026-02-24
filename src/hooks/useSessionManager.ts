@@ -40,7 +40,6 @@ export function useSessionManager(
     const startTime = sessionStartRef.current || now
     // Always use elapsed time - completed flag only affects the 'completed' field in the record
     const actualDuration = Math.floor((now - startTime) / 1000)
-    console.log('createSessionRecord:', { completed, startTime, now, actualDuration, paramsDuration: params.duration })
 
     const record: SessionRecord = {
       id: crypto.randomUUID(),
