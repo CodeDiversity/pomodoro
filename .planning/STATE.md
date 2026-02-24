@@ -279,6 +279,7 @@ None currently.
 | 9 | reorganize statistics page into tiled grid | 2026-02-23 | 60f938b | [9-reorganize-the-statistics-page-to-have-m](./quick/9-reorganize-the-statistics-page-to-have-m/) |
 | 10 | add titles to calendar and bar chart | 2026-02-23 | 0c26946 | [10-the-calendar-and-the-bar-chart-aren-t-cl](./quick/10-the-calendar-and-the-bar-chart-aren-t-cl/) |
 | 11 | put activity calendar and weekly focus time side by side | 2026-02-24 | 85978a9 | [11-put-activity-calendar-and-weekly-focus-t](./quick/11-put-activity-calendar-and-weekly-focus-t/) |
+| 12 | if a user ends a session before 25 minutes they get credit for partial time | 2026-02-24 | 111589e | [12-if-a-user-ends-a-session-before-25-minut](./quick/12-if-a-user-ends-a-session-before-25-minut/) |
 
 ### Phase Queue
 
