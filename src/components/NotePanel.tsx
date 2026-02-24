@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import styled from 'styled-components'
 import { colors, transitions } from './ui/theme'
+import RichTextEditor from './RichTextEditor'
 
 const TAG_REGEX = /^[a-zA-Z0-9-]{1,20}$/
 const MAX_TAGS = 10
@@ -95,57 +96,6 @@ const NotesContainer = styled.div`
   border-radius: 12px;
   overflow: hidden;
   background: #f8fafc;
-`
-
-const Toolbar = styled.div`
-  display: flex;
-  gap: 1px;
-  padding: 8px;
-  border-bottom: 1px solid #e2e8f0;
-  background: white;
-`
-
-const ToolbarButton = styled.button`
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #64748b;
-  transition: background-color ${transitions.fast};
-
-  &:hover {
-    background-color: #f1f5f9;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${colors.primary};
-    outline-offset: 1px;
-  }
-`
-
-const TextArea = styled.textarea`
-  width: 100%;
-  min-height: 160px;
-  padding: 16px;
-  border: none;
-  font-family: inherit;
-  font-size: 0.9rem;
-  resize: none;
-  box-sizing: border-box;
-  background: transparent;
-
-  &::placeholder {
-    color: #94a3b8;
-  }
-
-  &:focus {
-    outline: none;
-  }
 `
 
 const TagsContainer = styled.div`
@@ -321,31 +271,6 @@ const EditIcon = () => (
   </svg>
 )
 
-const BoldIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-    <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
-  </svg>
-)
-
-const ListIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="8" y1="6" x2="21" y2="6" />
-    <line x1="8" y1="12" x2="21" y2="12" />
-    <line x1="8" y1="18" x2="21" y2="18" />
-    <line x1="3" y1="6" x2="3.01" y2="6" />
-    <line x1="3" y1="12" x2="3.01" y2="12" />
-    <line x1="3" y1="18" x2="3.01" y2="18" />
-  </svg>
-)
-
-const LinkIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-)
-
 const LightbulbIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#136dec" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 18h6"/>
@@ -451,22 +376,7 @@ export default function NotePanel({
         <Section>
           <SectionLabel>Session Notes</SectionLabel>
           <NotesContainer>
-            <Toolbar>
-              <ToolbarButton aria-label="Bold" title="Bold">
-                <BoldIcon />
-              </ToolbarButton>
-              <ToolbarButton aria-label="List" title="List">
-                <ListIcon />
-              </ToolbarButton>
-              <ToolbarButton aria-label="Link" title="Link">
-                <LinkIcon />
-              </ToolbarButton>
-            </Toolbar>
-            <TextArea
-              value={noteText}
-              onChange={(e) => onNoteChange(e.target.value)}
-              placeholder="Brainstorming key UI components..."
-            />
+            <RichTextEditor content={noteText} onChange={onNoteChange} />
           </NotesContainer>
         </Section>
 
