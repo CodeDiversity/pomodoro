@@ -1,13 +1,34 @@
 # Requirements: Pomodoro Timer
 
 **Defined:** 2026-02-24
-**For milestone:** v2.3 (next)
+**For milestone:** v2.3 Rich Text Notes
 
 ---
 
 ## v2.3 Requirements (In Progress)
 
-_TBD - define new requirements for next milestone_
+### Rich Text Editor
+
+- [ ] **RTE-01**: User can toggle bold formatting via toolbar button
+- [ ] **RTE-02**: User can toggle bullet list formatting via toolbar button
+- [ ] **RTE-03**: User can insert links via toolbar button with URL input
+- [ ] **RTE-04**: Rich text editor replaces textarea in NotePanel during active session
+- [ ] **RTE-05**: Toolbar buttons (Bold, Bullet, Link) are functional and styled
+
+### Rich Text Display
+
+- [ ] **RTD-01**: Session notes display bold text correctly in session summary modal
+- [ ] **RTD-02**: Session notes display bullet lists correctly in session summary modal
+- [ ] **RTD-03**: Session notes display clickable links in session summary modal
+- [ ] **RTD-04**: Session notes display bold text correctly in history details drawer
+- [ ] **RTD-05**: Session notes display bullet lists correctly in history details drawer
+- [ ] **RTD-06**: Session notes display clickable links in history details drawer
+
+### Infrastructure
+
+- [ ] **INF-01**: Rich text display components sanitize HTML to prevent XSS
+- [ ] **INF-02**: Existing plain-text notes render correctly without formatting
+- [ ] **INF-03**: Session notes autosave preserves rich text formatting
 
 ---
 
@@ -41,4 +62,42 @@ _TBD - define new requirements for next milestone_
 
 ---
 
-*Requirements for v2.3 to be defined via /gsd:new-milestone*
+## Out of Scope (v2.3)
+
+| Feature | Reason |
+|---------|--------|
+| Italic, underline, strikethrough | Beyond v2.3 rich text goal |
+| Nested bullet lists | UI complexity, single-level sufficient |
+| Checklists | Not requested for v2.3 |
+| Rich text in search | Requires complex highlighting |
+| Auto-detect URLs | Requires regex detection, defer to future |
+
+---
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| RTE-01 | Phase 1 | Pending |
+| RTE-02 | Phase 1 | Pending |
+| RTE-03 | Phase 1 | Pending |
+| RTE-04 | Phase 1 | Pending |
+| RTE-05 | Phase 1 | Pending |
+| RTD-01 | Phase 2 | Pending |
+| RTD-02 | Phase 2 | Pending |
+| RTD-03 | Phase 2 | Pending |
+| RTD-04 | Phase 2 | Pending |
+| RTD-05 | Phase 2 | Pending |
+| RTD-06 | Phase 2 | Pending |
+| INF-01 | Phase 1 | Pending |
+| INF-02 | Phase 1 | Pending |
+| INF-03 | Phase 1 | Pending |
+
+**Coverage:**
+- v2.3 requirements: 14 total
+- Mapped to phases: 14
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-02-24*
+*Last updated: 2026-02-24 after v2.3 milestone started*
