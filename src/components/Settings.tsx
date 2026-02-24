@@ -459,20 +459,24 @@ const ImportButton = styled.button`
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid #10b981;
+  border: 1px solid ${colors.primary};
   border-radius: 8px;
   background-color: transparent;
-  color: #10b981;
+  color: ${colors.primary};
   transition: all ${transitions.normal};
   margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
   &:hover {
-    background-color: #ecfdf5;
+    background-color: ${colors.sidebarActive};
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px #10b981;
+    box-shadow: 0 0 0 2px ${colors.background}, 0 0 0 4px ${colors.primary};
   }
 
   &:disabled {
