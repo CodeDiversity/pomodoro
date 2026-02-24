@@ -99,7 +99,10 @@ Plan:
 5. History details drawer displays bullet lists correctly in view mode
 6. History details drawer displays clickable links in view mode
 
-**Plans:** TBD
+**Plans:** 1/1 planned
+
+Plan:
+- [ ] 21-01-PLAN.md — Integrate RichTextDisplay into SessionSummary and HistoryDrawer
 
 ---
 
@@ -132,7 +135,7 @@ Plan:
 | 18 - Editor Infrastructure | 1/1 | Complete    | 2026-02-24 |
 | 19 - Editor Component | 1/1 | Complete    | 2026-02-24 |
 | 20 - NotePanel Integration | 1/1 | Complete    | 2026-02-24 |
-| 21 - Read-Only Display | 0/1 | Not started | - |
+| 21 - Read-Only Display | 1/1 | Planned | - |
 | 22 - Polish & Validation | 0/1 | Not started | - |
 
 ---
