@@ -9,9 +9,9 @@
 
 ### Rich Text Editor
 
-- [ ] **RTE-01**: User can toggle bold formatting via toolbar button
-- [ ] **RTE-02**: User can toggle bullet list formatting via toolbar button
-- [ ] **RTE-03**: User can insert links via toolbar button with URL input
+- [x] **RTE-01**: User can toggle bold formatting via toolbar button
+- [x] **RTE-02**: User can toggle bullet list formatting via toolbar button
+- [x] **RTE-03**: User can insert links via toolbar button with URL input
 - [ ] **RTE-04**: Rich text editor replaces textarea in NotePanel during active session
 - [ ] **RTE-05**: Toolbar buttons (Bold, Bullet, Link) are functional and styled
 
@@ -81,11 +81,11 @@
 | INF-01 | Phase 18 | Complete |
 | INF-02 | Phase 18 | Complete |
 | INF-03 | Phase 18 | Complete |
-| RTE-01 | Phase 19 | Pending |
-| RTE-02 | Phase 19 | Pending |
-| RTE-03 | Phase 19 | Pending |
-| RTE-04 | Phase 20 | Pending |
-| RTE-05 | Phase 20 | Pending |
+| RTE-01 | Phase 19 | Complete |
+| RTE-02 | Phase 19 | Complete |
+| RTE-03 | Phase 19 | Complete |
+| RTE-04 | Phase 20 | Planned |
+| RTE-05 | Phase 20 | Planned |
 | RTD-01 | Phase 21 | Pending |
 | RTD-02 | Phase 21 | Pending |
 | RTD-03 | Phase 21 | Pending |
