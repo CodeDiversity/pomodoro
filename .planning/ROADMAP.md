@@ -77,10 +77,10 @@ Plan:
 3. Editing a note and saving preserves formatting in IndexedDB
 4. Session summary modal displays formatted note after session ends
 
-**Plans:** 1/1 plans
+**Plans:** 1/1 plans complete
 
 Plan:
-- [ ] 20-01-PLAN.md — Integrate RichTextEditor into NotePanel
+- [x] 20-01-PLAN.md — Integrate RichTextEditor into NotePanel
 
 ---
 
@@ -131,7 +131,7 @@ Plan:
 | 13-17 (v2.2) | Complete | Shipped | 2026-02-24 |
 | 18 - Editor Infrastructure | 1/1 | Complete    | 2026-02-24 |
 | 19 - Editor Component | 1/1 | Complete    | 2026-02-24 |
-| 20 - NotePanel Integration | 1/1 | Planned | - |
+| 20 - NotePanel Integration | 1/1 | Complete    | 2026-02-24 |
 | 21 - Read-Only Display | 0/1 | Not started | - |
 | 22 - Polish & Validation | 0/1 | Not started | - |
 
