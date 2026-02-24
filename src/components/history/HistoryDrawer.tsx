@@ -6,6 +6,7 @@ import { formatDateFull } from '../../utils/dateUtils'
 import { formatDurationFull } from '../../utils/durationUtils'
 import { colors, transitions } from '../ui/theme'
 import RichTextDisplay from '../RichTextDisplay'
+import RichTextEditor from '../RichTextEditor'
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -100,25 +101,6 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div`
   font-size: 0.95rem;
   color: ${colors.text};
-`
-
-const NoteTextArea = styled.textarea`
-  width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  border: 1px solid ${colors.border};
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  resize: vertical;
-  box-sizing: border-box;
-  transition: all ${transitions.fast};
-
-  &:focus {
-    outline: none;
-    border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-  }
 `
 
 const TagsInput = styled.input`
@@ -378,10 +360,9 @@ export function HistoryDrawer({ session, isOpen, onClose, onDelete, onSave }: Hi
             </DetailLabel>
             {isEditingNotes ? (
               <>
-                <NoteTextArea
-                  value={noteText}
-                  onChange={(e) => handleNoteChange(e.target.value)}
-                  placeholder="Add a note..."
+                <RichTextEditor
+                  content={noteText || ''}
+                  onChange={(html) => handleNoteChange(html)}
                 />
                 <SaveStatus $saving={isSaving}>
                   {isSaving ? 'Saving...' : 'Saved'}
