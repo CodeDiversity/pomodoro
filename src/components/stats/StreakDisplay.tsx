@@ -3,6 +3,7 @@ import { useAppSelector } from '../../app/hooks'
 import { selectCurrentStreak, selectBestStreak, selectProtectionUsed } from '../../features/streak/streakSelectors'
 import { FaFire, FaShieldAlt } from 'react-icons/fa'
 import styled from 'styled-components'
+import { colors } from '../ui/theme'
 
 const StreakContainer = styled.div`
   display: flex;
@@ -18,6 +19,7 @@ const StreakRow = styled.div`
 `
 
 const FlameIcon = styled(FaFire)`
+  // Orange icon for visual distinction (not a brand color)
   color: #f97316;
   font-size: 24px;
 `
@@ -25,17 +27,17 @@ const FlameIcon = styled(FaFire)`
 const CurrentStreakCount = styled.span`
   font-size: 32px;
   font-weight: 700;
-  color: #1e293b;
+  color: ${colors.text};
 `
 
 const StreakLabel = styled.span`
   font-size: 16px;
-  color: #64748b;
+  color: ${colors.textMuted};
 `
 
 const BestStreakText = styled.div`
   font-size: 14px;
-  color: #94a3b8;
+  color: ${colors.textMuted};
   font-weight: 500;
 `
 
