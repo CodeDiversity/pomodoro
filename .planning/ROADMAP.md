@@ -57,7 +57,10 @@ Plan:
 4. Link toolbar button prompts for URL and inserts clickable link
 5. Toolbar buttons display in a styled row above the editor
 
-**Plans:** TBD
+**Plans:** 1/1 plans
+
+Plan:
+- [ ] 19-01-PLAN.md — Create RichTextEditor with Bold, Bullet, Link toolbar
 
 ---
 
