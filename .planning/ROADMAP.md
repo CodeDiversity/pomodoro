@@ -66,7 +66,11 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 8. Imported sessions are merged with existing sessions without duplicates
 9. Import shows progress feedback during processing and success/error summary after
 
-**Plans:** TBD
+**Plans:** 2/2 plans
+
+**Plan list:**
+- [ ] 14-01-PLAN.md - Data Export from History view to CSV
+- [ ] 14-02-PLAN.md - Data Import from CSV in Settings view
 
 ---
 
@@ -94,7 +98,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 13. Streak Tracking | 3/3 | Complete    | 2026-02-23 |
-| 14. Data Export/Import | 0/1 | Not started | - |
+| 14. Data Export/Import | 2/2 | Planning | - |
 | 15. Integration & Polish | 0/1 | Not started | - |
 
 ---
