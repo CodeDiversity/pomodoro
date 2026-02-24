@@ -422,15 +422,8 @@ function App() {
         // Session will be saved when timer hits 0 - this callback is for summary display
       },
       onSessionSkip: () => {
-        // Save incomplete session and show summary
-        setCompletedSession({
-          durationString: '25:00',
-          noteText: noteText,
-          tags: tags,
-          taskTitle: taskTitle,
-          startTimestamp: new Date().toISOString(),
-        })
-        dispatch(showSummaryModal())
+        // Modal is now properly handled by handleSessionSkip and handleSessionReset
+        // This callback just handles cleanup if needed
       },
       onSessionReset: () => {
         // Discard session and reset notes
@@ -471,9 +464,19 @@ function App() {
     }
   }
 
-  // Handle session reset - save partial session credit
-  const handleSessionReset = () => {
-    sessionManager.handleSessionSkip()
+  // Handle session reset - save partial session credit and show modal
+  const handleSessionReset = async () => {
+    const record = await sessionManager.handleSessionSkip()
+    if (record) {
+      setCompletedSession({
+        durationString: record.durationString,
+        noteText: record.noteText,
+        tags: record.tags,
+        taskTitle: record.taskTitle,
+        startTimestamp: record.startTimestamp,
+      })
+      dispatch(showSummaryModal())
+    }
   }
 
   // Timer hook with session completion callback
