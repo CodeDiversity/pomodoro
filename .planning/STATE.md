@@ -238,7 +238,7 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed quick task 9 - reorganized stats page into tiled grid layout
+**Last Action:** Completed quick task 10 - add titles to calendar and bar chart
 **Completed at:** 2026-02-23
 **Next Action:** Ready for next quick task or milestone work
 
@@ -250,6 +250,7 @@ None currently.
 | 7 | session complete modal shows untitled instead of typed title | 2026-02-23 | 980408e | [7-session-complete-modal-shows-untitled-in](./quick/7-session-complete-modal-shows-untitled-in/) |
 | 8 | display session title in history tab | 2026-02-23 | 6080e56 | [8-display-session-title-in-history-tab](./quick/8-display-session-title-in-history-tab/) |
 | 9 | reorganize statistics page into tiled grid | 2026-02-23 | 60f938b | [9-reorganize-the-statistics-page-to-have-m](./quick/9-reorganize-the-statistics-page-to-have-m/) |
+| 10 | add titles to calendar and bar chart | 2026-02-23 | 0c26946 | [10-the-calendar-and-the-bar-chart-aren-t-cl](./quick/10-the-calendar-and-the-bar-chart-aren-t-cl/) |
 
 ### Phase Queue
 
