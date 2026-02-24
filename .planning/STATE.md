@@ -24,7 +24,7 @@
 
 **Phase:** 15-integration-polish
 **Plan:** 02 (COMPLETE)
-**Status:** Milestone complete
+**Status:** v2.2 milestone complete
 **Last activity:** 2026-02-24 — Verified timezone handling, persistence, and batch processing implementations
 
 ### Phase 8 Status

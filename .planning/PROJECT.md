@@ -2,20 +2,17 @@
 
 ## What This Is
 
-A responsive Pomodoro timer web app with session notes, history tracking, and stats. Built with React 18 + TypeScript + Vite, using IndexedDB for persistence. Features a modern light-mode aesthetic with blue accents, sidebar navigation, and split-pane timer view.
+A responsive Pomodoro timer web app with session notes, history tracking, streak tracking, and stats. Built with React 18 + TypeScript + Vite, using IndexedDB for persistence. Features a modern light-mode aesthetic with blue accents, sidebar navigation, and split-pane timer view.
 
 ## Core Value
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current Milestone: v2.2 Features
+## Current Milestone: v2.3 (Planning)
 
-**Goal:** Add daily streak tracking and data export/import capabilities.
+**Next:** Define new requirements for next milestone
 
-**Target features:**
-- Daily streak counter with calendar view
-- Export history as CSV
-- Import CSV files
+---
 
 ## Requirements
 
@@ -44,30 +41,18 @@ A focused productivity timer that helps users track work sessions with notes, an
 - Split-pane timer view with circular progress — v2.0
 - Modal-based Settings and Help — v2.0
 - Celebratory session completion UI — v2.0
-
-### Active
-
-- [ ] Daily streak counter with calendar view
-- [ ] Export history as CSV
-- [ ] Import CSV files
-
-### v2.1 Validated (Shipped 2026-02-23)
-
 - Weekly stats visualization (bar charts) — v2.1
 - Custom notification sounds with volume control — v2.1
 - Session title displayed in modal and history — v2.1
+- Daily streak counter with calendar view — v2.2
+- Export history as CSV — v2.2
+- Import CSV files — v2.2
 
-### Out of Scope
+### Active
 
-| Feature | Reason |
-|---------|--------|
-| Auth or cloud sync | Local-only app, no backend |
-| Complex charting or analytics | Stats requirement is simple numbers only |
-| Drag-and-drop functionality | Not needed |
-| Mobile app | Web-only |
-| OAuth or third-party integrations | Not needed |
-| Sync across browser tabs | Not required |
-| Custom session count before long break | Keep fixed at 4 for simplicity |
+_TBD — define via /gsd:new-milestone_
+
+---
 
 ## Context
 
@@ -77,16 +62,21 @@ A focused productivity timer that helps users track work sessions with notes, an
 - v1.0 shipped: 2026-02-19
 - v2.0 shipped: 2026-02-21
 - v2.1 shipped: 2026-02-23
+- v2.2 shipped: 2026-02-24
+
+---
 
 ## Constraints
 
 - **Tech Stack**: React 18 + TypeScript + Vite
 - **Styling**: styled-components with centralized theme tokens
 - **Persistence**: IndexedDB with versioned schema
-- **State Management**: Redux Toolkit (migrated from useReducer in v2.1)
+- **State Management**: Redux Toolkit
 - **Testing**: Vitest for pure function unit tests
 - **Validation**: Note max 2000 chars, max 10 tags, each max 20 chars (alphanumeric + dash)
 - **Duration Limits**: Focus 1-60 min, Short Break 1-30 min, Long Break 1-60 min
+
+---
 
 ## Key Decisions
 
@@ -110,7 +100,40 @@ A focused productivity timer that helps users track work sessions with notes, an
 | Memoized selectors (createSelector) | Performance optimization for derived state | ✅ v2.1 |
 | Chart.js for stats visualization | Lightweight bar charts with tooltips | ✅ v2.1 |
 | Web Audio API for sounds | Programmatic sound generation with volume control | ✅ v2.1 |
+| Streak Redux infrastructure | Centralized streak state with persistence | ✅ v2.2 |
+| CSV export/import | Data portability for user sessions | ✅ v2.2 |
+| Batch processing for large imports | Non-blocking UI during 1000+ session imports | ✅ v2.2 |
 
 ---
 
-*Last updated: 2026-02-23*
+<details>
+<summary><b>v2.2 Shipped (Archived)</b></summary>
+
+## v2.2: Features (Shipped 2026-02-24)
+
+**Goal:** Add daily streak tracking and data export/import capabilities
+
+**Accomplishments:**
+- Daily streak counter with calendar view
+- Current and best streak tracking
+- Streak protection (1 free miss for 5+ day streaks)
+- CSV export from History view
+- CSV import from Settings view
+- Batch processing for large imports (50 sessions/batch)
+- Duplicate detection via startTimestamp
+- UI polish: consistent blue accent colors, spinner animation
+
+**Key Changes:**
+- Added streakSlice, streakMiddleware, streakStore
+- Added CalendarHeatmap component
+- Added csvExport.ts and csvImport.ts utilities
+- Updated Settings.tsx with import functionality
+
+**Tech Debt (minor, optional):**
+- CSV import doesn't trigger streak recalculation immediately (works on next session)
+- Session deletion doesn't trigger streak recalculation immediately
+</details>
+
+---
+
+*Last updated: 2026-02-24 after v2.2 milestone*
