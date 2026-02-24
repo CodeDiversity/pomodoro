@@ -1,8 +1,8 @@
-# Feature Research: Streak Counter & CSV Export/Import
+# Feature Research: Rich Text Session Notes
 
-**Domain:** Pomodoro productivity app (v2.2 features)
-**Researched:** 2026-02-23
-**Confidence:** MEDIUM (based on common productivity app patterns; web search unavailable)
+**Domain:** Rich text editing for productivity app session notes (v2.3)
+**Researched:** 2026-02-24
+**Confidence:** HIGH (based on common productivity app UX patterns)
 
 ---
 
@@ -10,114 +10,120 @@
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete.
+Features users assume exist in any productivity app with rich text. Missing these = confusing or broken UX.
 
-#### Streak Counter
-
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Current streak display | Core motivation metric | LOW | Days in a row with at least one completed focus session |
-| Longest streak display | Achievement/progress tracking | LOW | All-time best, persists in settings store |
-| Streak reset indicator | Transparency | LOW | Show why streak broke (e.g., "Last session: 2 days ago") |
-| Calendar heatmap | Visual progress, gamification | MEDIUM | GitHub-style contribution grid or monthly calendar |
-
-#### CSV Export/Import
+#### Bold Text
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Export all sessions as CSV | Data ownership/backup | LOW | Download complete history |
-| Import CSV with validation | Restore from backup | MEDIUM | Parse, validate, insert valid rows |
-| Error reporting on import | Usability | MEDIUM | Show which rows failed and why |
+| **Bold toolbar button** | Standard pattern (Ctrl/Cmd+B, toolbar icon) | LOW | Toggle behavior: click with selection wraps in `**`, click again removes |
+| **Bold rendering in modal** | Visual feedback during editing | LOW | Parse `**text**` → bold styling in edit mode |
+| **Bold rendering in history** | Previously saved notes must show formatting | LOW | Same rendering as modal, read-only |
+| **Markdown storage** | Format persists across sessions | LOW | Store as `**bold**` in noteText field |
+
+#### Bullet Lists
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Bullet toolbar button** | Standard pattern for outlining | LOW | Toggle: converts line to `- ` prefix, again removes |
+| **Bullet rendering in modal** | Visual list while editing | LOW | Parse `- ` lines → styled list items |
+| **Bullet rendering in history** | Saved lists display correctly | LOW | Same as modal, read-only |
+| **Auto-continue bullets** | Pressing Enter continues list | LOW | Common pattern in Notion/Obsidian |
+
+#### Links
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Link insertion button** | Standard pattern for URLs | MEDIUM | Dialog or inline prompt for URL input |
+| **Clickable links in modal** | Interactive URLs in edit mode | LOW | Render as clickable anchor |
+| **Clickable links in history** | Links work in history drawer | LOW | Same as modal |
+| **Link storage** | Format persists | LOW | Store as `[text](url)` in noteText |
 
 ---
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required, but valuable.
-
-#### Streak Counter
+Features that could set this app apart. Not required, but add polish.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Streak milestones | Gamification, motivation | LOW | Celebrate 7-day, 30-day, 100-day streaks with visual feedback |
-| Daily goal setting | Motivation | MEDIUM | "Complete 4 sessions today" with progress indicator |
-| Weekly streak summary | Weekly context | LOW | Show week-at-a-glance alongside current streak |
-
-#### CSV Export/Import
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Export filtered date range | Usefulness | MEDIUM | Export only today/7 days/30 days to match history filters |
-| Merge on import | Multi-device/backup | MEDIUM | Combine imported data with existing without duplicates |
+| **Keyboard shortcuts** | Power user efficiency (Cmd+B for bold) | LOW | Standard shortcuts accelerate workflow |
+| **Auto-detect URLs** | Type URL without toolbar | MEDIUM | Regex detection of http/https URLs |
+| **Visual toolbar state** | Show active format on button | MEDIUM | Requires selection state tracking |
+| **Placeholder hints** | Guide users to formatting | LOW | "Use **text** for bold" |
 
 ---
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
+Features that seem good but create problems for this scope.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| Streak freeze/purchase | Forgiveness for missing days | Business model complexity, not aligned with free app | Keep streaks simple and free |
-| Cloud sync export | Automatic backup | Backend required, security concerns | Manual CSV export is explicit and controllable |
-| Import from other apps | Format compatibility | Too many variations to handle | Focus on clean export first |
-| Drag-drop import zone | Modern UX | Over-engineered for simple CSV | Simple file input is sufficient |
+| **Rich text in search** | See formatted matches | Complex highlighting, re-parsing | Plain text search, full note shows formatting |
+| **Nested bullets** | Complex outlines | UI complexity, storage change | Single-level bullets sufficient |
+| **Full WYSIWYG editor** | Word-like experience | Library needed, scope creep | Simple toolbar + markdown |
+| **Inline code** | Technical notes | Beyond stated v2.3 goal | Defer to future |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Streak Features
-├── Session data (EXISTS - SessionRecord in IndexedDB)
-├── Date grouping logic (NEW - group sessions by calendar day)
-├── Streak calculation (NEW - consecutive day algorithm)
-├── Calendar heatmap (NEW - visualization component)
-└── Settings storage for longest streak (NEW - extend settings store)
+[Rich Text Storage Format]
+    └──requires──> [Bold Rendering (modal + history)]
+                      └──requires──> [Bold Toolbar Button]
 
-CSV Export/Import
-├── Session data (EXISTS - SessionRecord)
-├── CSV generation (NEW - convert SessionRecord to CSV format)
-├── File download (NEW - Blob URL + anchor click)
-├── CSV parsing (NEW - parse CSV string to SessionRecord)
-├── Import validation (NEW - validate required fields, dates)
-└── Duplicate detection (NEW - check id/createdAt before insert)
+[Rich Text Storage Format]
+    └──requires──> [Bullet Rendering (modal + history)]
+                      └──requires──> [Bullet Toolbar Button]
+
+[Rich Text Storage Format]
+    └──requires──> [Link Rendering (modal + history)]
+                      └──requires──> [Link Insertion UI]
 ```
 
 ### Dependency Notes
 
-- **Streak calculation requires date grouping:** Must group sessions by calendar day (not 24-hour periods) using the `createdAt` timestamp
-- **CSV import requires validation:** Multiple fields need validation (UUID format, ISO timestamps, numeric durations)
-- **Export is simpler than import:** Export is a one-way conversion; import must handle errors gracefully
+- **Storage format is foundational:** Use markdown (`**bold**`, `- bullet`, `[text](url)`) - human-readable, portable
+- **Display must come before toolbar:** Users expect WYSIWYG in modal; toolbar creates the format
+- **All three share storage:** Markdown format handles all three simultaneously
+- **Integration with autosave:** Existing autosave must preserve formatting
 
 ---
 
 ## MVP Definition
 
-### Launch With (v2.2)
+### Launch With (v2.3)
 
-Minimum viable product - what's needed to validate the concept.
+Core rich text features for milestone completion.
 
-- [ ] Current streak display - Simple counter showing consecutive days with completed focus sessions
-- [ ] Longest streak storage - Persisted in settings store, displayed alongside current streak
-- [ ] Export all sessions as CSV - Single button exports complete history with all fields
-- [ ] Import CSV with basic validation - Parse file, validate structure, insert valid rows
+- [ ] **Bold toolbar button** — Wraps selection in `**`, toggle removes
+- [ ] **Bold rendering (modal)** — Parse and display bold in edit mode
+- [ ] **Bold rendering (history)** — Parse and display bold in read mode
+- [ ] **Bullet toolbar button** — Convert line to `- ` prefix
+- [ ] **Bullet rendering (modal)** — Display as visual list in edit mode
+- [ ] **Bullet rendering (history)** — Display as visual list in read mode
+- [ ] **Link toolbar button** — Prompt for URL, wrap selection
+- [ ] **Clickable links (modal)** — Render as interactive anchor
+- [ ] **Clickable links (history)** — Links work in history drawer
+- [ ] **Storage format** — noteText preserves markdown
 
-### Add After Validation (v2.2.x)
+### Add After Validation (v2.3.x)
 
-Features to add once core is working.
+Nice-to-have polish.
 
-- [ ] Calendar heatmap - Visual grid showing activity intensity per day
-- [ ] Export filtered date range - Align with existing history filters
-- [ ] Import error reporting - Show detailed errors for invalid rows
+- [ ] **Keyboard shortcuts** — Cmd/Ctrl+B for bold
+- [ ] **Visual toolbar state** — Highlight active format button
 
-### Future Consideration (v2.3+)
+### Future Consideration (v3.0+)
 
-Features to defer until product-market fit is established.
+Beyond current scope.
 
-- [ ] Streak milestones with celebration UI
-- [ ] Daily session goal tracking
-- [ ] Merge-on-import to avoid duplicates
+- [ ] Italic, underline, strikethrough
+- [ ] Nested bullets
+- [ ] Checklists
+- [ ] Inline code
 
 ---
 
@@ -125,93 +131,124 @@ Features to defer until product-market fit is established.
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Current streak display | HIGH | LOW | P1 |
-| Longest streak storage | HIGH | LOW | P1 |
-| Export all sessions CSV | HIGH | LOW | P1 |
-| Import CSV with validation | HIGH | MEDIUM | P1 |
-| Calendar heatmap | MEDIUM | MEDIUM | P2 |
-| Export filtered range | MEDIUM | LOW | P2 |
-| Import error reporting | MEDIUM | MEDIUM | P2 |
-| Streak milestones | LOW | LOW | P3 |
-| Daily goal tracking | LOW | MEDIUM | P3 |
-| Merge on import | LOW | MEDIUM | P3 |
+| Bold toolbar button | HIGH | LOW | P1 |
+| Bold rendering (modal + history) | HIGH | LOW | P1 |
+| Bullet toolbar button | HIGH | LOW | P1 |
+| Bullet rendering (modal + history) | HIGH | LOW | P1 |
+| Link toolbar button | HIGH | MEDIUM | P1 |
+| Clickable links (modal + history) | HIGH | LOW | P1 |
+| Keyboard shortcuts | MEDIUM | LOW | P2 |
+| Visual toolbar state | LOW | MEDIUM | P2 |
+| Auto-detect URLs | LOW | MEDIUM | P2 |
 
 **Priority key:**
-- P1: Must have for v2.2 launch
-- P2: Should have, add when core is stable
-- P3: Nice to have, future consideration
+- P1: Must have for v2.3 launch
+- P2: Should have, add when possible
+- P3: Nice to have, future
 
 ---
 
-## Implementation Notes
+## Rich Text UX Patterns
 
-### Streak Calculation Algorithm
+### Toolbar Button Behavior
 
-```typescript
-interface StreakData {
-  current: number      // consecutive days including today/yesterday
-  longest: number     // all-time best
-  lastSessionDate: string | null  // ISO date string for display
-}
+#### Bold Button
+- **With selection:** Click wraps selection in `**`
+- **On bold text:** Click removes `**` (toggle)
+- **No selection:** Click inserts `**` at cursor, cursor between markers
 
-function calculateStreak(sessions: SessionRecord[]): StreakData {
-  // 1. Group sessions by calendar day (YYYY-MM-DD)
-  const sessionDays = new Set(
-    sessions
-      .filter(s => s.completed && s.mode === 'focus')
-      .map(s => new Date(s.createdAt).toISOString().split('T')[0])
-  )
+#### Bullet Button
+- **With selection:** Click prepends `- ` to that line
+- **On bullet line:** Click removes `- ` (toggle off)
+- **Enter at end of bullet:** Auto-insert new `- ` (continues list)
+- **Enter on blank line:** Exit bullet list
 
-  // 2. Sort days descending
-  const sortedDays = Array.from(sessionDays).sort((a, b) => b.localeCompare(a))
+#### Link Button
+- **With selection:** Click opens prompt/dialog for URL
+- **After input:** Wrap as `[selected text](url)`
+- **No selection:** Insert `[](url)` and prompt
 
-  // 3. Calculate current streak
-  // Allow 1 day gap (yesterday counts even if today not done)
-  let current = 0
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+### Display Rendering
 
-  if (sortedDays.includes(today)) {
-    current = 1
-    // Count backwards
-    for (let i = 1; i < sortedDays.length; i++) {
-      const expected = new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
-      if (sortedDays.includes(expected)) current++
-      else break
-    }
-  } else if (sortedDays.includes(yesterday)) {
-    current = 1
-  }
+| Scenario | Display | Implementation |
+|----------|---------|----------------|
+| `**bold**` | **bold** | Parse and apply font-weight: bold |
+| `****` (empty) | Empty or literal | Handle gracefully, no crash |
+| `**unclosed` | Plain `**unclosed` | Parser handles invalid |
+| `- item` | • item | Render with bullet style |
+| `- ` (empty) | Empty or ignore | Filter empties |
+| `[text](url)` | text (clickable) | Render as `<a>` |
 
-  // 4. Track longest (iterate all sorted days, count consecutive)
-  // ... similar logic
+### Edge Cases Summary
 
-  return { current, longest, lastSessionDate: sortedDays[0] || null }
-}
-```
+| Scenario | Expected | Notes |
+|----------|----------|-------|
+| Empty bold `****` | Empty | Don't crash |
+| Unclosed bold `**text` | Plain text | Invalid markdown |
+| Empty bullet `- ` | Empty or skip | Be consistent |
+| Empty link `[](url)` | Show URL or empty | Decide UX |
+| Invalid URL `[text](bad)` | Styled as link | Allow any input |
+| Mixed: `**bold** + - bullet` | Both render | Parser handles |
 
-### CSV Format
+---
 
-```csv
-id,startTimestamp,endTimestamp,plannedDurationSeconds,actualDurationSeconds,mode,startType,completed,noteText,tags,taskTitle,createdAt
-abc123,2026-02-23T10:00:00.000Z,2026-02-23T10:25:00.000Z,1500,1500,focus,manual,true,"Working on project","tag1|tag2","My Task",1708684800000
-```
+## Storage & Implementation
 
-**Format decisions:**
-- Tags joined with pipe `|` delimiter (avoids CSV quoting issues)
-- ISO 8601 timestamps for universal date compatibility
-- createdAt as Unix timestamp for easy sorting/parsing
+### Recommended: Markdown Storage
+
+| Approach | Example | Pros | Cons |
+|----------|---------|------|------|
+| **Markdown** | `**bold**`, `- item`, `[](url)` | Portable, readable, Notion/Obsidian aligned | Must parse on display |
+| HTML | `<strong>bold</strong>`, `<ul>` | Direct rendering | Less readable |
+
+**Choose markdown because:**
+- Human-readable for debugging
+- Portable for CSV export/import
+- Users familiar from Notion/Obsidian
+- Easy to parse with regex or library
+
+### Integration with Existing Code
+
+From PROJECT.md context:
+- `noteText` field in SessionRecord (IndexedDB)
+- Session modal — needs toolbar (edit mode)
+- History drawer — needs rendering (read mode)
+- Autosave — preserve formatting on change
+
+### Dependencies on Existing Features
+
+| Existing Feature | Rich Text Usage |
+|-----------------|-----------------|
+| noteText field | Stores markdown format |
+| Autosave | Preserves formatting |
+| Tags system | Independent, no conflict |
+| Session recording | Formatted notes saved |
+| History filtering | Works on plain text |
+
+---
+
+## Competitor Analysis
+
+| Feature | Notion | Obsidian | Google Keep | Our Approach |
+|---------|--------|----------|-------------|--------------|
+| Bold | Yes | Yes | Yes | Match pattern |
+| Bullets | Yes | Yes | Yes | Match pattern |
+| Links | Yes | Yes | Yes | Match pattern |
+| Keyboard shortcuts | Yes | Yes | No | Add for power users |
+| Auto-detect URLs | Yes | Plugin | Yes | Future |
+
+**Our approach:** Match industry standards. Users familiar with Notion/Obsidian will feel at home.
 
 ---
 
 ## Sources
 
-- Common productivity app patterns (Duolingo streaks, GitHub contributions, Habitica)
-- Standard CSV export patterns (Blob + URL.createObjectURL for downloads)
-- IndexedDB session structure verified from `/src/services/db.ts`
-- SessionRecord type verified from `/src/types/session.ts`
+- Productivity app UX patterns: Notion, Obsidian, Evernote, Google Keep
+- Markdown syntax: CommonMark specification
+- Web Content Accessibility Guidelines (WCAG) for accessible links
+- Existing code: SessionRecord type, noteText field, modal/drawer components
 
 ---
 
-*Feature research for: Pomodoro Timer v2.2 (streak counter, CSV export/import)*
-*Researched: 2026-02-23*
+*Feature research for: Rich Text Session Notes (v2.3)*
+*Researched: 2026-02-24*

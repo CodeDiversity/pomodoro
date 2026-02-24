@@ -6,7 +6,249 @@
 
 ---
 
-# v2.2 Update: Streak Tracking + CSV Export/Import
+# v2.3 Update: Rich Text Session Notes
+
+**Added:** 2026-02-24
+**Confidence:** HIGH
+
+This section covers integration architecture for rich text support (bold, bullet lists, clickable links) in session notes.
+
+---
+
+## Executive Summary
+
+Rich text notes will use **HTML storage format** with Tiptap as the editor library. This provides the simplest integration: the editor produces HTML that stores directly in IndexedDB as a string, and read-only display is simply rendering that HTML. Redux requires no changes - it continues storing `noteText` as a string.
+
+**Key decisions:**
+1. **Storage Format:** HTML over JSON - simpler read-only rendering
+2. **Editor Library:** Tiptap (headless ProseMirror wrapper)
+3. **Redux Impact:** Zero - `noteText` remains a string field
+4. **Integration:** NotePanel (editor), SessionSummary (display), HistoryDrawer (edit + display)
+
+---
+
+## Storage Format Decision
+
+### Recommendation: HTML over JSON
+
+| Criterion | HTML | JSON |
+|-----------|------|------|
+| Read-only display complexity | Low - just render HTML | Medium - need Tiptap in read-only mode |
+| Storage size | Smaller for simple formatting | Larger (ProseMirror structure) |
+| Portability | High - standard format | Low - Tiptap-specific |
+| Database migration | None - stays as string | None - stays as string |
+| Link rendering | Simple `<a>` tags | Requires custom renderer |
+
+**Rationale:** The app's rich text needs are simple (bold, bullets, links). HTML is a universal format that renders anywhere without Tiptap dependencies. For read-only views, a sanitized HTML component suffices.
+
+---
+
+## Redux State Integration
+
+### Current Structure (No Changes Required)
+
+```typescript
+// sessionSlice.ts - unchanged
+interface SessionState {
+  noteText: string      // Will contain HTML when rich text is used: "<p>Hello <strong>world</strong></p>"
+  tags: string[]
+  taskTitle: string
+  saveStatus: 'idle' | 'saving' | 'saved'
+  lastSaved: number | null
+}
+```
+
+**Why no Redux changes needed:**
+- `noteText` is already a string
+- Rich text (HTML) is also a string
+- Actions (`setNoteText`) work identically
+
+### IndexedDB Schema (No Changes Required)
+
+```typescript
+// db.ts - SessionRecord unchanged
+interface SessionRecord {
+  id: string
+  noteText: string       // Will contain HTML: "<p>Hello <strong>world</strong></p>"
+  // ... other fields unchanged
+}
+```
+
+**Database version remains at 4.** No migration needed since we're storing a string in an existing string field.
+
+---
+
+## Component Architecture
+
+### Component Hierarchy
+
+```
+NotePanel (Editor)
+  └── RichTextEditor (Tiptap)
+      ├── Toolbar (Bold, Bullet, Link buttons)
+      └── EditorContent (editable)
+
+SessionSummary (Read-Only Display)
+  └── RichTextDisplay (HTML renderer)
+
+HistoryDrawer (Edit + Display)
+  ├── View Mode: RichTextDisplay
+  └── Edit Mode: RichTextEditor
+```
+
+### RichTextEditor Component
+
+**Purpose:** Tiptap-based editor for creating/editing rich text
+
+```typescript
+interface RichTextEditorProps {
+  content: string           // HTML string
+  onChange: (html: string) => void
+  placeholder?: string
+  editable?: boolean        // true for NotePanel/HistoryDrawer edit mode
+}
+```
+
+**Dependencies:**
+- `@tiptap/react`
+- `@tiptap/starter-kit` (bold, bullet lists)
+- `@tiptap/extension-link` (clickable links)
+
+### RichTextDisplay Component
+
+**Purpose:** Read-only rendering of HTML content
+
+```typescript
+interface RichTextDisplayProps {
+  content: string           // HTML string from storage
+}
+```
+
+**Implementation:** Use Tiptap in `editable={false}` mode for consistent rendering between editor and display. Add `domPurify` for security.
+
+---
+
+## Integration Points
+
+### 1. NotePanel (Active Session Editor)
+
+**Current:** Plain textarea with non-functional toolbar buttons (lines 454-469 in NotePanel.tsx)
+**New:** Tiptap editor with functional toolbar
+
+**Toolbar Actions:**
+- Bold: `editor.chain().focus().toggleBold().run()`
+- Bullet List: `editor.chain().focus().toggleBulletList().run()`
+- Link: `editor.chain().focus().setLink({ href: url }).run()`
+
+### 2. SessionSummary (Modal Display)
+
+**Current:** Plain text display via `DetailValue` (line 196 in SessionSummary.tsx)
+**New:** RichTextDisplay component rendering HTML
+
+### 3. HistoryDrawer (History Details)
+
+**Current:** Textarea for editing (line 369-373 in HistoryDrawer.tsx)
+**New:** Toggle between RichTextDisplay (view) and RichTextEditor (edit), with edit/save buttons
+
+---
+
+## Data Flow
+
+```
+User types in RichTextEditor
+        │
+        ▼
+Tiptap produces HTML
+        │
+        ▼
+onChange(html) → Redux dispatch(setNoteText(html))
+        │
+        ▼
+Debounced persistence middleware saves to IndexedDB
+        │
+        ▼
+Session saved → noteText stored as HTML string
+        │
+        ▼
+Read-only views render HTML via RichTextDisplay
+```
+
+---
+
+## Build Order for v2.3 Features
+
+### Phase 1: Editor Infrastructure
+1. **Install Tiptap dependencies**
+   ```bash
+   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link
+   npm install dompurify @types/dompurify
+   ```
+
+2. **Create `src/components/editor/RichTextDisplay.tsx`** (no dependencies on editor)
+   - Used in SessionSummary immediately
+   - Unit testable with sample HTML
+   - Uses Tiptap in `editable={false}` mode with domPurify sanitization
+
+### Phase 2: Editor Component
+3. **Create `src/components/editor/RichTextEditor.tsx`**
+   - Wraps Tiptap
+   - Exposes toolbar action props
+   - Handles placeholder text
+
+### Phase 3: NotePanel Integration
+4. **Update NotePanel.tsx**
+   - Replace textarea with RichTextEditor
+   - Wire up toolbar buttons to editor commands
+   - Style toolbar for active states (bold button shows active when bold text selected)
+
+### Phase 4: Read-Only Display
+5. **Update SessionSummary.tsx**
+   - Import RichTextDisplay
+   - Replace `{session.noteText}` with `<RichTextDisplay content={session.noteText} />`
+   - Handle empty content gracefully
+
+### Phase 5: History Drawer Integration
+6. **Update HistoryDrawer.tsx**
+   - Add editMode state
+   - Conditionally render RichTextDisplay (view) or RichTextEditor (edit)
+   - Add edit/save/cancel buttons in header
+
+### Phase 6: Polish
+7. **Security hardening** - Ensure domPurify configured correctly
+8. **Link handling** - Configure Tiptap to add `rel="noopener noreferrer"` to external links
+9. **Edge cases** - Handle past plain-text notes (display as-is), empty notes
+
+---
+
+## Security Considerations
+
+1. **XSS Prevention:** Use `dompurify` to sanitize HTML before rendering
+   ```typescript
+   import DOMPurify from 'dompurify'
+   const cleanHTML = DOMPurify.sanitize(dirtyHTML)
+   ```
+
+2. **Link Safety:** Configure Tiptap link extension to:
+   - Add `rel="noopener noreferrer"` to external links
+   - Validate URLs before allowing insertion
+   - Open links in new tab
+
+---
+
+## Scalability Considerations
+
+| Scenario | Approach |
+|----------|----------|
+| 100 sessions with rich text | HTML strings render fine |
+| 10,000 sessions | Same - IndexedDB handles strings efficiently |
+| Export to CSV | HTML preserved as-is (existing csvUtils handles strings) |
+| Search within notes | Text search works on HTML string (searches raw tags) |
+
+**Future consideration:** If full-text search on formatted content becomes needed, consider adding a plain-text mirror field or search index.
+
+---
+
+## v2.2 Update: Streak Tracking + CSV Export/Import
 
 **Added:** 2026-02-23
 **Confidence:** HIGH
@@ -105,8 +347,8 @@ export interface StreakData {
 }
 
 export function calculateStreak(sessions: SessionRecord[]): StreakData {
-  // Group sessions by date (YYYY-MM-DD)
-  const sessionDates = new Set(
+  // GroupYYYY-MM-DD)
+ sessions by date (  const sessionDates = new Set(
     sessions.map(s => s.startTimestamp.split('T')[0])
   );
 
@@ -441,6 +683,7 @@ setImportResult(state, action: PayloadAction<HistoryState['importResult']>) {
 
 | Feature | New Files | Modify Existing | Redux Changes | IndexedDB Changes |
 |---------|-----------|-----------------|---------------|-------------------|
+| Rich Text Editor | RichTextEditor.tsx, RichTextDisplay.tsx | NotePanel.tsx, SessionSummary.tsx, HistoryDrawer.tsx | None | None |
 | Streak Counter | `streakUtils.ts` | `historySelectors.ts` | None | None |
 | Streak Calendar | `StreakCalendar.tsx`, `StreakCounter.tsx` | — | None | None |
 | CSV Export | `csvUtils.ts` | — | None | None |
@@ -523,7 +766,7 @@ interface TimerSliceState {
   sessionCount: number               // for long break logic
   startTime: number | null           // timestamp when started
   pausedTimeRemaining: number | null // stored when paused
-  settings: {                        // merged from persistence.ts
+  settings: {                       // merged from persistence.ts
     autoStart: boolean
     focusDuration: number
     shortBreakDuration: number
@@ -616,6 +859,9 @@ src/
 │   ├── sessionSelectors.ts      # Memoized session selectors
 │   └── historySelectors.ts      # Memoized history selectors (v2.2: streak)
 ├── components/
+│   ├── editor/                  # v2.3: Rich text components
+│   │   ├── RichTextEditor.tsx
+│   │   └── RichTextDisplay.tsx
 │   ├── streak/                  # v2.2: Streak components
 │   │   ├── StreakCounter.tsx
 │   │   └── StreakCalendar.tsx
@@ -718,16 +964,23 @@ const selectFilteredSessions = createSelector(
 
 ## Sources
 
+- [Tiptap Documentation](https://tiptap.dev/docs/editor) - Editor framework info
+- [Tiptap: HTML vs JSON](https://tiptap.dev/docs/editor/guide/output) - Storage format comparison
+- [DOMPurify](https://github.com/cure53/DOMPurify) - HTML sanitization
 - Redux Toolkit Documentation: https://redux-toolkit.js.org/
 - Redux Style Guide: https://redux.js.org/style-guide/
 - Existing codebase:
+  - `src/features/session/sessionSlice.ts`
   - `src/features/history/historySlice.ts`
   - `src/features/history/historySelectors.ts`
   - `src/services/sessionStore.ts`
+  - `src/services/db.ts`
   - `src/types/session.ts`
-  - `src/utils/dateUtils.ts`
+  - `src/components/NotePanel.tsx`
+  - `src/components/SessionSummary.tsx`
+  - `src/components/history/HistoryDrawer.tsx`
 
 ---
 
-*Architecture research for: Redux Toolkit integration + v2.2 features (streak, CSV export/import)*
-*Researched: 2026-02-21 (base), 2026-02-23 (v2.2 update)*
+*Architecture research for: Redux Toolkit integration + v2.2 features (streak, CSV export/import) + v2.3 (rich text notes)*
+*Researched: 2026-02-21 (base), 2026-02-23 (v2.2 update), 2026-02-24 (v2.3 update)*

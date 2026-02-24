@@ -261,16 +261,189 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 ---
 
+# Pitfalls Research: v2.3 Rich Text Session Notes
+
+**Domain:** Adding rich text (bold, bullets, links) to existing session notes
+**Researched:** 2026-02-24
+**Confidence:** MEDIUM (based on GitHub issues from popular rich text libraries)
+
+---
+
+## Critical Pitfalls for Rich Text
+
+### Pitfall 1: HTML Storage Without Sanitization
+
+**What goes wrong:**
+Stored HTML in notes becomes a vector for XSS attacks. Users paste malicious scripts that execute when other parts of the app render the note content (history view, export, etc.).
+
+**Why it happens:**
+Rich text editors produce HTML output. Developers often store this directly without sanitization, trusting the editor or assuming users are "just typing notes."
+
+**How to avoid:**
+Use a sanitization library (dompurify) on output, not just input. Sanitize when rendering in read mode, not just when saving.
+
+```typescript
+import DOMPurify from 'dompurify';
+
+// When displaying notes (read mode)
+const cleanHTML = DOMPurify.sanitize(note.htmlContent);
+```
+
+**Warning signs:**
+- No sanitization step in display components
+- Direct innerHTML usage without cleaning
+- User-reported "code appearing in notes"
+
+**Phase to address:**
+Phase 1 (Editor Implementation) — Sanitization must be part of the initial implementation, not added later.
+
+---
+
+### Pitfall 2: Inconsistent Rendering Between Editor and Display
+
+**What goes wrong:**
+Text looks formatted in the editor but loses formatting in session modal or history drawer. Bullet points become plain text with dashes. Bold text shows `<strong>` tags literally.
+
+**Why it happens:**
+Using different components for editing vs. viewing. The editor uses Quill/Tiptap but display uses simple `div` with `dangerouslySetInnerHTML`.
+
+**How to avoid:**
+Create a shared `NoteContent` component that uses the same rendering logic everywhere:
+- Session modal: uses `NoteContent`
+- History drawer: uses `NoteContent`
+- Export: sanitizes the same way
+
+**Warning signs:**
+- Multiple places handling note display differently
+- "It works in the editor but not in..." complaints
+
+**Phase to address:**
+Phase 2 (Display Integration) — This requires planning the display components before implementing individual features.
+
+---
+
+### Pitfall 3: Breaking Existing Plain Text Notes
+
+**What goes wrong:**
+After adding rich text, existing notes either:
+- Show raw HTML tags to users
+- Lose all formatting when edited
+- Crash the editor on load
+
+**Why it happens:**
+Existing notes are plain text (stored as-is). Rich text editor tries to parse plain text as HTML/Quill Delta.
+
+**How to avoid:**
+- Version the schema to detect note format
+- Handle both plain text and HTML/delta in the editor initialization
+- Default to plain text mode for legacy notes until first edit
+
+```typescript
+// Handle legacy notes
+const initializeEditorContent = (note: string) => {
+  if (note.includes('<') && note.includes('>')) {
+    return note; // Already has HTML
+  }
+  return note; // Plain text - Quill handles this fine
+};
+```
+
+**Warning signs:**
+- No migration strategy for existing notes
+- Testing only with new rich text notes
+
+**Phase to address:**
+Phase 1 (Editor Implementation) — Must verify editor handles plain text gracefully before any other work.
+
+---
+
+### Pitfall 4: React 18/19 Compatibility with Editor Libraries
+
+**What goes wrong:**
+Editor throws "findDOMNode is not a function" errors. Deprecated warnings in console. Editor fails to initialize.
+
+**Why it happens:**
+Many rich text libraries use `ReactDOM.findDOMNode` which is deprecated in React 18+ and removed in React 19.
+
+**How to avoid:**
+- Verify library supports React 18+ before choosing
+- Check for React 19 compatibility issues in library issues
+- For Quill: use `@nickcolley/react-quill` fork or wait for official Quill v2
+
+**Warning signs:**
+- Peer dependency warnings during install
+- Console warnings about findDOMNode
+- "TypeError: undefined is not an object" on editor mount
+
+**Phase to address:**
+Phase 1 (Editor Implementation) — Verify compatibility early in the phase.
+
+---
+
+### Pitfall 5: Link Rendering Inconsistency
+
+**What goes wrong:**
+Links inserted in editor work there but show as plain text `[url](https://...)` or `<a>` tags without clickable behavior in history/details views.
+
+**Why it happens:**
+Link rendering requires special handling — either `target="_blank"`, security rel attributes, or click handler interception.
+
+**How to avoid:**
+- Use a consistent link component for all displays
+- Add `rel="noopener noreferrer"` for security
+- Test link rendering in every view (modal, drawer, export)
+
+```typescript
+const LinkRenderer = ({ html }: { html: string }) => {
+  // Ensure all links open in new tab with security attributes
+  const secureHTML = html.replace(
+    /<a href="/g,
+    '<a target="_blank" rel="noopener noreferrer" href="'
+  );
+  return <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(secureHTML) }} />;
+};
+```
+
+**Warning signs:**
+- Testing only in editor, not in read-only views
+
+**Phase to address:**
+Phase 2 (Display Integration) — Links must be tested in all display contexts.
+
+---
+
+### Pitfall 6: Bullet List Numbering Resets Incorrectly
+
+**What goes wrong:**
+In nested bullet lists, numbering resets unexpectedly. Sub-bullets continue parent numbering. Lists don't start new count after ending nested section.
+
+**Why it happens:**
+Rich text editor list implementation bugs (known issue in Quill). CSS counter reset not properly scoped.
+
+**How to avoid:**
+- Test nested lists thoroughly
+- Consider using CSS counters with proper reset
+- Use editor library that handles this correctly
+
+**Warning signs:**
+- Lists render differently than in editor
+- Numbered lists show wrong numbers
+
+**Phase to address:**
+Phase 2 (Display Integration) — Must test all list rendering paths.
+
+---
+
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Using local timezone without DST handling | Simple date math | Broken streaks during DST transitions | Never |
-| Skipping duplicate detection | Faster initial import | Data corruption, user trust loss | Never |
-| Exporting without BOM | Smaller file | Breaks Excel, user frustration | Never |
-| Using synchronous IndexedDB in bulk | Simpler code | UI freeze on large imports | Never |
-| Hardcoding "today" as UTC midnight | Works in one timezone | Breaks for rest of world | Never |
-| No import validation | Faster to implement | Garbage data in database | Never |
+| Use plain `dangerouslySetInnerHTML` without sanitization | Faster initial implementation | XSS vulnerability, security audit failures | Never — always sanitize |
+| Hardcode editor toolbar options | Simpler initial UI | Hard to add features later, must refactor | Only for MVP, plan for expansion |
+| Skip mobile editor testing | Faster desktop development | Broken experience for mobile users, bad reviews | Never — test on mobile early |
+| Store raw HTML directly from editor | No transformation needed | Tight coupling to editor, migration pain if changing editors | Acceptable with versioned schema |
+| Skip character limit validation on HTML | Avoids HTML-length edge cases | Users can exceed storage limits, performance issues | Never — validate on save |
+| Use editor in disabled mode for read-only | Reuse component | Poor UX, accessibility issues | Never — use separate display component |
 
 ---
 
@@ -278,11 +451,11 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| IndexedDB | Bulk add without transaction | Use single transaction for atomicity |
-| File API | Not handling file encoding | Detect encoding, use TextDecoder |
-| CSV parsing | Regex-based parsing fails on edge cases | Use a parser library or careful state machine |
-| Date libraries | Importing entire library | Use tree-shaking (date-fns) |
-| Blob downloads | Not handling blob URL cleanup | Revoke object URLs after download |
+| IndexedDB storage | Storing editor Delta format directly without understanding it | Store as HTML string (easier to render anywhere) or store both Delta + sanitized HTML |
+| Redux state | Storing rich text in Redux causing excessive re-renders | Keep rich text in component state, only sync to Redux on save |
+| CSV Export | Exporting raw HTML in CSV makes it unreadable | Strip HTML to plain text for CSV, keep HTML for JSON backup |
+| Session Modal | Re-creating editor in read-only mode | Use read-only display component, not editor in disabled mode |
+| Character limit | Checking note.length which counts HTML tags | Calculate visible text length, not HTML length |
 
 ---
 
@@ -290,10 +463,10 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Re-calculating streak on every session | Slow UI after each session | Cache streak, invalidate only on new day | After 1000+ sessions |
-| Full history load for calendar view | Slow history screen | Paginate or virtualize | After 500+ sessions |
-| Parsing CSV entirely in memory | Memory spike, potential crash | Stream parse large files | Files > 1MB |
-| Rendering calendar for all months | Slow initial render | Render visible months only | After 2+ years of data |
+| onChange triggers on every keystroke | Typing lag, excessive re-renders | Use debounce on onChange handler (300ms) | At notes >500 words |
+| Large note rendering | Slow history list scroll | Virtualize list or limit rendered note preview | At 1000+ sessions |
+| Editor initialization delay | App feels slow on session start | Lazy load editor component | Always noticeable |
+| Sanitizing on every render | Display feels sluggish | Cache sanitized output, only re-sanitize on content change | At scale with many notes |
 
 ---
 
@@ -301,10 +474,10 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Importing CSV without sanitization | Malicious CSV could contain XSS | Sanitize note content before rendering |
-| Importing without size limits | DoS via huge file | Limit import to reasonable session count (e.g., 10,000) |
-| Exporting sensitive note content | Data exposure | Warn users that export includes all data |
-| No CSRF on export (not applicable) | N/A - client-only | N/A |
+| No HTML sanitization | XSS via pasted scripts in notes | Use DOMPurify on all display paths |
+| Links without rel="noopener" | Tabnabbing vulnerability | Always add rel="noopener noreferrer" |
+| User-entered URLs not validated | Phishing links in notes | Validate URL format, warn on suspicious patterns |
+| Export includes unsanitized HTML | Data exfiltration if CSV opened in browser | Sanitize before export |
 
 ---
 
@@ -312,25 +485,24 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No streak visibility until after session | Users forget about streak feature | Show current streak on timer screen |
-| Export buried in settings menu | Users can't find export | Surface in history screen header |
-| No import feedback | User unsure if import worked | Show success message with count |
-| Import doesn't indicate merge behavior | Data loss or duplication confusion | Always show preview before importing |
-| No way to clear streak | Accidental break feels permanent | Allow "streak recovery" or show grace period |
-| Calendar doesn't show session details | Hard to verify streak accuracy | Click calendar day to see sessions |
+| No visual feedback on formatting | Users unsure if bold/bullet applied | Show active state on toolbar buttons |
+| Links not distinguishable in display | Users can't tell what's clickable | Style links distinctly (blue, underline) |
+| Mobile toolbar unusable | Can't format notes on phone | Use bubble menu or simplified toolbar for mobile |
+| Character count confusing | HTML length >> visible text | Show visual character count, not HTML length |
+| No undo/redo in editor | Mistakes require re-typing | Enable built-in undo/redo |
+| Pasted content loses formatting | Copy from Word doesn't work | Handle paste events, use editor's paste handler |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Streak:** Works locally but breaks for international users — verify with UTC+12 and UTC-12 timezones
-- [ ] **Streak:** Counts 1-second sessions — verify minimum duration enforcement
-- [ ] **Export:** Works in Chrome but shows garbled text in Excel — verify BOM added
-- [ ] **Import:** Fails silently on malformed CSV — verify error handling
-- [ ] **Import:** Creates duplicates on re-import — verify duplicate detection
-- [ ] **Import:** Freezes browser with large file — verify chunked processing
-- [ ] **Calendar:** Doesn't load old months efficiently — verify virtualization
-- [ ] **Streak:** Resets incorrectly at midnight — verify midnight boundary handling
+- [ ] **Toolbar buttons:** Often implemented but not wired to actual formatting — verify bold actually makes text bold
+- [ ] **Links in history:** Often work in editor but show as plain text in history drawer — test all display paths
+- [ ] **Mobile formatting:** Often works on desktop, broken on iOS — test on actual device
+- [ ] **Existing notes:** Often break when opened in new rich text editor — test with legacy plain text
+- [ ] **Character limit:** Often only checks raw HTML length, not visible text — 2000 chars of `<b>x</b>` is way more than 2000 visible chars
+- [ ] **Copy/paste:** Often strips formatting unexpectedly — test pasting from Word, browser, other apps
+- [ ] **Sanitization:** Often missing on display paths — verify all paths sanitize HTML
 
 ---
 
@@ -338,11 +510,10 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Wrong timezone streaks | LOW | Recalculate from stored timestamps with correct timezone |
-| Duplicate sessions from import | MEDIUM | Add deduplication logic, prompt user to clean duplicates |
-| Corrupted CSV import | LOW | Show clear error message, suggest fixes |
-| Streak calculation bug | LOW | Fix logic, recalculate, notify user of correction |
-| Lost export file | N/A | User must have backup (educate about exports) |
+| XSS vulnerability discovered | HIGH | Add sanitization everywhere, audit all display paths, may need to notify users |
+| Legacy notes broken | MEDIUM | Add migration phase, convert plain text to minimal HTML wrapper |
+| Mobile broken | MEDIUM | Choose mobile-compatible library, may need to redesign toolbar |
+| Performance issues | LOW-MEDIUM | Add debouncing, memoization, virtualization — incremental fixes |
 
 ---
 
@@ -350,26 +521,25 @@ Streak Implementation Phase (Phase 1 of v2.2)
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Timezone streak bugs | Streak Implementation | Test with mock dates across timezones |
-| Midnight edge cases | Streak Implementation | Complete session at 11:59 PM, verify streak |
-| Invalid CSV export | CSV Export/Import | Re-import exported file, verify data integrity |
-| Duplicate imports | CSV Export/Import | Import same file twice, verify no duplicates |
-| Large import UI freeze | CSV Export/Import | Import 2000+ session file, verify responsiveness |
-| Short session streak gaming | Streak Implementation | Complete 1-second session, verify it doesn't count |
-| Missing BOM in CSV | CSV Export/Import | Open export in Excel, verify special characters |
+| HTML Storage Without Sanitization | Phase 1 (Editor) | Unit test sanitization, security audit before ship |
+| Inconsistent Rendering | Phase 2 (Display) | Create shared component, verify in all views |
+| Breaking Existing Notes | Phase 1 (Editor) | Test with plain text, add migration logic |
+| React Compatibility | Phase 1 (Editor) | Verify library compatibility, test mount/unmount |
+| Link Rendering | Phase 2 (Display) | Test links in modal, drawer, export |
+| Performance (onChange) | Phase 1 (Editor) | Add debounce, profile with large content |
+| Mobile UX | Phase 2 (Display) | Test on iOS Safari, verify toolbar usable |
+| Bullet List Bugs | Phase 2 (Display) | Test nested lists in all views |
 
 ---
 
 ## Sources
 
-- [MDN: Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) - JavaScript date handling caveats
-- [RFC 4180](https://tools.ietf.org/html/rfc4180) - CSV format specification
-- [OWASP: CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection) - CSV security considerations
-- [date-fns Documentation](https://date-fns.org/) - Recommended date library
-- [Dexie.js: Transactions](https://dexie.org/docs/Transaction/Transaction) - IndexedDB transaction patterns
-- [Common Streak App Issues](https://github.com/topics/streak-tracker) - Community patterns
+- [React-Quill GitHub Issues](https://github.com/zenoamaro/react-quill/issues) - SSR problems, onChange triggers, list numbering bugs
+- [Tiptap GitHub Issues](https://github.com/ueberdosis/tiptap/issues) - Mobile Safari issues, TypeScript types, React integration
+- General rich text security best practices: Always sanitize on output, not just input
+- Project constraints: 2000 char limit on notes (must validate visible text, not HTML)
 
 ---
 
-*Pitfalls research for: v2.2 Features - Streak Tracking & CSV Export/Import*
-*Researched: 2026-02-23*
+*Pitfalls research for: v2.3 Rich Text Session Notes*
+*Researched: 2026-02-24*

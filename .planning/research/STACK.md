@@ -1,310 +1,155 @@
-# Stack Research: v2.2 Features (Streak Tracking + CSV Export/Import)
+# Stack Research: v2.3 Rich Text Session Notes
 
-**Domain:** React 18 + TypeScript Pomodoro Timer - Streak Counter & Data Export
-**Researched:** 2026-02-23
-**Confidence:** HIGH
+**Domain:** React 18 + TypeScript - Rich Text Editor for Session Notes
+**Researched:** 2026-02-24
+**Confidence:** MEDIUM
 
 ## Executive Summary
 
-For adding daily streak tracking and CSV export/import to an existing Pomodoro timer app:
+For adding rich text editing (bold, bullet lists, clickable links) to an existing Pomodoro timer app:
 
-1. **No new dependencies needed for streak calculation** — existing `createdAt` timestamps and native Date APIs are sufficient
-2. **Custom calendar component recommended** — lightweight, matches existing styled-components pattern
-3. **papaparse for CSV** — industry standard, handles edge cases, TypeScript support built-in
-4. **Existing IndexedDB and Redux integration points identified**
+1. **Tiptap recommended** — Headless, modular, built on ProseMirror (industry standard)
+2. **Store as HTML string** — Integrates with existing `noteText: string` in Redux/IndexedDB
+3. **~55KB total bundle impact** — Acceptable for feature set; React Quill is heavier (~40KB+ just for Quill)
+4. **Existing toolbar can be wired up** — NotePanel.tsx already has Bold/List/Link button placeholders
 
 ---
 
-## Recommended Stack Additions
+## Recommended Stack
 
-### CSV Parsing/Generation
+### Rich Text Editor
 
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| papaparse | ^5.4.1 | CSV parsing and generation | Industry standard (12M+ weekly downloads). Handles edge cases (quoted fields, newlines, special chars). TypeScript types included. No dependencies. |
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| @tiptap/react | ^3.20.0 | React wrapper for Tiptap editor | Headless, full UI control via styled-components. Built on ProseMirror (Google, Facebook, etc. use it). Active maintenance, strong TypeScript support. |
+| @tiptap/starter-kit | ^3.20.0 | Basic editor extensions (bold, italic, bullet list, ordered list) | Tree-shakeable — only bundles what's used. Includes bold, bullet list out of box. |
+| @tiptap/extension-link | ^3.20.0 | Clickable hyperlink support | Required for link feature. Configurable (openOnClick, auto-detect URLs). |
 
-**Installation:**
+### Installation
+
 ```bash
-npm install papaparse@^5.4.1
+npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link
 ```
 
-### Calendar/Streak UI
+Verify versions:
+```bash
+npm view @tiptap/react version      # 3.20.0
+npm view @tiptap/starter-kit version # 3.20.0
+npm view @tiptap/extension-link version # 3.20.0
+```
 
-| Approach | Purpose | Why Recommended |
-|----------|---------|-----------------|
-| Custom styled-components | Calendar grid with streak visualization | Lightweight (~100 LOC). Matches existing theme tokens. Full control over styling. No bloat from calendar libraries. |
-| Native Date APIs | Date manipulation | Already used in `dateUtils.ts` and `statsUtils.ts`. Sufficient for streak logic. |
+Note: Tiptap v3 is latest. For maximum stability, `npm install @tiptap/react@2` gets v2.x.
 
-### What NOT to Add
+---
+
+## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| react-big-calendar | Overkill for streak display | Custom grid (simpler, lighter) |
-| react-datepicker | Date picker, not calendar display | Custom component |
-| date-fns | Adds 70KB+ bundle for simple needs | Native Date APIs already in codebase |
-| moment.js | Deprecated, large bundle | Native Date APIs |
-| csv-parse / csv-stringify | Lower level than papaparse | papaparse (easier API) |
+| Draft.js | Deprecated by Meta (2023), no longer maintained | Tiptap |
+| React Quill | Heavy bundle (~40KB+ gzipped), WYSIWYG-only with limited styling control | Tiptap |
+| Slate.js | Steeper learning curve, can be heavier for simple needs | Tiptap |
+| CKEditor 5 | Enterprise-focused, complex licensing, heavy | Tiptap |
+| Monaco Editor | Code editor, overkill for simple rich text | Tiptap |
 
 ---
 
-## Integration with Existing Architecture
+## Integration with Existing Stack
 
-### Data Flow for Streak Tracking
+### Redux / IndexedDB (No Schema Change)
 
-```
-SessionRecord (IndexedDB)
-    ↓
-Session saved with createdAt timestamp
-    ↓
-HistorySlice selectors → getAllSessions()
-    ↓
-Streak calculation (in statsUtils.ts or new streakUtils.ts)
-    ↓
-Redux state → StreakDisplay component
-    ↓
-styled-components calendar grid
-```
-
-### Existing Integration Points
-
-| Existing File | What It Provides |
-|---------------|------------------|
-| `src/types/session.ts` | `SessionRecord` interface with `createdAt: number` |
-| `src/utils/dateUtils.ts` | `getDateRange()`, `formatDateShort()` |
-| `src/utils/statsUtils.ts` | `getTodayStart()`, `getWeekAgo()`, date calculations |
-| `src/services/sessionStore.ts` | `getAllSessions()` to fetch history |
-| `src/features/history/historySlice.ts` | Redux slice with sessions |
-| `src/features/history/historySelectors.ts` | Memoized selectors |
-| `src/services/db.ts` | IndexedDB schema (sessions store with `by-date` index) |
-
-### Streak Calculation Logic (Pseudo-code)
+The existing `noteText: string` in sessionSlice.ts can store HTML:
 
 ```typescript
-// src/utils/streakUtils.ts
+// Current: noteText stores plain text
+// After: noteText stores HTML string like "<p>Hello <strong>world</strong></p>"
 
-interface StreakData {
-  currentStreak: number      // Consecutive days including today
-  longestStreak: number       // All-time best
-  lastActiveDate: string      // ISO date string "YYYY-MM-DD"
-  activeDates: Set<string>   // All dates with sessions
-}
+// Tiptap API
+editor.getHTML()    // Get HTML for storage
+editor.setContent(html)  // Load HTML from storage
+```
 
-/**
- * Calculate streak data from session records
- * Uses createdAt timestamp (already in SessionRecord)
- */
-export function calculateStreak(sessions: SessionRecord[]): StreakData {
-  // Extract unique dates (YYYY-MM-DD format) from sessions
-  const activeDates = new Set<string>()
+**Display in read-only contexts** (SessionSummary, HistoryDrawer):
+```typescript
+// Simple display with dangerouslySetInnerHTML
+<div dangerouslySetInnerHTML={{ __html: noteText }} />
 
-  sessions.forEach(session => {
-    const date = new Date(session.createdAt).toISOString().split('T')[0]
-    activeDates.add(date)
-  })
-
-  // Sort dates for streak calculation
-  const sortedDates = Array.from(activeDates).sort()
-
-  // Calculate current streak (consecutive days ending today/yesterday)
-  let currentStreak = 0
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-
-  // If no activity today or yesterday, streak is broken
-  if (!activeDates.has(today) && !activeDates.has(yesterday)) {
-    currentStreak = 0
-  } else {
-    // Count backwards from today/yesterday
-    let checkDate = activeDates.has(today) ? today : yesterday
-    while (activeDates.has(checkDate)) {
-      currentStreak++
-      const prev = new Date(checkDate)
-      prev.setDate(prev.getDate() - 1)
-      checkDate = prev.toISOString().split('T')[0]
-    }
+// For clickable links in history, wrap with link styling
+const NoteDisplay = styled.div`
+  a {
+    color: ${colors.primary};
+    text-decoration: underline;
   }
+`
+```
 
-  // Calculate longest streak
-  let longestStreak = 0
-  let tempStreak = 0
-  let prevDate: Date | null = null
+### styled-components Integration
 
-  sortedDates.forEach(dateStr => {
-    const date = new Date(dateStr)
-    if (prevDate) {
-      const diffDays = Math.floor((date.getTime() - prevDate.getTime()) / 86400000)
-      if (diffDays === 1) {
-        tempStreak++
-      } else {
-        longestStreak = Math.max(longestStreak, tempStreak)
-        tempStreak = 1
-      }
-    } else {
-      tempStreak = 1
-    }
-    prevDate = date
-  })
-  longestStreak = Math.max(longestStreak, tempStreak)
+The existing NotePanel.tsx has toolbar UI that needs wiring:
 
-  return {
-    currentStreak,
-    longestStreak,
-    lastActiveDate: sortedDates[sortedDates.length - 1] || '',
-    activeDates,
+```typescript
+// Wire existing buttons to Tiptap commands
+const editor  extensions: [
+ = useEditor({
+    StarterKit,
+    Link.configure({ openOnClick: false })
+  ],
+  content: noteText,  // HTML string: ({ editor })
+  onUpdate => {
+    onNoteChange(editor.getHTML())
   }
-}
-```
-
-### CSV Export/Import Integration
-
-#### Export: Sessions to CSV
-
-```typescript
-// src/utils/csvExport.ts
-import Papa from 'papaparse'
-import { SessionRecord } from '../types/session'
-
-export function sessionsToCSV(sessions: SessionRecord[]): string {
-  const data = sessions.map(session => ({
-    id: session.id,
-    startTimestamp: session.startTimestamp,
-    endTimestamp: session.endTimestamp,
-    plannedDurationSeconds: session.plannedDurationSeconds,
-    actualDurationSeconds: session.actualDurationSeconds,
-    durationString: session.durationString,
-    mode: session.mode,
-    startType: session.startType,
-    completed: session.completed,
-    noteText: session.noteText,
-    tags: session.tags.join(', '),
-    taskTitle: session.taskTitle,
-    createdAt: session.createdAt,
-  }))
-
-  return Papa.unparse(data)
-}
-
-export function downloadCSV(csv: string, filename: string): void {
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
-```
-
-#### Import: CSV to Sessions
-
-```typescript
-// src/utils/csvImport.ts
-import Papa from 'papaparse'
-import { SessionRecord } from '../types/session'
-
-interface CSVRow {
-  id?: string
-  startTimestamp: string
-  endTimestamp: string
-  plannedDurationSeconds: string
-  actualDurationSeconds: string
-  durationString: string
-  mode: string
-  startType: string
-  completed: string
-  noteText: string
-  tags: string
-  taskTitle: string
-  createdAt: string
-}
-
-export function parseCSVFile(file: File): Promise<SessionRecord[]> {
-  return new Promise((resolve, reject) => {
-    Papa.parse<CSVRow>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        if (results.errors.length > 0) {
-          reject(new Error(`CSV parse errors: ${results.errors.map(e => e.message).join(', ')}`))
-          return
-        }
-
-        const sessions: SessionRecord[] = results.data.map(row => ({
-          id: row.id || crypto.randomUUID(),
-          startTimestamp: row.startTimestamp,
-          endTimestamp: row.endTimestamp,
-          plannedDurationSeconds: parseInt(row.plannedDurationSeconds, 10),
-          actualDurationSeconds: parseInt(row.actualDurationSeconds, 10),
-          durationString: row.durationString,
-          mode: row.mode as 'focus',
-          startType: row.startType as 'manual' | 'auto',
-          completed: row.completed === 'true',
-          noteText: row.noteText || '',
-          tags: row.tags ? row.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-          taskTitle: row.taskTitle || '',
-          createdAt: row.createdAt ? parseInt(row.createdAt, 10) : Date.now(),
-        }))
-
-        resolve(sessions)
-      },
-      error: (error) => {
-        reject(error)
-      },
-    })
-  })
-}
-```
-
-### Redux Integration
-
-#### New Streak Slice (Optional — can be derived selector)
-
-```typescript
-// src/features/stats/streakSlice.ts
-import { createSlice, createSelector } from '@reduxjs/toolkit'
-import type { RootState } from '../../store'
-import { calculateStreak } from '../../utils/streakUtils'
-import { selectAllSessions } from '../history/historySelectors'
-
-interface StreakState {
-  currentStreak: number
-  longestStreak: number
-  lastActiveDate: string
-  activeDates: string[]
-}
-
-const initialState: StreakState = {
-  currentStreak: 0,
-  longestStreak: 0,
-  lastActiveDate: '',
-  activeDates: [],
-}
-
-export const streakSlice = createSlice({
-  name: 'streak',
-  initialState,
-  reducers: {
-    updateStreak: (state, action) => {
-      state.currentStreak = action.payload.currentStreak
-      state.longestStreak = action.payload.longestStreak
-      state.lastActiveDate = action.payload.lastActiveDate
-      state.activeDates = Array.from(action.payload.activeDates)
-    },
-  },
 })
 
-export const { updateStreak } = streakSlice.actions
+// Connect toolbar buttons (existing BoldIcon, ListIcon, LinkIcon)
+<ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()}>
+  <BoldIcon />
+</ToolbarButton>
 
-// Selector that derives streak from sessions (no separate state needed)
-export const selectStreak = createSelector(
-  [selectAllSessions],
-  (sessions) => calculateStreak(sessions)
-)
+<ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()}>
+  <ListIcon />
+</ToolbarButton>
 
-export default streakSlice.reducer
+// Link needs prompt or input for URL
+<ToolbarButton onClick={() => {
+  const url = window.prompt('Enter URL')
+  if (url) editor.chain().focus().setLink({ href: url }).run()
+}}>
+  <LinkIcon />
+</ToolbarButton>
 ```
+
+### Replace TextArea with EditorContent
+
+```typescript
+// Before
+<TextArea
+  value={noteText}
+  onChange={(e) => onNoteChange(e.target.value)}
+  placeholder="Brainstorming..."
+/>
+
+// After
+<NotesContainer>
+  <Toolbar>...buttons...</Toolbar>
+  <EditorContent editor={editor} />
+</NotesContainer>
+```
+
+---
+
+## Bundle Size Estimate
+
+For bold + bullet list + links (minimal extensions):
+
+| Package | Approx Gzipped |
+|---------|----------------|
+| @tiptap/react | ~8KB |
+| @tiptap/starter-kit | ~15KB |
+| @tiptap/extension-link | ~3KB |
+| @tiptap/pm (peer dep) | ~30KB |
+| **Total** | **~55KB** |
+
+This is acceptable. React Quill alone is ~40KB+ and doesn't give you headless control.
 
 ---
 
@@ -312,48 +157,97 @@ export default streakSlice.reducer
 
 | Package | Version | Compatible With | Notes |
 |---------|---------|-----------------|-------|
-| papaparse | 5.4.x | React 18, TypeScript, Vite | ESM + CJS, no React peer dep |
-| styled-components | 6.3.x | Already in project | Use existing theme tokens |
-| @reduxjs/toolkit | 2.5.x | Already in project | Use existing patterns |
-| React | 18.3.x | Already in project | No changes needed |
+| @tiptap/react | ^3.20.0 | React 18.x | React 19 in beta |
+| @tiptap/starter-kit | ^3.20.0 | @tiptap/react ^3.20.0 | Includes core extensions |
+| @tiptap/extension-link | ^3.20.0 | @tiptap/react ^3.20.0 | Requires @tiptap/pm |
+| styled-components | ^6.3.10 | Already in project | Works with v6 |
+| @reduxjs/toolkit | ^2.11.2 | Already in project | Compatible |
 
 ---
 
 ## Implementation Approach
 
-### Option 1: Minimal Dependencies (Recommended)
+### Step 1: Install Dependencies
 
-1. **Streak calculation**: Add `streakUtils.ts` with pure functions
-2. **Calendar UI**: Custom styled-components grid (not a library)
-3. **CSV**: Use `papaparse` only
+```bash
+npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link
+```
 
-**Bundle impact:**
-- papaparse: ~8KB gzipped
-- Custom calendar: ~100-200 LOC, no additional bundle
+### Step 2: Create RichTextEditor Component
 
-**Total new dependencies: 1** (papaparse)
+```typescript
+// src/components/RichTextEditor.tsx
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import styled from 'styled-components'
 
-### Option 2: If Calendar Library Needed Later
+interface Props {
+  content: string
+  onChange: (html: string) => void
+}
 
-Only add if requirements expand beyond simple streak display (e.g., date range picker, multiple month view with complex interactions).
+const EditorContainer = styled.div`
+  .ProseMirror {
+    min-height: 160px;
+    padding: 16px;
+    outline: none;
 
-| Library | Size | Use Case |
-|---------|------|----------|
-| react-calendar | ~50KB | Full calendar features |
-| dayzed | ~8KB | Lightweight, headless |
+    p { margin: 0 0 0.5em 0; }
+    ul, ol { padding-left: 1.5em; margin: 0.5em 0; }
+    strong { font-weight: bold; }
+    a { color: #136dec; text-decoration: underline; }
+  }
+`
 
-For current requirements (show which days have sessions), custom component is best.
+export function RichTextEditor({ content, onChange }: Props) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Link.configure({ openOnClick: false })
+    ],
+    content,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML())
+    }
+  })
+
+  return <EditorContainer><EditorContent editor={editor} /></EditorContainer>
+}
+```
+
+### Step 3: Wire Toolbar Buttons
+
+In NotePanel.tsx, connect existing toolbar buttons to editor commands:
+- Bold: `editor.chain().focus().toggleBold().run()`
+- Bullet List: `editor.chain().focus().toggleBulletList().run()`
+- Link: `editor.chain().focus().setLink({ href: url }).run()`
+
+### Step 4: Display Formatted Notes
+
+In SessionSummary.tsx and HistoryDrawer.tsx:
+```typescript
+const NoteDisplay = styled.div`
+  .ProseMirror {
+    /* Same styles as editor for consistency */
+    a { color: #136dec; text-decoration: underline; }
+  }
+`
+
+// Render stored HTML
+<NoteDisplay dangerouslySetInnerHTML={{ __html: noteText }} />
+```
 
 ---
 
 ## Sources
 
-- [papaparse npm](https://www.npmjs.com/package/papaparse) — v5.4.1 current (2025)
-- [papaparse TypeScript](https://www.papaparse.com/docs#typescript) — Types included in package
-- [MDN Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) — Native Date API sufficient
-- Existing codebase: `src/utils/dateUtils.ts`, `src/utils/statsUtils.ts`, `src/services/sessionStore.ts`
+- npm view @tiptap/react --json — Package metadata, version 3.20.0
+- npm view @tiptap/extension-link --json — Package metadata
+- Project context: NotePanel.tsx shows existing toolbar UI (lines 454-464)
+- Project context: SessionSummary.tsx, HistoryDrawer.tsx need read-only display
 
 ---
 
-*Research for: Pomodoro Timer v2.2 Streak Tracking + CSV Export/Import*
-*Researched: 2026-02-23*
+*Research for: Pomodoro Timer v2.3 Rich Text Session Notes*
+*Researched: 2026-02-24*
