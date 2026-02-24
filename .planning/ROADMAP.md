@@ -89,7 +89,11 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 4. All new features follow existing app styling (light mode, blue accents)
 5. All features work correctly after app refresh (persistence verified)
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+**Plan list:**
+- [ ] 15-01-PLAN.md — Fix styling inconsistencies (Import button, StreakDisplay, import spinner)
+- [ ] 15-02-PLAN.md — Verify timezone, persistence, and batch processing implementations
 
 ---
 
@@ -99,7 +103,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 |-------|----------------|--------|-----------|
 | 13. Streak Tracking | 3/3 | Complete    | 2026-02-23 |
 | 14. Data Export/Import | 2/2 | Complete    | 2026-02-24 |
-| 15. Integration & Polish | 0/1 | Not started | - |
+| 15. Integration & Polish | 0/2 | Not started | - |
 
 ---
 
