@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { colors, transitions } from './ui/theme'
+import RichTextDisplay from './RichTextDisplay'
 
 const Overlay = styled.div`
   position: fixed;
@@ -211,6 +212,13 @@ export default function SessionSummary({
             <DetailLabel>Completed</DetailLabel>
             <Timestamp>{formatTime(session.startTimestamp)}</Timestamp>
           </DetailSection>
+
+          {session.noteText && (
+            <DetailSection>
+              <DetailLabel>Notes</DetailLabel>
+              <RichTextDisplay content={session.noteText} />
+            </DetailSection>
+          )}
         </DetailsCard>
 
         <ContinueButton onClick={onContinue}>Continue</ContinueButton>
