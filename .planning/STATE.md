@@ -280,6 +280,7 @@ None currently.
 | 10 | add titles to calendar and bar chart | 2026-02-23 | 0c26946 | [10-the-calendar-and-the-bar-chart-aren-t-cl](./quick/10-the-calendar-and-the-bar-chart-aren-t-cl/) |
 | 11 | put activity calendar and weekly focus time side by side | 2026-02-24 | 85978a9 | [11-put-activity-calendar-and-weekly-focus-t](./quick/11-put-activity-calendar-and-weekly-focus-t/) |
 | 12 | if a user ends a session before 25 minutes they get credit for partial time | 2026-02-24 | 111589e | [12-if-a-user-ends-a-session-before-25-minut](./quick/12-if-a-user-ends-a-session-before-25-minut/) |
+| 13 | when I complete session after 10 seconds it says I focused for 24:50 should be 10 seconds | 2026-02-24 | 3c2a112 | [13-when-i-complete-session-after-10-seconds](./quick/13-when-i-complete-session-after-10-seconds/) |
 
 ### Phase Queue
 
