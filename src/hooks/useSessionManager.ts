@@ -38,15 +38,15 @@ export function useSessionManager(
   const createSessionRecord = useCallback((completed: boolean): SessionRecord => {
     const now = Date.now()
     const startTime = sessionStartRef.current || now
-    const actualDuration = params.duration - (completed ? 0 : Math.floor((now - startTime) / 1000))
+    const actualDuration = completed ? params.duration : Math.floor((now - startTime) / 1000)
 
     const record: SessionRecord = {
       id: crypto.randomUUID(),
       startTimestamp: new Date(startTime).toISOString(),
       endTimestamp: new Date(now).toISOString(),
       plannedDurationSeconds: params.duration,
-      actualDurationSeconds: completed ? params.duration : Math.max(0, actualDuration),
-      durationString: formatDuration(completed ? params.duration : Math.max(0, actualDuration)),
+      actualDurationSeconds: actualDuration,
+      durationString: formatDuration(actualDuration),
       mode: 'focus',  // Only focus sessions are recorded
       startType: 'manual', // Could track auto-start separately
       completed,
