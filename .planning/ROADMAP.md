@@ -14,7 +14,7 @@
 
 - [x] **Phase 18: Editor Infrastructure** — Install Tiptap, create RichTextDisplay with sanitization, handle legacy notes
 - [x] **Phase 19: Editor Component** — Create RichTextEditor with Bold, Bullet, Link toolbar buttons
-- [ ] **Phase 20: NotePanel Integration** — Replace textarea with RichTextEditor in active session
+- [x] **Phase 20: NotePanel Integration** — Replace textarea with RichTextEditor in active session (completed 2026-02-24)
 - [ ] **Phase 21: Read-Only Display** — Update SessionSummary and HistoryDrawer with RichTextDisplay
 - [ ] **Phase 22: Polish & Validation** — Keyboard shortcuts, cross-component testing, final verification
 

@@ -8,7 +8,7 @@ See: .planning/PROJECT.md
 
 **Milestone:** v2.3 Rich Text Notes
 **Current phase:** Phase 20 - NotePanel Integration
-**Status:** Completed plan 20-01
+**Status:** Milestone complete
 
 ## Session Log
 
