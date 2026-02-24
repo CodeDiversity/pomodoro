@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react'
 import styled from 'styled-components'
 import { SessionRecord } from '../../types/session'
+import { useAppSelector } from '../../app/hooks'
+import { selectFilteredSessions, selectDateFilter } from '../../features/history/historySelectors'
+import { exportSessionsToCsv } from '../../utils/csvExport'
 import { HistoryFilterBar } from './HistoryFilterBar'
 import { HistoryItem } from './HistoryItem'
 import { colors, transitions } from '../ui/theme'
@@ -240,6 +243,15 @@ export function HistoryList({
 }: HistoryListProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
+  // Get filtered sessions and date filter from Redux for export
+  const reduxFilteredSessions = useAppSelector(selectFilteredSessions)
+  const reduxDateFilter = useAppSelector(selectDateFilter)
+
+  // Export handler - uses Redux state to get the most up-to-date filtered sessions
+  const handleExport = () => {
+    exportSessionsToCsv(reduxFilteredSessions, reduxDateFilter)
+  }
+
   const weeklyHours = useMemo(() => calculateWeeklyFocusHours(sessions), [sessions])
 
   const groupedSessions = useMemo(() => {
@@ -298,6 +310,7 @@ export function HistoryList({
           searchQuery={searchQuery}
           onDateFilterChange={onDateFilterChange}
           onSearchChange={onSearchChange}
+          onExport={handleExport}
         />
 
         {filteredSessions.length === 0 ? (
