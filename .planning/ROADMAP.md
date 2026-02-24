@@ -14,7 +14,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 ## Phases
 
 - [x] **Phase 13: Streak Tracking** - Current/best streak display, calendar heatmap
-- [ ] **Phase 14: Data Export/Import** - CSV export from History, CSV import from Settings
+- [x] **Phase 14: Data Export/Import** - CSV export from History, CSV import from Settings (completed 2026-02-24)
 - [ ] **Phase 15: Integration & Polish** - Edge cases, UI polish, streak persistence
 
 ---
@@ -66,7 +66,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 8. Imported sessions are merged with existing sessions without duplicates
 9. Import shows progress feedback during processing and success/error summary after
 
-**Plans:** 1/2 plans
+**Plans:** 2/2 plans complete
 
 **Plan list:**
 - [x] 14-01-PLAN.md - Data Export from History view to CSV
@@ -98,7 +98,7 @@ This roadmap delivers v2.2 features building on the foundation from v2.1.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 13. Streak Tracking | 3/3 | Complete    | 2026-02-23 |
-| 14. Data Export/Import | 2/2 | Planning | - |
+| 14. Data Export/Import | 2/2 | Complete    | 2026-02-24 |
 | 15. Integration & Polish | 0/1 | Not started | - |
 
 ---

@@ -24,7 +24,7 @@
 
 **Phase:** 14-data-export-import
 **Plan:** 01 (COMPLETE)
-**Status:** Milestone in progress
+**Status:** Milestone complete
 **Last activity:** 2026-02-24 — Completed CSV export from History view
 
 ### Phase 8 Status
