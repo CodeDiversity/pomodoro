@@ -172,15 +172,16 @@
 ### Phase 14 Status
 
 **Plan 14-01: COMPLETE** - CSV export from History view
+**Plan 14-02: COMPLETE** - CSV import from Settings view
 
 ---
 
 ## Progress Bar
 
 ```
-Milestone v2.2: [▓▓▓▓▓▓▓░░░░░░░░░░░░░] 50%
+Milestone v2.2: [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
 Phase 13: [████████████████████] 100% - Streak Counter
-Phase 14: [▓▓░░░░░░░░░░░░░░░░░] 10% - Data Export & Import
+Phase 14: [████████████████████] 100% - Data Export & Import
 ```
 
 ---
@@ -209,6 +210,9 @@ Phase 14: [▓▓░░░░░░░░░░░░░░░░░] 10% - Data
 | 2026-02-22 | Sound settings persist via IndexedDB | Settings survive app restarts |
 | 2026-02-22 | settingsSlice follows sessionSlice pattern | Consistent architecture across all Redux slices |
 | 2026-02-22 | loadSettings async thunk pattern | Hydrate state from persistence on app start |
+| 2026-02-24 | startTimestamp for duplicate detection | Ensures exact duplicates not created |
+| 2026-02-24 | Batch process imports in chunks of 50 | Avoids blocking UI during large imports |
+| 2026-02-24 | CSV validation: required fields + positive duration + mode=focus | Ensures data integrity during import |
 | 2026-02-22 | historySlice with dateFilter, searchQuery, sessions, isLoading | Filter state in Redux for history view |
 | 2026-02-22 | Memoized selectors using createSelector | Prevents unnecessary re-renders when unrelated state changes |
 | 2026-02-22 | useSessionHistory uses Redux with backward-compatible API | No component changes required - maintains original return shape |
@@ -222,6 +226,9 @@ Phase 14: [▓▓░░░░░░░░░░░░░░░░░] 10% - Data
 - [Phase 14-export]: CSV export from History view implemented with exportSessionsToCsv utility
 - [Phase 14-export]: Export button added to HistoryFilterBar, respects current date filter
 - [Phase 14-export]: Uses Redux selectors (selectFilteredSessions, selectDateFilter) for current filter state
+- [Phase 14-import]: CSV import utility created with parseCsvFile, validateSessionRow functions
+- [Phase 14-import]: Import button added to Settings Data section, accepts .csv files
+- [Phase 14-import]: Duplicate detection via startTimestamp matching, skips existing sessions
 
 ### Technical Debt
 
@@ -247,9 +254,9 @@ None currently.
 
 ## Session Continuity
 
-**Last Action:** Completed plan 14-01 - CSV export from History view
+**Last Action:** Completed plan 14-02 - CSV import from Settings view
 **Completed at:** 2026-02-24
-**Next Action:** Ready for plan 14-02 (CSV import functionality)
+**Next Action:** Phase 14 complete - ready for next phase
 
 ### Quick Tasks Completed
 
@@ -267,7 +274,7 @@ None currently.
 v2.2 Features (in progress):
 
 1. Phase 13: Streak Counter - COMPLETE
-2. Phase 14: Data Export & Import - Plan 01 complete, Plan 02 (import) pending
+2. Phase 14: Data Export & Import - COMPLETE (both plans)
 
 ---
 
