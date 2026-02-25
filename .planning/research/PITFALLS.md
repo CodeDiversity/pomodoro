@@ -541,5 +541,274 @@ Phase 2 (Display Integration) — Must test all list rendering paths.
 
 ---
 
-*Pitfalls research for: v2.3 Rich Text Session Notes*
+# Pitfalls Research: v2.4 Footer with Privacy Policy and Terms of Use
+
+**Domain:** Adding footer with Privacy Policy and Terms of Use modals to existing React web app
+**Researched:** 2026-02-24
+**Confidence:** MEDIUM (based on web accessibility standards and existing codebase patterns)
+
+---
+
+## Critical Pitfalls
+
+### Pitfall 1: Modal Focus Management Failures
+
+**What goes wrong:** When opening legal modals, focus does not move to the modal; when closing, focus does not return to the trigger element. Screen reader users become disoriented.
+
+**Why it happens:** Implementing modal without tracking previous focus state or using proper focus trap.
+
+**Consequences:**
+- WCAG 2.1.4.1 violation (keyboard accessibility)
+- Screen reader users cannot navigate modal content
+- Users lose their place in the page
+
+**Prevention:**
+- Store reference to trigger element before opening
+- Move focus to first focusable element in modal on open
+- Return focus to trigger element on close
+- Implement proper focus trap within modal (Tab/Shift+Tab cycle)
+- Use existing modal pattern from the codebase (Settings, Help, SessionSummary)
+
+**Detection:** Test with keyboard only (Tab, Shift+Tab, Escape), test with screen reader (VoiceOver/NVDA)
+
+**Phase to address:** Footer Component Implementation Phase
+
+---
+
+### Pitfall 2: Inconsistent Modal Behavior
+
+**What goes wrong:** Legal modals behave differently from existing modals (Settings, Help). Different close behaviors, animations, or keyboard handling create UX confusion.
+
+**Why it happens:** Creating new modal component instead of reusing existing modal pattern.
+
+**Consequences:**
+- Users confused by inconsistent interaction patterns
+- Potential: Close button placement differs, click-outside behavior differs, escape key works differently
+- Maintenance burden with duplicate modal logic
+
+**Prevention:**
+- Reuse existing modal component from codebase
+- Match exact patterns: close on backdrop click, close on Escape, close button position
+- Use same animation timing and transitions
+- If creating new modal, make it configurable to match existing behavior
+
+**Detection:** Open Settings modal, then Privacy modal — compare interaction patterns
+
+**Phase to address:** Footer Component Implementation Phase
+
+---
+
+### Pitfall 3: Footer Positioning Breakage
+
+**What goes wrong:** Footer appears in middle of page on short content pages, or overlaps content on longer pages.
+
+**Why it happens:** Using fixed positioning without accounting for content height, or not using flexbox sticky footer pattern.
+
+**Consequences:**
+- Poor visual appearance on Timer screen vs History screen (different content lengths)
+- Content behind footer becomes inaccessible
+- Inconsistent footer placement across pages
+
+**Prevention:**
+- Use flexbox page layout with `flex-direction: column` and `min-height: 100vh`
+- Apply `margin-top: auto` to footer to push it to bottom
+- Or use CSS Grid with `grid-template-rows: 1fr auto` pattern
+- Test footer position on all pages: Timer (short), History (long scroll)
+
+**Detection:** Navigate to Timer screen (short content), then History with many sessions
+
+**Phase to address:** Footer Component Implementation Phase
+
+---
+
+### Pitfall 4: Missing or Incomplete Legal Content
+
+**What goes wrong:** Privacy Policy or Terms of Use is empty, placeholder text, or missing required sections for the jurisdiction.
+
+**Why it happens:** Copying template without customization, using "Lorem Ipsum", forgetting to update for app-specific data practices.
+
+**Consequences:**
+- Legal exposure if privacy practices differ from stated policy
+- User trust damage
+- App store rejection (Apple/Google require valid privacy policy for certain apps)
+- Potential: Missing sections like data collection, third-party services, cookies, children's privacy
+
+**Prevention:**
+- Use established privacy policy generator or consult legal counsel
+- Include all required sections: data collected, how used, third-party services, cookies, data retention, user rights, contact info
+- Update for this specific app (Pomodoro timer with session history, IndexedDB storage)
+- Include date of last update
+
+**Detection:** Review legal content against checklist of required sections
+
+**Phase to address:** Legal Content Phase
+
+---
+
+## Moderate Pitfalls
+
+### Pitfall 5: Inconsistent Footer Styling
+
+**What goes wrong:** Footer does not match app theme, has different colors, fonts, or spacing than the rest of the UI.
+
+**Why it happens:** Not using theme tokens, hardcoding colors, or copying from different project.
+
+**Consequences:**
+- Visual discontinuity breaks professional appearance
+- Blue accent colors should match existing theme
+- Typography should match sidebar/header
+
+**Prevention:**
+- Use centralized theme tokens from styled-components theme
+- Match existing component styling patterns (Settings modal, sidebar)
+- Verify color contrast meets WCAG AA (4.5:1 for text)
+
+**Detection:** Compare footer styling with sidebar, header, modals
+
+**Phase to address:** Footer Component Implementation Phase
+
+---
+
+### Pitfall 6: Modal Scroll Lock Missing
+
+**What goes wrong:** Background page scrolls when modal content is scrollable, causing confusion and accidental page navigation.
+
+**Why it happens:** Not implementing body scroll lock when modal opens.
+
+**Consequences:**
+- User scrolls thinking they're in modal but moving page
+- Accidental navigation via keyboard
+- Poor UX on mobile
+
+**Prevention:**
+- Add `overflow: hidden` to body when modal opens
+- Remove on modal close
+- Consider using existing scroll lock mechanism in codebase (check how other modals handle)
+
+**Detection:** Open modal, try to scroll page with mouse wheel
+
+**Phase to address:** Legal Modal Implementation Phase
+
+---
+
+### Pitfall 7: Hardcoded Content Instead of Component
+
+**What goes wrong:** Legal text hardcoded directly in modal JSX, making updates difficult and causing merge conflicts if multiple people edit.
+
+**Why it happens:** Treating as one-time task, not considering maintenance.
+
+**Consequences:**
+- Difficult to update legal text annually
+- Merge conflicts when multiple developers work on modal
+- Legal text mixed with UI code
+
+**Prevention:**
+- Extract legal content to separate files: `privacyPolicyContent.ts`, `termsOfUseContent.ts`
+- Or use markdown/content file that non-developers can edit
+- Version the content files for audit trail
+
+**Detection:** Check if legal text is in separate file from component code
+
+**Phase to address:** Legal Content Phase
+
+---
+
+## Minor Pitfalls
+
+### Pitfall 8: Missing Mobile Responsiveness
+
+**What goes wrong:** Legal modals too wide on mobile, text runs edge-to-edge, close button unreachable on small screens.
+
+**Why it happens:** Not testing on mobile viewport sizes.
+
+**Consequences:**
+- Poor mobile UX
+- Close button may be in wrong place on mobile
+- Text uncomfortable to read
+
+**Prevention:**
+- Use existing modal responsive styles
+- Test at 375px width (iPhone SE)
+- Ensure padding works on small screens
+- Consider full-screen modal on mobile
+
+**Detection:** Resize browser to mobile width, test modal display
+
+**Phase to address:** Legal Modal Implementation Phase
+
+---
+
+### Pitfall 9: No Escape Key Handler
+
+**What goes wrong:** Users cannot close modal with Escape key, violating common UX expectations.
+
+**Why it happens:** Forgetting to add keyboard event listener.
+
+**Consequences:**
+- Frustrated users who expect Escape to close
+- Inconsistent with existing modals if they support Escape
+
+**Prevention:**
+- Add `Escape` key listener when modal mounts
+- Remove listener on unmount
+- Check existing modals for pattern
+
+**Detection:** Open modal, press Escape — should close
+
+**Phase to address:** Legal Modal Implementation Phase
+
+---
+
+### Pitfall 10: Footer Not Visible on All Pages
+
+**What goes wrong:** Footer hidden on some routes, appears/disappears inconsistently.
+
+**Why it happens:** Footer placed inside specific page component instead of layout.
+
+**Consequences:**
+- Legal links unavailable on some pages
+- Inconsistent UX
+- Users may not find privacy/terms links
+
+**Prevention:**
+- Place footer in main App layout component, not individual page
+- Verify footer appears on all routes
+- Test after navigation between pages
+
+**Detection:** Navigate through all pages, verify footer always visible
+
+**Phase to address:** Footer Component Implementation Phase
+
+---
+
+## Phase-Specific Warnings
+
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Footer component | Positioning breakage | Use flexbox sticky footer pattern |
+| Legal modals | Focus management failures | Reuse existing modal with proper ARIA |
+| Legal content | Missing/incomplete policies | Use proper legal template, customize for app |
+| Styling | Inconsistent with theme | Use centralized theme tokens |
+
+---
+
+## Recommended Approach
+
+1. **Reuse existing modal pattern** — Don't create new modal; adapt Settings/Help modal
+2. **Extract legal content** — Separate files for maintainability
+3. **Test accessibility** — Keyboard navigation, screen reader, focus management
+4. **Use theme tokens** — Match existing colors, fonts, spacing
+5. **Layout-level footer** — Place in App layout, not page components
+
+---
+
+## Sources
+
+- [WebAIM JavaScript Accessibility](https://webaim.org/techniques/javascript/) — Accessibility principles for interactive components
+- WCAG 2.1 — Focus management requirements for modal dialogs
+- Existing codebase patterns — Settings.tsx, Help.tsx, SessionSummary.tsx modal implementations
+
+---
+
+*Pitfalls research for: v2.4 Footer with Privacy Policy and Terms of Use*
 *Researched: 2026-02-24*

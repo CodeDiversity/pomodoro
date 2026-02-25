@@ -1,7 +1,7 @@
 # Project Research Summary
 
-**Project:** Pomodoro Timer — Rich Text Session Notes (v2.3)
-**Domain:** Productivity App — Rich Text Editor Integration
+**Project:** Pomodoro Timer
+**Domain:** Productivity App — Web Application
 **Researched:** 2026-02-24
 **Confidence:** HIGH
 
@@ -9,13 +9,11 @@
 
 ## Executive Summary
 
-This research covers adding rich text editing (bold, bullet lists, clickable links) to session notes in an existing Pomodoro timer app. The recommended approach uses **Tiptap** (headless ProseMirror wrapper) with **HTML storage** format. This provides full UI control while maintaining simplicity: the editor produces HTML that stores directly in the existing `noteText` string field in IndexedDB, with no schema changes or Redux modifications required.
+This research covers v2.4: adding a footer with Privacy Policy and Terms of Use links that open in modals. The Pomodoro Timer is an established React-based productivity app using Redux Toolkit, styled-components, and IndexedDB for local storage.
 
-Key findings:
-- **Tiptap** is the recommended editor library — headless, modular, built on ProseMirror (used by Google, Facebook), with excellent React 18+ support
-- **Storage format**: HTML over JSON — simpler read-only rendering, no new IndexedDB schema
-- **Bundle impact**: ~55KB gzipped — acceptable for feature set
-- **Critical pitfalls**: XSS sanitization, rendering consistency between editor and display, legacy plain-text note handling
+The recommended approach requires **no new dependencies**. The existing modal infrastructure (from Settings.tsx and HelpPanel.tsx) should be reused for legal document display. Local useState is sufficient for modal toggling - Redux is unnecessary for this simple UI state. The footer should be placed inside MainContent below ContentArea, consistent with the existing layout pattern.
+
+Key risks include accessibility failures (focus management in modals), inconsistent modal behavior compared to existing patterns, and footer positioning issues on pages with varying content lengths. All are preventable by following established codebase patterns.
 
 ---
 
@@ -23,130 +21,129 @@ Key findings:
 
 ### Recommended Stack
 
+The existing tech stack fully supports v2.4 without additions. No new dependencies, packages, or tools are needed.
+
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|----------------|
-| @tiptap/react | ^3.20.0 | React wrapper for Tiptap editor | Headless, full UI control. Built on ProseMirror. Active maintenance, strong TypeScript support. |
-| @tiptap/starter-kit | ^3.20.0 | Basic extensions (bold, bullet list) | Tree-shakeable — only bundles what's used |
-| @tiptap/extension-link | ^3.20.0 | Clickable hyperlink support | Required for link feature |
-| dompurify | ^3.x | HTML sanitization | Required to prevent XSS attacks in displayed content |
+| React | 18.x | UI framework | Already in use — no change needed |
+| TypeScript | 5.x | Type safety | Already in use — no change needed |
+| styled-components | 6.x | CSS-in-JS styling | Already in use — modal patterns already defined |
+| Redux Toolkit | 2.x | State management | Optional — local useState is simpler for this feature |
 
 **Core technologies:**
-- **Tiptap:** Industry-standard editor (ProseMirror-based) — headless architecture gives full UI control
-- **HTML storage:** Stores directly in existing `noteText: string` — no Redux changes, no migration needed
-- **RichTextDisplay component:** Shared read-only renderer for SessionSummary, HistoryDrawer
+- **React 18.x:** Already in use, no changes needed
+- **styled-components:** Existing modal patterns from Settings.tsx and HelpPanel.tsx should be reused
+- **Local useState:** Sufficient for modal visibility; no Redux needed for simple UI toggles
 
 ### Expected Features
 
 **Must have (table stakes):**
-- Bold toolbar button — Wraps selection in `**`, toggle removes
-- Bold rendering (modal + history) — Parse and display bold in edit/read mode
-- Bullet toolbar button — Convert line to `- ` prefix
-- Bullet rendering (modal + history) — Display as visual list
-- Link toolbar button — Prompt for URL, wrap selection
-- Clickable links (modal + history) — Render as interactive anchor
+- Footer component — Standard UI pattern, positioned at bottom of main content area
+- Privacy Policy link — Legal/compliance expectation, opens modal with content
+- Terms of Use link — Legal/compliance expectation, opens modal with content
+- Modal display for legal content — Keeps users in-app rather than navigating away
+- Copyright notice — Professional polish (format: "2026 Pomodoro Timer")
+- Visual separation from content — Clear boundary using border-top or spacing
 
 **Should have (competitive):**
-- Keyboard shortcuts — Cmd/Ctrl+B for bold
-- Visual toolbar state — Highlight active format button
+- In-app modal vs new tab — Better UX, leverages existing modal infrastructure
+- Responsive footer layout — Works across mobile/tablet/desktop
+- Accessible link styling — Keyboard navigation and screen reader support
 
-**Defer (v2+):**
-- Italic, underline, strikethrough
-- Nested bullets
-- Checklists
-- Inline code
+**Defer (v2.5+):**
+- Contact link — for user inquiries
+- Accessibility statement — if app grows to require it
+- Cookie consent banner — Not needed for local-only app with no tracking
 
 ### Architecture Approach
 
-The architecture leverages existing components and requires no schema changes:
+The layout structure places the Footer inside MainContent, below ContentArea. This is consistent with the sidebar navigation pattern and avoids margin adjustments required if placed elsewhere.
 
-- **Storage:** HTML string in existing `noteText` field (no IndexedDB changes)
-- **Redux:** No changes — `noteText` remains a string
-- **Components:**
-  - `RichTextEditor.tsx` — Tiptap-based editor with toolbar
-  - `RichTextDisplay.tsx` — Read-only HTML renderer with sanitization
-  - NotePanel.tsx — Replace textarea with RichTextEditor
-  - SessionSummary.tsx — Replace text display with RichTextDisplay
-  - HistoryDrawer.tsx — Toggle between RichTextDisplay (view) and RichTextEditor (edit)
+**Major components:**
+1. **LegalModal.tsx** — Reusable modal component for Privacy Policy and Terms of Use, using existing Overlay + Modal styled-components
+2. **Footer.tsx** — Container with Privacy Policy and Terms of Use links; manages modal visibility with local useState
+3. **App.tsx** — Layout composition; adds Footer below ContentArea inside MainContent
+
+**Data flow:**
+```
+User clicks footer link
+       ↓
+Footer component: setState({ privacyModal: true })
+       ↓
+LegalModal renders with isOpen={true}
+       ↓
+User reads/clicks close/overlay/Escape
+       ↓
+LegalModal unmounts
+```
+No Redux needed — simple UI state with no side effects or persistence requirements.
 
 ### Critical Pitfalls
 
-1. **HTML Storage Without Sanitization** — Stored HTML is an XSS vector. Use `dompurify` on ALL display paths (modal, history, export). Never use raw `dangerouslySetInnerHTML`.
+1. **Modal Focus Management Failures** — Focus must move to modal on open, return to trigger on close. Screen reader users become disoriented otherwise. Reuse existing modal pattern with proper ARIA attributes.
 
-2. **Inconsistent Rendering Between Editor and Display** — Text looks formatted in editor but loses formatting in session modal or history drawer. Create a shared `RichTextDisplay` component used everywhere.
+2. **Inconsistent Modal Behavior** — Legal modals must match Settings/Help modal behavior exactly (close on backdrop click, Escape key, close button). Different behavior creates user confusion.
 
-3. **Breaking Existing Plain Text Notes** — Existing notes are plain text. Rich text editor must handle plain text gracefully on load. Default to plain text mode for legacy notes until first edit.
+3. **Footer Positioning Breakage** — Footer appears in middle of page on short content, or overlaps content on long pages. Use flexbox pattern with `margin-top: auto` or CSS Grid.
 
-4. **Link Rendering Inconsistency** — Links work in editor but show as plain text in history/details views. Use consistent link component with `rel="noopener noreferrer"`.
+4. **Missing or Incomplete Legal Content** — Must customize template for this specific app (IndexedDB storage, session history). Include all required sections: data collected, how used, third-party services, cookies, data retention, user rights, contact info.
 
-5. **React 18/19 Compatibility** — Many rich text libraries use deprecated `findDOMNode`. Verify Tiptap compatibility early — it supports React 18+.
+5. **XSS in Rich Text (v2.3)** — If displaying user HTML content, always sanitize with DOMPurify. This applies to any future rich text features.
 
 ---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, v2.4 has a clear, single-phase implementation path:
 
-### Phase 1: Editor Infrastructure & Security
-**Rationale:** Foundation must be secure and handle legacy data first. Cannot proceed without sanitization.
-**Delivers:**
-- Install Tiptap dependencies + dompurify
-- Create `RichTextDisplay.tsx` (read-only, sanitized)
-- Unit tests for sanitization
-**Addresses:** P1 features (bold/bullet/link rendering in modal)
-**Avoids:** Pitfall #1 (XSS), Pitfall #3 (legacy notes break)
+### Phase 1: Footer with Legal Modals
+**Rationale:** Self-contained feature with well-established patterns in existing codebase. No complex dependencies or multi-phase work.
 
-### Phase 2: Editor Component
-**Rationale:** Editor must exist before integration
 **Delivers:**
-- Create `RichTextEditor.tsx` wrapper
-- Wire toolbar actions (toggleBold, toggleBulletList, setLink)
-- Handle placeholder text
-**Addresses:** Toolbar button functionality
-**Avoids:** Pitfall #4 (React compatibility — verify Tiptap works)
+- Footer component with Privacy Policy and Terms of Use links
+- LegalModal reusable component
+- Proper legal content for both documents
+- Accessibility-compliant modals matching existing patterns
 
-### Phase 3: NotePanel Integration
-**Rationale:** Active session is primary use case
-**Delivers:**
-- Replace textarea in NotePanel.tsx with RichTextEditor
-- Wire existing toolbar buttons to editor commands
-- Style for active states
-**Addresses:** Session modal rich text editing
-**Avoids:** Pitfall #2 (inconsistency — use RichTextDisplay for read-only)
+**Addresses:**
+- Footer component (FEATURES.md table stakes)
+- Privacy Policy link + modal (FEATURES.md P1)
+- Terms of Use link + modal (FEATURES.md P1)
+- Legal content (FEATURES.md P2)
+- Copyright notice (FEATURES.md P2)
 
-### Phase 4: Read-Only Display Integration
-**Rationale:** SessionSummary and HistoryDrawer need read-only rendering
-**Delivers:**
-- Update SessionSummary.tsx with RichTextDisplay
-- Update HistoryDrawer.tsx with view/edit toggle
-- Handle empty content gracefully
-**Addresses:** Display in modal and history
-**Avoids:** Pitfall #2 (inconsistent rendering), Pitfall #4 (link rendering)
+**Avoids:**
+- Pitfall #1: Focus management failures (use existing modal pattern)
+- Pitfall #2: Inconsistent modal behavior (match Settings/Help exactly)
+- Pitfall #3: Footer positioning breakage (use flexbox pattern)
+- Pitfall #4: Missing/incomplete legal content (customize for app)
 
-### Phase 5: Polish & Validation
-**Rationale:** Final integration verification
-**Delivers:**
-- Verify dompurify configured correctly
-- Test link rendering in all views (modal, drawer, export)
-- Test legacy plain-text notes
-- Add keyboard shortcuts
-**Avoids:** All pitfalls — comprehensive testing
+### Build Order
+
+1. **LegalModal.tsx** — Create reusable modal component first
+   - Reuse Overlay and Modal styled-components from Settings.tsx
+   - Handle close on overlay click
+   - Handle Escape key press
+   - Support scrollable content for long legal text
+
+2. **Footer.tsx** — Build footer with link buttons and modal triggers
+   - Manage modal visibility with local useState
+   - Import and render LegalModal for each link
+
+3. **App.tsx Integration** — Add Footer to MainContent layout
+   - Place below ContentArea, inside MainContent
+   - Ensure proper spacing and styling
 
 ### Phase Ordering Rationale
 
-- **Security first:** Sanitization must be part of Phase 1, not added later
-- **Display before editor:** RichTextDisplay has no dependencies, can be built and tested independently
-- **Integration at end:** NotePanel and HistoryDrawer integration comes after both components exist
-- **Avoids pitfalls:** Each phase explicitly addresses identified risks
+- **Single phase for v2.4:** The footer feature is straightforward — no complex dependencies or phasing needed
+- **Reuse over rebuild:** All infrastructure (modals, styling) already exists; implementation is assembly not construction
+- **Legal content as subtask:** Writing actual legal text is a task within the phase, not a separate phase
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (NotePanel Integration):** Complex component with existing toolbar UI — may need UI/UX research for toolbar styling
-- **Phase 4 (HistoryDrawer):** Toggle state management — verify existing patterns work
-
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Editor Infrastructure):** Well-documented Tiptap patterns, dompurify standard usage
-- **Phase 2 (Editor Component):** Standard Tiptap React integration
+- **Phase 1 (Footer):** Well-documented modal patterns exist in codebase (Settings.tsx, HelpPanel.tsx)
 
 ---
 
@@ -154,34 +151,32 @@ Phases with standard patterns (skip research-phase):
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Tiptap is industry standard, version 3.20.0 verified via npm |
-| Features | HIGH | Table stakes well-documented across Notion/Obsidian/Keep |
-| Architecture | HIGH | Zero schema changes, clear component boundaries |
-| Pitfalls | MEDIUM | XSS/inconsistency patterns known from Quill/Tiptap issues |
+| Stack | HIGH | No new technologies; existing patterns fully cover requirements |
+| Features | HIGH | Standard web app patterns; well-documented table stakes |
+| Architecture | HIGH | Clear integration points; existing codebase provides complete patterns |
+| Pitfalls | HIGH | Focus management, positioning, and legal content issues are well-known |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Mobile toolbar UX:** Not deeply researched — toolbar may be unusable on mobile. Consider bubble menu if issues arise.
-- **Character limit validation:** Project has 2000 char limit — current logic counts HTML length, not visible text. Verify during Phase 5.
+- **Legal content customization:** Research assumes standard local-only app patterns. Verify specific privacy policy language meets requirements for distribution platform (if any).
+- **Mobile responsive testing:** Ensure legal modals work properly at mobile widths (375px).
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Tiptap Official Documentation — https://tiptap.dev/docs/editor
-- npm view @tiptap/react — Version 3.20.0 verified
-- DOMPurify GitHub — https://github.com/cure53/DOMPurify
+- Existing codebase: Settings.tsx — Verified modal pattern implementation (Overlay, Modal, Header, Content, CloseButton)
+- Existing codebase: HelpPanel.tsx — Verified alternative modal implementation
+- Existing codebase: App.tsx — Verified layout structure
+- Existing codebase: ui/theme.ts — Verified design tokens
 
 ### Secondary (MEDIUM confidence)
-- React-Quill GitHub Issues — SSR problems, list numbering bugs (avoided by using Tiptap)
-- Tiptap GitHub Issues — Mobile Safari issues, React integration (minor concerns)
-- Notion/Obsidian UX patterns — Feature parity expectations
-
-### Tertiary (LOW confidence)
-- None — all key sources verified
+- WebAIM JavaScript Accessibility — Accessibility principles for modal dialogs
+- WCAG 2.1 — Focus management requirements for modal dialogs
+- Nielsen Norman Group footer design guidelines
 
 ---
 

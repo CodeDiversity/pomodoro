@@ -1,254 +1,149 @@
-# Feature Research: Rich Text Session Notes
+# Feature Research: Footer with Privacy Policy and Terms of Use
 
-**Domain:** Rich text editing for productivity app session notes (v2.3)
+**Domain:** Web App Footer Component with Legal Links
 **Researched:** 2026-02-24
-**Confidence:** HIGH (based on common productivity app UX patterns)
-
----
+**Confidence:** HIGH
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist in any productivity app with rich text. Missing these = confusing or broken UX.
-
-#### Bold Text
+Features users assume exist. Missing these = product feels incomplete or unprofessional.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Bold toolbar button** | Standard pattern (Ctrl/Cmd+B, toolbar icon) | LOW | Toggle behavior: click with selection wraps in `**`, click again removes |
-| **Bold rendering in modal** | Visual feedback during editing | LOW | Parse `**text**` → bold styling in edit mode |
-| **Bold rendering in history** | Previously saved notes must show formatting | LOW | Same rendering as modal, read-only |
-| **Markdown storage** | Format persists across sessions | LOW | Store as `**bold**` in noteText field |
-
-#### Bullet Lists
-
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Bullet toolbar button** | Standard pattern for outlining | LOW | Toggle: converts line to `- ` prefix, again removes |
-| **Bullet rendering in modal** | Visual list while editing | LOW | Parse `- ` lines → styled list items |
-| **Bullet rendering in history** | Saved lists display correctly | LOW | Same as modal, read-only |
-| **Auto-continue bullets** | Pressing Enter continues list | LOW | Common pattern in Notion/Obsidian |
-
-#### Links
-
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Link insertion button** | Standard pattern for URLs | MEDIUM | Dialog or inline prompt for URL input |
-| **Clickable links in modal** | Interactive URLs in edit mode | LOW | Render as clickable anchor |
-| **Clickable links in history** | Links work in history drawer | LOW | Same as modal |
-| **Link storage** | Format persists | LOW | Store as `[text](url)` in noteText |
-
----
+| Footer component | Standard UI pattern - provides visual closure and navigation anchor | LOW | Positioned at bottom of main content area |
+| Privacy Policy link | Legal/compliance expectation - users expect to know how their data is handled | LOW | Standard link text: "Privacy Policy" or "Privacy" |
+| Terms of Use link | Legal/compliance expectation - users want to understand usage terms | LOW | Standard link text: "Terms of Use", "Terms of Service", or "Terms" |
+| Modal display for legal content | Keeps users in-app rather than navigating away | LOW | Consistent with existing Settings/Help modal pattern |
+| Copyright notice | Professional polish - shows ownership and current year | LOW | Format: "2026 Pomodoro Timer" or "2026 Your App Name" |
+| Visual separation from content | Clear boundary between app content and footer | LOW | Use of border-top, spacing, or subtle background |
 
 ### Differentiators (Competitive Advantage)
 
-Features that could set this app apart. Not required, but add polish.
+Features that set the product apart. Not required, but valuable.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Keyboard shortcuts** | Power user efficiency (Cmd+B for bold) | LOW | Standard shortcuts accelerate workflow |
-| **Auto-detect URLs** | Type URL without toolbar | MEDIUM | Regex detection of http/https URLs |
-| **Visual toolbar state** | Show active format on button | MEDIUM | Requires selection state tracking |
-| **Placeholder hints** | Guide users to formatting | LOW | "Use **text** for bold" |
-
----
+| In-app modal vs new tab | Better UX - users don't lose context or session state | LOW | Leverages existing modal infrastructure |
+| Responsive footer layout | Works across mobile/tablet/desktop | LOW | Stack vertically on mobile, horizontal on desktop |
+| Accessible link styling | Keyboard navigation and screen reader support | LOW | Proper focus states, ARIA labels if needed |
+| Scroll-to-top on modal open | Better UX - brings legal content to top | LOW | Optional polish feature |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems for this scope.
+Features that seem good but create problems.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| **Rich text in search** | See formatted matches | Complex highlighting, re-parsing | Plain text search, full note shows formatting |
-| **Nested bullets** | Complex outlines | UI complexity, storage change | Single-level bullets sufficient |
-| **Full WYSIWYG editor** | Word-like experience | Library needed, scope creep | Simple toolbar + markdown |
-| **Inline code** | Technical notes | Beyond stated v2.3 goal | Defer to future |
-
----
+| External links (new tab) | Some argue it's better for printing/reference | Loses app context, breaks user flow, no back button confusion | Use in-app modals - matches existing pattern |
+| Cookie consent banner | Sometimes required for GDPR/CCPA | Adds visual clutter, annoying UX for simple apps | For local-only apps with no tracking, not needed |
+| Floating footer | Ensures always visible | Obscures content on small screens, poor mobile UX | Static footer with adequate padding |
+| Dark/contrast footer | Visual distinction | Inconsistent with light-mode app theme | Subtle integration matching app theme |
 
 ## Feature Dependencies
 
 ```
-[Rich Text Storage Format]
-    └──requires──> [Bold Rendering (modal + history)]
-                      └──requires──> [Bold Toolbar Button]
+[Footer Component]
+    └──requires──> [Privacy Policy Modal]
+                       └──requires──> [Privacy Policy Content]
 
-[Rich Text Storage Format]
-    └──requires──> [Bullet Rendering (modal + history)]
-                      └──requires──> [Bullet Toolbar Button]
-
-[Rich Text Storage Format]
-    └──requires──> [Link Rendering (modal + history)]
-                      └──requires──> [Link Insertion UI]
+[Footer Component]
+    └──requires──> [Terms of Use Modal]
+                       └──requires──> [Terms of Use Content]
 ```
 
 ### Dependency Notes
 
-- **Storage format is foundational:** Use markdown (`**bold**`, `- bullet`, `[text](url)`) - human-readable, portable
-- **Display must come before toolbar:** Users expect WYSIWYG in modal; toolbar creates the format
-- **All three share storage:** Markdown format handles all three simultaneously
-- **Integration with autosave:** Existing autosave must preserve formatting
-
----
+- **Footer component requires Privacy Policy Modal:** The link needs a display mechanism
+- **Footer component requires Terms of Use Modal:** The link needs a display mechanism
+- **Both modals leverage existing infrastructure:** App already has Settings and Help modals - reuse pattern
 
 ## MVP Definition
 
-### Launch With (v2.3)
+### Launch With (v2.4)
 
-Core rich text features for milestone completion.
+Minimum viable product - what's needed to validate the feature.
 
-- [ ] **Bold toolbar button** — Wraps selection in `**`, toggle removes
-- [ ] **Bold rendering (modal)** — Parse and display bold in edit mode
-- [ ] **Bold rendering (history)** — Parse and display bold in read mode
-- [ ] **Bullet toolbar button** — Convert line to `- ` prefix
-- [ ] **Bullet rendering (modal)** — Display as visual list in edit mode
-- [ ] **Bullet rendering (history)** — Display as visual list in read mode
-- [ ] **Link toolbar button** — Prompt for URL, wrap selection
-- [ ] **Clickable links (modal)** — Render as interactive anchor
-- [ ] **Clickable links (history)** — Links work in history drawer
-- [ ] **Storage format** — noteText preserves markdown
+- [ ] Footer component - positioned at bottom, styled consistently
+- [ ] Privacy Policy link - opens modal with content
+- [ ] Terms of Use link - opens modal with content
+- [ ] Basic legal content - placeholder or minimal compliance text
 
-### Add After Validation (v2.3.x)
+### Add After Validation (v2.4.x)
 
-Nice-to-have polish.
+Features to add once core is working.
 
-- [ ] **Keyboard shortcuts** — Cmd/Ctrl+B for bold
-- [ ] **Visual toolbar state** — Highlight active format button
+- [ ] Full Privacy Policy content - comprehensive data handling documentation
+- [ ] Full Terms of Use content - comprehensive usage terms
+- [ ] Copyright notice - professional polish
 
-### Future Consideration (v3.0+)
+### Future Consideration (v2.5+)
 
-Beyond current scope.
+Features to defer until product-market fit is established.
 
-- [ ] Italic, underline, strikethrough
-- [ ] Nested bullets
-- [ ] Checklists
-- [ ] Inline code
-
----
+- [ ] Contact link - for user inquiries
+- [ ] Accessibility statement - if app grows to require it
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Bold toolbar button | HIGH | LOW | P1 |
-| Bold rendering (modal + history) | HIGH | LOW | P1 |
-| Bullet toolbar button | HIGH | LOW | P1 |
-| Bullet rendering (modal + history) | HIGH | LOW | P1 |
-| Link toolbar button | HIGH | MEDIUM | P1 |
-| Clickable links (modal + history) | HIGH | LOW | P1 |
-| Keyboard shortcuts | MEDIUM | LOW | P2 |
-| Visual toolbar state | LOW | MEDIUM | P2 |
-| Auto-detect URLs | LOW | MEDIUM | P2 |
+| Footer component | MEDIUM | LOW | P1 |
+| Privacy Policy link + modal | HIGH | LOW | P1 |
+| Terms of Use link + modal | HIGH | LOW | P1 |
+| Legal content | MEDIUM | LOW | P2 |
+| Copyright notice | LOW | LOW | P2 |
+| Responsive layout | MEDIUM | LOW | P2 |
 
 **Priority key:**
-- P1: Must have for v2.3 launch
+- P1: Must have for launch
 - P2: Should have, add when possible
-- P3: Nice to have, future
+- P3: Nice to have, future consideration
 
----
+## Competitor Feature Analysis
 
-## Rich Text UX Patterns
+| Feature | Common Pattern | Alternative Pattern | Our Approach |
+|---------|----------------|---------------------|--------------|
+| Link text | "Privacy Policy" / "Terms of Use" | "Privacy" / "Terms" (shorter) | Full text - clearer |
+| Link behavior | Modal (modern apps) | New tab (legacy sites) | Modal - matches existing UX |
+| Footer position | Fixed bottom or static at page bottom | None (rare) | Static at content bottom |
+| Visual style | Subtle, secondary to main content | Bold/high-contrast | Subtle, consistent with theme |
 
-### Toolbar Button Behavior
+## Implementation Notes for Requirements Phase
 
-#### Bold Button
-- **With selection:** Click wraps selection in `**`
-- **On bold text:** Click removes `**` (toggle)
-- **No selection:** Click inserts `**` at cursor, cursor between markers
+### Technical Considerations
 
-#### Bullet Button
-- **With selection:** Click prepends `- ` to that line
-- **On bullet line:** Click removes `- ` (toggle off)
-- **Enter at end of bullet:** Auto-insert new `- ` (continues list)
-- **Enter on blank line:** Exit bullet list
+1. **Reuse existing Modal component** - App already has Modal infrastructure from Settings/Help
+2. **Footer positioning** - Use CSS flexbox for horizontal layout, consider `min-height` on container to push footer down
+3. **Content storage** - Legal text can be stored as string constants or separate markdown files
+4. **Accessibility** - Ensure links are keyboard focusable, have visible focus states
+5. **Mobile** - Stack links vertically on narrow screens
 
-#### Link Button
-- **With selection:** Click opens prompt/dialog for URL
-- **After input:** Wrap as `[selected text](url)`
-- **No selection:** Insert `[](url)` and prompt
+### Content Requirements
 
-### Display Rendering
+For a local-only app with no user accounts or tracking:
 
-| Scenario | Display | Implementation |
-|----------|---------|----------------|
-| `**bold**` | **bold** | Parse and apply font-weight: bold |
-| `****` (empty) | Empty or literal | Handle gracefully, no crash |
-| `**unclosed` | Plain `**unclosed` | Parser handles invalid |
-| `- item` | • item | Render with bullet style |
-| `- ` (empty) | Empty or ignore | Filter empties |
-| `[text](url)` | text (clickable) | Render as `<a>` |
+**Privacy Policy** should cover:
+- Data storage (IndexedDB - local only)
+- No third-party data sharing
+- No cookies or tracking
+- User control over data (can delete via browser)
 
-### Edge Cases Summary
-
-| Scenario | Expected | Notes |
-|----------|----------|-------|
-| Empty bold `****` | Empty | Don't crash |
-| Unclosed bold `**text` | Plain text | Invalid markdown |
-| Empty bullet `- ` | Empty or skip | Be consistent |
-| Empty link `[](url)` | Show URL or empty | Decide UX |
-| Invalid URL `[text](bad)` | Styled as link | Allow any input |
-| Mixed: `**bold** + - bullet` | Both render | Parser handles |
-
----
-
-## Storage & Implementation
-
-### Recommended: Markdown Storage
-
-| Approach | Example | Pros | Cons |
-|----------|---------|------|------|
-| **Markdown** | `**bold**`, `- item`, `[](url)` | Portable, readable, Notion/Obsidian aligned | Must parse on display |
-| HTML | `<strong>bold</strong>`, `<ul>` | Direct rendering | Less readable |
-
-**Choose markdown because:**
-- Human-readable for debugging
-- Portable for CSV export/import
-- Users familiar from Notion/Obsidian
-- Easy to parse with regex or library
-
-### Integration with Existing Code
-
-From PROJECT.md context:
-- `noteText` field in SessionRecord (IndexedDB)
-- Session modal — needs toolbar (edit mode)
-- History drawer — needs rendering (read mode)
-- Autosave — preserve formatting on change
-
-### Dependencies on Existing Features
-
-| Existing Feature | Rich Text Usage |
-|-----------------|-----------------|
-| noteText field | Stores markdown format |
-| Autosave | Preserves formatting |
-| Tags system | Independent, no conflict |
-| Session recording | Formatted notes saved |
-| History filtering | Works on plain text |
-
----
-
-## Competitor Analysis
-
-| Feature | Notion | Obsidian | Google Keep | Our Approach |
-|---------|--------|----------|-------------|--------------|
-| Bold | Yes | Yes | Yes | Match pattern |
-| Bullets | Yes | Yes | Yes | Match pattern |
-| Links | Yes | Yes | Yes | Match pattern |
-| Keyboard shortcuts | Yes | Yes | No | Add for power users |
-| Auto-detect URLs | Yes | Plugin | Yes | Future |
-
-**Our approach:** Match industry standards. Users familiar with Notion/Obsidian will feel at home.
-
----
+**Terms of Use** should cover:
+- App is provided "as is"
+- User responsibility for session timing safety
+- No warranty for accuracy
+- Intellectual property (your name/brand)
 
 ## Sources
 
-- Productivity app UX patterns: Notion, Obsidian, Evernote, Google Keep
-- Markdown syntax: CommonMark specification
-- Web Content Accessibility Guidelines (WCAG) for accessible links
-- Existing code: SessionRecord type, noteText field, modal/drawer components
+- Nielsen Norman Group footer design guidelines
+- Common web app patterns (Settings/Help modal reuse)
+- Industry standard footer implementations
+- Web Content Accessibility Guidelines (WCAG) for link accessibility
 
 ---
 
-*Feature research for: Rich Text Session Notes (v2.3)*
+*Feature research for: Footer with Privacy Policy and Terms of Use*
 *Researched: 2026-02-24*

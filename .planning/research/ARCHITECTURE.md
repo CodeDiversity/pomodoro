@@ -6,981 +6,306 @@
 
 ---
 
-# v2.3 Update: Rich Text Session Notes
+# v2.4 Update: Footer with Privacy Policy and Terms of Use
 
 **Added:** 2026-02-24
 **Confidence:** HIGH
 
-This section covers integration architecture for rich text support (bold, bullet lists, clickable links) in session notes.
+This section covers integration architecture for footer with legal links that open in modals.
 
 ---
 
 ## Executive Summary
 
-Rich text notes will use **HTML storage format** with Tiptap as the editor library. This provides the simplest integration: the editor produces HTML that stores directly in IndexedDB as a string, and read-only display is simply rendering that HTML. Redux requires no changes - it continues storing `noteText` as a string.
+This milestone adds a footer with Privacy Policy and Terms of Use links that open in modals. The existing Pomodoro app uses a sidebar navigation layout with modal-based Settings and Help panels. The footer should integrate seamlessly by reusing established patterns.
 
 **Key decisions:**
-1. **Storage Format:** HTML over JSON - simpler read-only rendering
-2. **Editor Library:** Tiptap (headless ProseMirror wrapper)
-3. **Redux Impact:** Zero - `noteText` remains a string field
-4. **Integration:** NotePanel (editor), SessionSummary (display), HistoryDrawer (edit + display)
+1. **Reuse modal pattern** - Use existing Overlay + Modal styled-components from Settings/HelpPanel
+2. **Local state only** - No Redux needed for simple footer modal toggles
+3. **Reusable LegalModal** - Single component for both Privacy Policy and Terms of Use
+4. **Footer placement** - Inside MainContent, below ContentArea
 
 ---
 
-## Storage Format Decision
+## Current Architecture
 
-### Recommendation: HTML over JSON
+### Layout Structure (App.tsx)
 
-| Criterion | HTML | JSON |
-|-----------|------|------|
-| Read-only display complexity | Low - just render HTML | Medium - need Tiptap in read-only mode |
-| Storage size | Smaller for simple formatting | Larger (ProseMirror structure) |
-| Portability | High - standard format | Low - Tiptap-specific |
-| Database migration | None - stays as string | None - stays as string |
-| Link rendering | Simple `<a>` tags | Requires custom renderer |
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        App.tsx                               │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌────────────────────────────────────┐     │
+│  │ Sidebar  │  │           MainContent              │     │
+│  │          │  │  ┌────────────────────────────┐    │     │
+│  │ - Timer  │  │  │         TopBar (65px)      │    │     │
+│  │ - History│  │  └────────────────────────────┘    │     │
+│  │ - Stats  │  │  ┌────────────────────────────┐    │     │
+│  │ - Settings│ │  │      ContentArea           │    │     │
+│  │          │  │  │  (Timer/History/Stats/etc) │    │     │
+│  │          │  │  └────────────────────────────┘    │     │
+│  │          │  │  ┌────────────────────────────┐    │     │ ← NEW: Footer
+│  │          │  │  │         Footer            │    │     │
+│  └──────────┘  │  └────────────────────────────┘    │     │
+│                └────────────────────────────────────┘     │
+├─────────────────────────────────────────────────────────────┤
+│                     Modal Layer (z-index: 1000)             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │    LegalModal.tsx (Privacy Policy / Terms of Use)   │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
 
-**Rationale:** The app's rich text needs are simple (bold, bullets, links). HTML is a universal format that renders anywhere without Tiptap dependencies. For read-only views, a sanitized HTML component suffices.
+### Existing Modal Pattern (Settings.tsx, HelpPanel.tsx)
+
+The existing modal pattern is well-established and should be reused:
+
+```typescript
+// Consistent styled-components structure
+const Overlay = styled.div`
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`
+
+const Modal = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.2s ease-out;
+`
+```
+
+### Layout Component Dimensions
+
+| Component | Purpose | Implementation |
+|-----------|---------|----------------|
+| AppContainer | Root flex container | `display: flex; min-height: 100vh` |
+| Sidebar | Fixed navigation (240px) | `position: fixed; left: 0` |
+| MainContent | Main area with sidebar margin | `margin-left: 240px; flex: 1` |
+| TopBar | Header area | Fixed at top, 64px height + 16px padding = 65px effective |
+| ContentArea | View container | `height: calc(100vh - 65px)` |
+| Footer | Bottom links | Inside MainContent, below ContentArea |
 
 ---
 
-## Redux State Integration
-
-### Current Structure (No Changes Required)
-
-```typescript
-// sessionSlice.ts - unchanged
-interface SessionState {
-  noteText: string      // Will contain HTML when rich text is used: "<p>Hello <strong>world</strong></p>"
-  tags: string[]
-  taskTitle: string
-  saveStatus: 'idle' | 'saving' | 'saved'
-  lastSaved: number | null
-}
-```
-
-**Why no Redux changes needed:**
-- `noteText` is already a string
-- Rich text (HTML) is also a string
-- Actions (`setNoteText`) work identically
-
-### IndexedDB Schema (No Changes Required)
-
-```typescript
-// db.ts - SessionRecord unchanged
-interface SessionRecord {
-  id: string
-  noteText: string       // Will contain HTML: "<p>Hello <strong>world</strong></p>"
-  // ... other fields unchanged
-}
-```
-
-**Database version remains at 4.** No migration needed since we're storing a string in an existing string field.
-
----
-
-## Component Architecture
-
-### Component Hierarchy
+## Recommended Project Structure
 
 ```
-NotePanel (Editor)
-  └── RichTextEditor (Tiptap)
-      ├── Toolbar (Bold, Bullet, Link buttons)
-      └── EditorContent (editable)
-
-SessionSummary (Read-Only Display)
-  └── RichTextDisplay (HTML renderer)
-
-HistoryDrawer (Edit + Display)
-  ├── View Mode: RichTextDisplay
-  └── Edit Mode: RichTextEditor
+src/
+├── components/
+│   ├── Footer.tsx           # NEW: Footer with links
+│   ├── LegalModal.tsx       # NEW: Reusable modal for Privacy/Terms
+│   ├── Settings.tsx         # EXISTING: Modal + page views
+│   ├── HelpPanel.tsx        # EXISTING: Modal only
+│   ├── Sidebar.tsx          # EXISTING: Navigation
+│   └── ui/
+│       └── theme.ts          # EXISTING: Design tokens
+└── App.tsx                  # EXISTING: Layout composition (add Footer)
 ```
-
-### RichTextEditor Component
-
-**Purpose:** Tiptap-based editor for creating/editing rich text
-
-```typescript
-interface RichTextEditorProps {
-  content: string           // HTML string
-  onChange: (html: string) => void
-  placeholder?: string
-  editable?: boolean        // true for NotePanel/HistoryDrawer edit mode
-}
-```
-
-**Dependencies:**
-- `@tiptap/react`
-- `@tiptap/starter-kit` (bold, bullet lists)
-- `@tiptap/extension-link` (clickable links)
-
-### RichTextDisplay Component
-
-**Purpose:** Read-only rendering of HTML content
-
-```typescript
-interface RichTextDisplayProps {
-  content: string           // HTML string from storage
-}
-```
-
-**Implementation:** Use Tiptap in `editable={false}` mode for consistent rendering between editor and display. Add `domPurify` for security.
 
 ---
 
 ## Integration Points
 
-### 1. NotePanel (Active Session Editor)
+### 1. LegalModal.tsx (NEW)
 
-**Current:** Plain textarea with non-functional toolbar buttons (lines 454-469 in NotePanel.tsx)
-**New:** Tiptap editor with functional toolbar
+Create a reusable modal component:
 
-**Toolbar Actions:**
-- Bold: `editor.chain().focus().toggleBold().run()`
-- Bullet List: `editor.chain().focus().toggleBulletList().run()`
-- Link: `editor.chain().focus().setLink({ href: url }).run()`
+```typescript
+interface LegalModalProps {
+  isOpen: boolean
+  onClose: () => void
+  title: string
+  children: React.ReactNode  // Legal content
+}
+```
 
-### 2. SessionSummary (Modal Display)
+**Implementation notes:**
+- Reuse Overlay and Modal styled-components pattern from Settings.tsx
+- Handle close on overlay click
+- Handle Escape key press
+- Support scrollable content for long legal text
+- Position: `src/components/LegalModal.tsx`
 
-**Current:** Plain text display via `DetailValue` (line 196 in SessionSummary.tsx)
-**New:** RichTextDisplay component rendering HTML
+### 2. Footer.tsx (NEW)
 
-### 3. HistoryDrawer (History Details)
+Create footer with link buttons:
 
-**Current:** Textarea for editing (line 369-373 in HistoryDrawer.tsx)
-**New:** Toggle between RichTextDisplay (view) and RichTextEditor (edit), with edit/save buttons
+```typescript
+const Footer = styled.div`
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #64748b;
+`
+
+const FooterLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+`
+
+const FooterLink = styled.button`
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 4px 8px;
+
+  &:hover {
+    color: #136dec;
+  }
+`
+```
+
+**State management:**
+- Use local `useState` for modal visibility
+- No Redux needed - simple UI state, no persistence or cross-component sharing
+
+### 3. App.tsx Integration
+
+Add Footer below ContentArea inside MainContent:
+
+```typescript
+// In App.tsx MainContent styled-component area
+<ContentArea>
+  {/* View content */}
+</ContentArea>
+
+<Footer>
+  <FooterLinks>
+    <FooterLink onClick={() => setShowPrivacy(true)}>Privacy Policy</FooterLink>
+    <FooterLink onClick={() => setShowTerms(true)}>Terms of Use</FooterLink>
+  </FooterLinks>
+</Footer>
+
+{showPrivacy && (
+  <LegalModal
+    isOpen={showPrivacy}
+    onClose={() => setShowPrivacy(false)}
+    title="Privacy Policy"
+  >
+    {/* Privacy policy content */}
+  </LegalModal>
+)}
+```
+
+---
+
+## Build Order
+
+1. **LegalModal.tsx** - Create reusable modal component first
+2. **Footer.tsx** - Build footer with link buttons and modal triggers
+3. **App.tsx integration** - Add Footer to MainContent layout
+
+### Step 1: LegalModal.tsx
+
+- Create reusable modal with title and content props
+- Include close button and overlay click handler
+- Support scrollable content for legal text
+- Add to `src/components/LegalModal.tsx`
+
+### Step 2: Footer.tsx
+
+- Create Footer component with Privacy Policy and Terms of Use links
+- Manage modal visibility with local useState
+- Import and render LegalModal for each link
+- Add to `src/components/Footer.tsx`
+
+### Step 3: App.tsx Integration
+
+- Import Footer component
+- Place below ContentArea, inside MainContent
+- Ensure proper spacing and styling
+
+---
+
+## Design Tokens to Use
+
+From `src/components/ui/theme.ts`:
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| colors.textMuted | #666666 | Footer text color |
+| colors.primary | #136dec | Link hover color |
+| colors.border | #E0E0E0 | Footer border |
+| transitions.fast | 150ms ease | Hover transitions |
+| radii.md | 8px | Rounded corners if needed |
 
 ---
 
 ## Data Flow
 
 ```
-User types in RichTextEditor
-        │
-        ▼
-Tiptap produces HTML
-        │
-        ▼
-onChange(html) → Redux dispatch(setNoteText(html))
-        │
-        ▼
-Debounced persistence middleware saves to IndexedDB
-        │
-        ▼
-Session saved → noteText stored as HTML string
-        │
-        ▼
-Read-only views render HTML via RichTextDisplay
-```
-
----
-
-## Build Order for v2.3 Features
-
-### Phase 1: Editor Infrastructure
-1. **Install Tiptap dependencies**
-   ```bash
-   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link
-   npm install dompurify @types/dompurify
-   ```
-
-2. **Create `src/components/editor/RichTextDisplay.tsx`** (no dependencies on editor)
-   - Used in SessionSummary immediately
-   - Unit testable with sample HTML
-   - Uses Tiptap in `editable={false}` mode with domPurify sanitization
-
-### Phase 2: Editor Component
-3. **Create `src/components/editor/RichTextEditor.tsx`**
-   - Wraps Tiptap
-   - Exposes toolbar action props
-   - Handles placeholder text
-
-### Phase 3: NotePanel Integration
-4. **Update NotePanel.tsx**
-   - Replace textarea with RichTextEditor
-   - Wire up toolbar buttons to editor commands
-   - Style toolbar for active states (bold button shows active when bold text selected)
-
-### Phase 4: Read-Only Display
-5. **Update SessionSummary.tsx**
-   - Import RichTextDisplay
-   - Replace `{session.noteText}` with `<RichTextDisplay content={session.noteText} />`
-   - Handle empty content gracefully
-
-### Phase 5: History Drawer Integration
-6. **Update HistoryDrawer.tsx**
-   - Add editMode state
-   - Conditionally render RichTextDisplay (view) or RichTextEditor (edit)
-   - Add edit/save/cancel buttons in header
-
-### Phase 6: Polish
-7. **Security hardening** - Ensure domPurify configured correctly
-8. **Link handling** - Configure Tiptap to add `rel="noopener noreferrer"` to external links
-9. **Edge cases** - Handle past plain-text notes (display as-is), empty notes
-
----
-
-## Security Considerations
-
-1. **XSS Prevention:** Use `dompurify` to sanitize HTML before rendering
-   ```typescript
-   import DOMPurify from 'dompurify'
-   const cleanHTML = DOMPurify.sanitize(dirtyHTML)
-   ```
-
-2. **Link Safety:** Configure Tiptap link extension to:
-   - Add `rel="noopener noreferrer"` to external links
-   - Validate URLs before allowing insertion
-   - Open links in new tab
-
----
-
-## Scalability Considerations
-
-| Scenario | Approach |
-|----------|----------|
-| 100 sessions with rich text | HTML strings render fine |
-| 10,000 sessions | Same - IndexedDB handles strings efficiently |
-| Export to CSV | HTML preserved as-is (existing csvUtils handles strings) |
-| Search within notes | Text search works on HTML string (searches raw tags) |
-
-**Future consideration:** If full-text search on formatted content becomes needed, consider adding a plain-text mirror field or search index.
-
----
-
-## v2.2 Update: Streak Tracking + CSV Export/Import
-
-**Added:** 2026-02-23
-**Confidence:** HIGH
-
-This section covers integration architecture for new v2.2 features: daily streak tracking and CSV data export/import.
-
----
-
-## Executive Summary
-
-This research document outlines the architecture for migrating an existing Pomodoro Timer application from React hooks (useReducer, useState) to Redux Toolkit. The existing architecture uses a well-structured hook-based approach with clear separation of concerns. The migration path prioritizes incremental adoption, maintaining existing IndexedDB persistence, and preserving the component API surface while centralizing state management.
-
-**Key architectural decisions:**
-1. **Slice-based organization** — Mirror existing hook boundaries (timer, session, history, ui)
-2. **Persistence via Redux middleware** — Replace direct IndexedDB calls with middleware pattern
-3. **Hook compatibility layer** — Existing components work with minimal changes via custom hooks
-4. **Thunk for async operations** — Session saving, tag suggestions, and history fetching
-
----
-
-## Current Architecture Overview
-
-### Existing Hook Structure
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         App.tsx                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   useTimer   │  │useSessionNotes│  │useSessionHistory│        │
-│  │  (useReducer)│  │  (useState)  │  │  (useState)  │          │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│         │                 │                 │                   │
-│  ┌──────▼───────┐  ┌──────▼───────┐         │                   │
-│  │useSessionManager│  │ persistence.ts │      │                   │
-│  │  (composes)  │  │  (IndexedDB) │      │                   │
-│  └──────────────┘  └──────────────┘  ┌──────▼───────┐          │
-│                                      │ sessionStore.ts│          │
-│                                      │  (IndexedDB) │          │
-│                                      └──────────────┘          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### State Domains
-
-| Domain | Current Location | State Type | Persistence |
-|--------|-----------------|------------|-------------|
-| Timer | `useTimer.ts` | useReducer | IndexedDB (timerState) |
-| Session Notes | `useSessionNotes.ts` | useState | In-memory only |
-| Session Records | `useSessionManager.ts` | useRef + IndexedDB | IndexedDB (sessions) |
-| History | `useSessionHistory.ts` | useState | IndexedDB (sessions) |
-| UI | `App.tsx` | useState | None |
-| Settings | `useTimer.ts` + `persistence.ts` | useState | IndexedDB (settings) |
-
----
-
-## v2.2 Integration: Streak Tracking
-
-### Overview
-
-Streak tracking is **purely derived from existing session data** — no new IndexedDB schema, no new Redux slice required.
-
-### Component Boundaries
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| `streakUtils.ts` | Pure functions: calculateCurrentStreak, calculateLongestStreak, getStreakDays | Returns streak data, no side effects |
-| `historySelectors.ts` (extend) | Memoized selectors: selectCurrentStreak, selectLongestStreak, selectStreakDays | Uses selectAllSessions, streakUtils |
-| `StreakCounter.tsx` | Display current streak number | Uses selectors via useAppSelector |
-| `StreakCalendar.tsx` | Visual calendar showing streak days | Uses selectors, renders grid of days |
-
-### Data Flow
-
-```
-IndexedDB sessions
+User clicks footer link
        ↓
-selectAllSessions (existing)
+Footer component: setState({ privacyModal: true })
        ↓
-streakUtils.calculateCurrentStreak()
+LegalModal renders with isOpen={true}
        ↓
-selectCurrentStreak (new selector)
+User reads/clicks close/overlay/Escape
        ↓
-StreakCounter component
-```
-
-### Implementation: streakUtils.ts
-
-```typescript
-import { SessionRecord } from '../types/session';
-
-export interface StreakData {
-  currentStreak: number;      // Consecutive days including today
-  longestStreak: number;      // All-time best
-  streakDays: Date[];         // Array of dates with sessions
-  hasToday: boolean;          // Whether user has session today
-}
-
-export function calculateStreak(sessions: SessionRecord[]): StreakData {
-  // GroupYYYY-MM-DD)
- sessions by date (  const sessionDates = new Set(
-    sessions.map(s => s.startTimestamp.split('T')[0])
-  );
-
-  const sortedDates = Array.from(sessionDates).sort().reverse();
-  const today = new Date().toISOString().split('T')[0];
-  const hasToday = sessionDates.has(today);
-
-  // Calculate current streak (consecutive days from today/yesterday)
-  let currentStreak = 0;
-  const checkDate = new Date();
-
-  // Start from today if exists, else yesterday
-  if (!hasToday) {
-    checkDate.setDate(checkDate.getDate() - 1);
-  }
-
-  while (sessionDates.has(checkDate.toISOString().split('T')[0])) {
-    currentStreak++;
-    checkDate.setDate(checkDate.getDate() - 1);
-  }
-
-  // Calculate longest streak
-  let longestStreak = 0;
-  let tempStreak = 1;
-  const ascendingDates = sortedDates.reverse();
-
-  for (let i = 1; i < ascendingDates.length; i++) {
-    const prev = new Date(ascendingDates[i - 1]);
-    const curr = new Date(ascendingDates[i]);
-    const diffDays = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (diffDays === 1) {
-      tempStreak++;
-    } else {
-      longestStreak = Math.max(longestStreak, tempStreak);
-      tempStreak = 1;
-    }
-  }
-  longestStreak = Math.max(longestStreak, tempStreak);
-
-  return {
-    currentStreak,
-    longestStreak,
-    streakDays: sortedDates.map(d => new Date(d)),
-    hasToday,
-  };
-}
-```
-
-### Implementation: New Selectors
-
-Add to `src/features/history/historySelectors.ts`:
-
-```typescript
-import { calculateStreak, StreakData } from '../../utils/streakUtils';
-
-// Select streak data computed from all sessions
-export const selectStreakData = createSelector(
-  [selectAllSessions],
-  (sessions): StreakData => {
-    return calculateStreak(sessions);
-  }
-);
-
-// Convenience selectors
-export const selectCurrentStreak = createSelector(
-  [selectStreakData],
-  (streak) => streak.currentStreak
-);
-
-export const selectLongestStreak = createSelector(
-  [selectStreakData],
-  (streak) => streak.longestStreak
-);
-```
-
-### No Changes Required
-
-- **IndexedDB**: No schema changes — sessions already have `startTimestamp`
-- **Redux store**: No new slice needed — streak is derived via selectors
-- **sessionStore.ts**: No changes needed
-
----
-
-## v2.2 Integration: CSV Export/Import
-
-### Overview
-
-- **Export**: Generate CSV from existing sessions in Redux/IndexedDB
-- **Import**: Parse CSV, validate, bulk-add to IndexedDB, reload Redux
-
-### Component Boundaries
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| `csvUtils.ts` | Pure functions: sessionsToCSV, csvToSessions, validateCSV | Parsing/serialization, validation |
-| `sessionStore.ts` (extend) | Bulk import function | IndexedDB |
-| `historySlice.ts` (extend) | Import status state + actions | Redux store |
-| `ExportButton.tsx` | Trigger CSV download | Uses sessionStore + csvUtils |
-| `ImportButton.tsx` | File input + import flow | Uses historySlice actions |
-| `ImportModal.tsx` | Show import results/errors | Uses import state from Redux |
-
-### Data Flow
-
-**Export:**
-```
-User clicks Export
+Footer component: setState({ privacyModal: false })
        ↓
-getAllSessions() from sessionStore
-       ↓
-csvUtils.sessionsToCSV(sessions)
-       ↓
-Download file (blob URL)
+LegalModal unmounts
 ```
 
-**Import:**
-```
-User selects CSV file
-       ↓
-FileReader reads content
-       ↓
-csvUtils.csvToSessions(csvString) → validated sessions
-       ↓
-sessionStore.bulkImportSessions(sessions)
-       ↓
-historySlice.loadSessions (reload all from IndexedDB)
-       ↓
-UI shows success/error count
-```
-
-### Implementation: csvUtils.ts
-
-```typescript
-import { SessionRecord } from '../types/session';
-
-const CSV_HEADERS = [
-  'id',
-  'startTimestamp',
-  'endTimestamp',
-  'plannedDurationSeconds',
-  'actualDurationSeconds',
-  'durationString',
-  'mode',
-  'startType',
-  'completed',
-  'noteText',
-  'tags',
-  'taskTitle',
-  'createdAt',
-].join(',');
-
-export function sessionsToCSV(sessions: SessionRecord[]): string {
-  const rows = sessions.map(session => [
-    session.id,
-    session.startTimestamp,
-    session.endTimestamp,
-    session.plannedDurationSeconds,
-    session.actualDurationSeconds,
-    session.durationString,
-    session.mode,
-    session.startType,
-    session.completed,
-    // Escape quotes in text fields
-    `"${session.noteText.replace(/"/g, '""')}"`,
-    `"${session.tags.join(';')}"`,
-    `"${session.taskTitle.replace(/"/g, '""')}"`,
-    session.createdAt,
-  ].join(','));
-
-  return [CSV_HEADERS, ...rows].join('\n');
-}
-
-export interface CSVParseResult {
-  sessions: SessionRecord[];
-  errors: string[];
-}
-
-export function csvToSessions(csv: string): CSVParseResult {
-  const lines = csv.trim().split('\n');
-  const errors: string[] = [];
-  const sessions: SessionRecord[] = [];
-
-  // Skip header
-  for (let i = 1; i < lines.length; i++) {
-    try {
-      const session = parseCSVLine(lines[i]);
-      if (validateSession(session)) {
-        sessions.push(session);
-      } else {
-        errors.push(`Line ${i + 1}: Invalid session data`);
-      }
-    } catch (e) {
-      errors.push(`Line ${i + 1}: ${e instanceof Error ? e.message : 'Parse error'}`);
-    }
-  }
-
-  return { sessions, errors };
-}
-
-function parseCSVLine(line: string): Partial<SessionRecord> {
-  // Simple CSV parser handling quoted fields
-  const values: string[] = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      values.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  values.push(current);
-
-  const [id, startTimestamp, endTimestamp, plannedDurationSeconds,
-    actualDurationSeconds, durationString, mode, startType,
-    completed, noteText, tags, taskTitle, createdAt] = values;
-
-  return {
-    id,
-    startTimestamp,
-    endTimestamp,
-    plannedDurationSeconds: Number(plannedDurationSeconds),
-    actualDurationSeconds: Number(actualDurationSeconds),
-    durationString,
-    mode: mode as SessionRecord['mode'],
-    startType: startType as SessionRecord['startType'],
-    completed: completed === 'true',
-    noteText,
-    tags: tags ? tags.split(';') : [],
-    taskTitle,
-    createdAt: Number(createdAt),
-  };
-}
-
-function validateSession(s: Partial<SessionRecord>): s is SessionRecord {
-  return !!(s.id && s.startTimestamp && s.endTimestamp && s.mode);
-}
-```
-
-### Implementation: sessionStore.ts Extension
-
-Add to `src/services/sessionStore.ts`:
-
-```typescript
-export async function bulkImportSessions(records: SessionRecord[]): Promise<number> {
-  const db = await initDB();
-  const tx = db.transaction('sessions', 'readwrite');
-  let imported = 0;
-
-  for (const record of records) {
-    // Check for existing ID to avoid duplicates
-    const existing = await tx.store.get(record.id);
-    if (!existing) {
-      await tx.store.put(record);
-      imported++;
-    }
-  }
-
-  await tx.done;
-  return imported;
-}
-```
-
-### Implementation: historySlice.ts Extension
-
-Add import state to `HistoryState` and new actions:
-
-```typescript
-export interface HistoryState {
-  // ... existing fields
-  dateFilter: DateFilter
-  searchQuery: string
-  sessions: SessionRecord[]
-  isLoading: boolean
-  // NEW: Import state
-  importStatus: 'idle' | 'importing' | 'success' | 'error'
-  importResult: { imported: number; errors: string[] } | null
-}
-
-// New actions
-setImportStatus(state, action: PayloadAction<HistoryState['importStatus']>) {
-  state.importStatus = action.payload
-},
-setImportResult(state, action: PayloadAction<HistoryState['importResult']>) {
-  state.importResult = action.payload
-  state.importStatus = action.payload?.errors.length ? 'error' : 'success'
-},
-```
-
----
-
-## Build Order for v2.2 Features
-
-### Phase 1: Streak Infrastructure
-1. **Create `src/utils/streakUtils.ts`** — Pure calculation functions (no dependencies)
-2. **Add selectors to `src/features/history/historySelectors.ts`** — Memoized streak selectors
-3. **Create `src/components/streak/StreakCounter.tsx`** — Simple display component
-4. **Integrate into Stats view** — Add streak to existing stats panel
-
-### Phase 2: Streak Calendar
-5. **Create `src/components/streak/StreakCalendar.tsx`** — Visual calendar grid
-6. **Add to History screen** — Calendar below session list
-
-### Phase 3: CSV Export
-7. **Create `src/utils/csvUtils.ts`** — CSV serialization/parsing
-8. **Add Export button to History screen** — Downloads CSV file
-
-### Phase 4: CSV Import
-9. **Extend `src/services/sessionStore.ts`** — Add `bulkImportSessions()`
-10. **Extend `src/features/history/historySlice.ts`** — Add import status state
-11. **Create `src/components/import/ImportModal.tsx`** — File picker + results display
-12. **Wire up import flow** — Button triggers modal, modal dispatches import
-
-### Phase 5: Integration & Polish
-13. **Connect import to reload** — After import, call `loadSessions` to refresh Redux
-14. **Error handling** — Show validation errors in ImportModal
-15. **Edge cases** — Handle empty CSV, duplicate IDs, malformed data
-
----
-
-## Integration Points Summary
-
-| Feature | New Files | Modify Existing | Redux Changes | IndexedDB Changes |
-|---------|-----------|-----------------|---------------|-------------------|
-| Rich Text Editor | RichTextEditor.tsx, RichTextDisplay.tsx | NotePanel.tsx, SessionSummary.tsx, HistoryDrawer.tsx | None | None |
-| Streak Counter | `streakUtils.ts` | `historySelectors.ts` | None | None |
-| Streak Calendar | `StreakCalendar.tsx`, `StreakCounter.tsx` | — | None | None |
-| CSV Export | `csvUtils.ts` | — | None | None |
-| CSV Import | `ImportModal.tsx` | `sessionStore.ts`, `historySlice.ts` | Add import state | Add bulk import |
-
----
-
-## Key Design Decisions (v2.2)
-
-| Decision | Rationale | Alternative Considered |
-|----------|-----------|------------------------|
-| Streak as derived selector | Sessions already have timestamps — no duplication | Store streak in settings — adds sync complexity |
-| CSV in-memory parse | Small datasets (<10k sessions) — no streaming needed | Use worker — overkill for app scale |
-| Import via bulk ID check | Simple deduplication strategy | Upsert — more complex, same outcome |
-| Import reloads all sessions | Ensures Redux/IndexedDB consistency | Optimistic update — risks state drift |
-
----
-
-## Recommended Redux Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Component Layer                             │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
-│  │TimerDisplay │ │ NotePanel   │ │HistoryList  │ │  Sidebar  │ │
-│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └─────┬─────┘ │
-└─────────┼───────────────┼───────────────┼──────────────┼───────┘
-          │               │               │              │
-          └───────────────┴───────┬───────┴──────────────┘
-                                  │
-┌─────────────────────────────────▼───────────────────────────────┐
-│                    Custom Hooks Layer                            │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  useTimer() ┊ useSessionNotes() ┊ useSessionHistory()   │   │
-│  │  (connects to Redux, maintains existing API)            │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-┌─────────────────────────────────▼───────────────────────────────┐
-│                      Redux Store                                 │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
-│  │ timerSlice  │ │ sessionSlice│ │ historySlice│ │  uiSlice  │ │
-│  ├─────────────┤ ├─────────────┤ ├─────────────┤ ├───────────┤ │
-│  │ mode        │ │ noteText    │ │ sessions    │ │ viewMode  │ │
-│  │ timeRemaining│ │ tags        │ │ filters    │ │ isDrawerOpen│ │
-│  │ isRunning   │ │ saveStatus  │ │ searchQuery │ │ showSummary│ │
-│  │ duration    │ │ lastSaved   │ │ isLoading   │ │ selected   │ │
-│  │ sessionCount│ │             │ │ importStatus│ │            │ │
-│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-┌─────────────────────────────────▼───────────────────────────────┐
-│                   Middleware Layer                               │
-│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐   │
-│  │ persistenceMiddleware│ │ sessionMiddleware│ │  thunkMiddleware │   │
-│  │ (IndexedDB sync)│ │ (auto-save)     │ │ (async ops)     │   │
-│  └─────────────────┘ └─────────────────┘ └─────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### State Shape
-
-```typescript
-// Root state structure
-interface RootState {
-  timer: TimerSliceState
-  session: SessionSliceState
-  history: HistorySliceState
-  ui: UISliceState
-}
-
-// Timer slice — replaces useTimer reducer
-interface TimerSliceState {
-  mode: TimerMode                    // 'focus' | 'shortBreak' | 'longBreak'
-  duration: number                   // current mode duration in seconds
-  timeRemaining: number              // countdown value
-  isRunning: boolean
-  sessionCount: number               // for long break logic
-  startTime: number | null           // timestamp when started
-  pausedTimeRemaining: number | null // stored when paused
-  settings: {                       // merged from persistence.ts
-    autoStart: boolean
-    focusDuration: number
-    shortBreakDuration: number
-    longBreakDuration: number
-  }
-}
-
-// Session slice — replaces useSessionNotes + useSessionManager
-interface SessionSliceState {
-  // Current session notes (ephemeral)
-  currentSession: {
-    noteText: string
-    tags: string[]
-    saveStatus: 'idle' | 'saving' | 'saved'
-    lastSaved: number | null
-  }
-  // Active session tracking
-  activeSession: {
-    id: string | null
-    startTime: number | null
-    mode: TimerMode
-    isCheckpointsEnabled: boolean
-  } | null
-  // Tag management
-  tags: {
-    allTags: TagData[]
-    suggestions: string[]
-    isLoading: boolean
-  }
-}
-
-// History slice — replaces useSessionHistory
-interface HistorySliceState {
-  sessions: SessionRecord[]
-  filteredSessions: SessionRecord[]
-  filters: {
-    dateFilter: DateFilter
-    searchQuery: string
-  }
-  isLoading: boolean
-  error: string | null
-  // v2.2: Import state
-  importStatus: 'idle' | 'importing' | 'success' | 'error'
-  importResult: { imported: number; errors: string[] } | null
-}
-
-// UI slice — replaces App.tsx component state
-interface UISliceState {
-  viewMode: 'timer' | 'history' | 'stats' | 'settings'
-  modals: {
-    showSummary: boolean
-    completedSession: CompletedSession | null
-  }
-  drawer: {
-    isOpen: boolean
-    selectedSessionId: string | null
-  }
-}
-```
-
----
-
-## Project Structure
-
-### Recommended Folder Organization
-
-```
-src/
-├── store/
-│   ├── index.ts                 # Store configuration, middleware setup
-│   ├── slices/
-│   │   ├── timerSlice.ts        # Timer state + actions
-│   │   ├── sessionSlice.ts      # Session notes + active session
-│   │   ├── historySlice.ts      # Session history + filters
-│   │   └── uiSlice.ts           # UI state (view mode, modals)
-│   ├── middleware/
-│   │   ├── persistenceMiddleware.ts  # IndexedDB sync
-│   │   └── sessionMiddleware.ts      # Auto-save checkpoints
-│   └── thunks/
-│       ├── sessionThunks.ts     # Async session operations
-│       └── historyThunks.ts     # History fetching
-├── hooks/
-│   ├── useTimer.ts              # Redux-connected (maintains API)
-│   ├── useSessionNotes.ts       # Redux-connected (maintains API)
-│   ├── useSessionManager.ts     # Redux-connected (maintains API)
-│   ├── useSessionHistory.ts     # Redux-connected (maintains API)
-│   └── useAppDispatch.ts        # Typed dispatch hook
-├── selectors/
-│   ├── timerSelectors.ts        # Memoized timer selectors
-│   ├── sessionSelectors.ts      # Memoized session selectors
-│   └── historySelectors.ts      # Memoized history selectors (v2.2: streak)
-├── components/
-│   ├── editor/                  # v2.3: Rich text components
-│   │   ├── RichTextEditor.tsx
-│   │   └── RichTextDisplay.tsx
-│   ├── streak/                  # v2.2: Streak components
-│   │   ├── StreakCounter.tsx
-│   │   └── StreakCalendar.tsx
-│   └── import/                  # v2.2: Import components
-│       └── ImportModal.tsx
-└── utils/
-    ├── streakUtils.ts           # v2.2: Streak calculation
-    └── csvUtils.ts              # v2.2: CSV export/import
-```
+No Redux needed - this is simple UI state with no side effects or persistence requirements.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Putting Non-Serializable State in Redux
+### Anti-Pattern 1: Creating Separate Modals for Each Legal Document
 
-**What people do:** Store DOM refs, promises, or complex objects in Redux state.
+**What people do:** Create PrivacyPolicyModal.tsx and TermsOfUseModal.tsx as separate components
+**Why it's wrong:** Duplicated modal styling, maintenance burden
+**Do this instead:** Create single LegalModal.tsx with children/content prop
 
-**Why it's wrong:** Redux state must be serializable for DevTools, persistence, and time-travel debugging.
+### Anti-Pattern 2: Adding Redux State for Simple UI Toggles
 
-**Do this instead:** Keep refs and ephemeral state in components/hooks. Only put app state in Redux.
+**What people do:** Add legalModal slice to Redux store
+**Why it's wrong:** Over-engineering - no cross-component sharing needed
+**Do this instead:** Use local useState in Footer component
 
-```typescript
-// BAD
-const badSlice = createSlice({
-  initialState: { intervalRef: null as number | null },  // Don't store refs
-  reducers: { ... }
-})
+### Anti-Pattern 3: Putting Footer Outside MainContent
 
-// GOOD
-// Keep intervalRef in useTimer hook, not in Redux
-```
+**What people do:** Place footer as sibling to MainContent in AppContainer
+**Why it's wrong:** Would require adjusting margins, breaks layout consistency
+**Do this instead:** Place inside MainContent, below ContentArea
 
-### Anti-Pattern 2: Direct IndexedDB Calls in Components
+### Anti-Pattern 4: Using Different Modal Styles
 
-**What people do:** Components call `saveSession()` directly.
-
-**Why it's wrong:** Side effects should be in middleware or thunks, not components.
-
-**Do this instead:** Dispatch actions, let middleware handle persistence.
-
-```typescript
-// BAD
-const handleSave = async () => {
-  await saveSession(record)  // Don't do this in components
-}
-
-// GOOD
-dispatch(saveSessionThunk(record))  // Thunk handles async
-```
-
-### Anti-Pattern 3: Storing Derived Data in Redux
-
-**What people do:** Store `filteredSessions` or streak data as state instead of computing it.
-
-**Why it's wrong:** Creates synchronization bugs. Derived data should be computed via selectors.
-
-**Do this instead:** Use createSelector for memoized derived data.
-
-```typescript
-// BAD
-// Storing filteredSessions in state
-
-// GOOD
-const selectFilteredSessions = createSelector(
-  [selectSessions, selectFilters],
-  (sessions, filters) => {
-    // Compute filtered sessions
-    return sessions.filter(...)
-  }
-)
-```
-
-### Anti-Pattern 4: Monolithic Slices
-
-**What people do:** Put all state in one giant `appSlice`.
-
-**Why it's wrong:** Hard to maintain, test, and reason about. Loses modularity.
-
-**Do this instead:** Follow existing hook boundaries — one slice per domain.
-
----
-
-## Scalability Considerations
-
-| Scale | Considerations |
-|-------|----------------|
-| Current (100s of sessions) | Current architecture fine. Selectors handle filtering efficiently. |
-| 1,000+ sessions | Implement pagination in historyThunks. Use virtualized lists (react-window). |
-| 10,000+ sessions | Move filtering to IndexedDB queries instead of in-memory. Consider IndexedDB cursors. |
-
-### Performance Optimizations
-
-1. **Selector Memoization**: Use `createSelector` for all filtered/computed data (including streak)
-2. **Component Memoization**: Wrap display components with `React.memo`
-3. **Action Batching**: Redux Toolkit automatically batches actions
-4. **Lazy Loading**: History data fetched only when viewMode === 'history'
+**What people do:** Create new styled-components for modals instead of reusing
+**Why it's wrong:** Inconsistent UX, more code to maintain
+**Do this instead:** Copy Overlay/Modal pattern from Settings.tsx or extract to shared file
 
 ---
 
 ## Sources
 
-- [Tiptap Documentation](https://tiptap.dev/docs/editor) - Editor framework info
-- [Tiptap: HTML vs JSON](https://tiptap.dev/docs/editor/guide/output) - Storage format comparison
-- [DOMPurify](https://github.com/cure53/DOMPurify) - HTML sanitization
-- Redux Toolkit Documentation: https://redux-toolkit.js.org/
-- Redux Style Guide: https://redux.js.org/style-guide/
 - Existing codebase:
-  - `src/features/session/sessionSlice.ts`
-  - `src/features/history/historySlice.ts`
-  - `src/features/history/historySelectors.ts`
-  - `src/services/sessionStore.ts`
-  - `src/services/db.ts`
-  - `src/types/session.ts`
-  - `src/components/NotePanel.tsx`
-  - `src/components/SessionSummary.tsx`
-  - `src/components/history/HistoryDrawer.tsx`
+  - `src/App.tsx` - Layout structure
+  - `src/components/Settings.tsx` - Modal pattern reference
+  - `src/components/HelpPanel.tsx` - Modal pattern reference
+  - `src/components/ui/theme.ts` - Design tokens
+- Styled-components documentation: https://styled-components.com/docs
 
 ---
 
-*Architecture research for: Redux Toolkit integration + v2.2 features (streak, CSV export/import) + v2.3 (rich text notes)*
-*Researched: 2026-02-21 (base), 2026-02-23 (v2.2 update), 2026-02-24 (v2.3 update)*
+*Architecture research for: Redux Toolkit integration + v2.2 features (streak, CSV export/import) + v2.3 (rich text notes) + v2.4 (footer with legal modals)*
+*Researched: 2026-02-21 (base), 2026-02-23 (v2.2 update), 2026-02-24 (v2.3 update), 2026-02-24 (v2.4 update)*
