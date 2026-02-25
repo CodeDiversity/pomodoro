@@ -18,6 +18,8 @@ interface RichTextEditorProps {
 }
 
 const EditorWrapper = styled.div`
+  width: 100%;
+  max-width: 100%;
   border: 1px solid ${colors.border};
   border-radius: ${radii.lg};
   overflow: hidden;
@@ -66,8 +68,10 @@ const EditorArea = styled.div`
     font-size: 0.9rem;
     line-height: 1.6;
     color: ${colors.text};
+    white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    overflow-x: hidden;
 
     &:focus {
       outline: none;
