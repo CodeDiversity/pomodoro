@@ -92,6 +92,8 @@ const InputIcon = styled.span`
 `
 
 const NotesContainer = styled.div`
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
