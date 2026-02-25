@@ -145,6 +145,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
+          target: '_blank',
           rel: 'noopener noreferrer nofollow',
         },
       }),
