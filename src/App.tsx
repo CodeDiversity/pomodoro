@@ -9,6 +9,10 @@ import { HistoryDrawer } from './components/history/HistoryDrawer'
 import { StatsView } from './features/stats/StatsView'
 import { DailyFocusData } from './components/stats/WeeklyChart'
 import Sidebar from './components/Sidebar'
+import Footer from './components/Footer'
+import LegalModal from './components/LegalModal'
+import PrivacyPolicy from './components/legal/PrivacyPolicy'
+import TermsOfUse from './components/legal/TermsOfUse'
 import { useTimer } from './hooks/useTimer'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSessionNotes } from './hooks/useSessionNotes'
@@ -19,7 +23,17 @@ import { loadSettings, saveSettings, DEFAULT_SETTINGS } from './services/persist
 import { TimerMode } from './types/timer'
 import { SessionRecord } from './types/session'
 import { useAppSelector, useAppDispatch } from './app/hooks'
-import { setViewMode, openDrawer, closeDrawer, showSummaryModal, hideSummaryModal } from './features/ui/uiSlice'
+import {
+  setViewMode,
+  openDrawer,
+  closeDrawer,
+  showSummaryModal,
+  hideSummaryModal,
+  showPrivacyPolicyModal,
+  hidePrivacyPolicyModal,
+  showTermsOfUseModal,
+  hideTermsOfUseModal,
+} from './features/ui/uiSlice'
 import { useStreak } from './features/streak/useStreak'
 
 import styled from 'styled-components'
@@ -232,6 +246,8 @@ function App() {
   const isDrawerOpen = useAppSelector(state => state.ui.isDrawerOpen)
   const selectedSessionId = useAppSelector(state => state.ui.selectedSessionId)
   const showSummary = useAppSelector(state => state.ui.showSummary)
+  const showPrivacyPolicy = useAppSelector(state => state.ui.showPrivacyPolicy)
+  const showTermsOfUse = useAppSelector(state => state.ui.showTermsOfUse)
 
   // History state
   const {
@@ -662,7 +678,26 @@ function App() {
             />
           )}
         </ContentArea>
+
+        <Footer
+          onPrivacyPolicyClick={() => dispatch(showPrivacyPolicyModal())}
+          onTermsOfUseClick={() => dispatch(showTermsOfUseModal())}
+        />
       </MainContent>
+
+      <LegalModal
+        isOpen={showPrivacyPolicy}
+        title="Privacy Policy"
+        content={<PrivacyPolicy />}
+        onClose={() => dispatch(hidePrivacyPolicyModal())}
+      />
+
+      <LegalModal
+        isOpen={showTermsOfUse}
+        title="Terms of Use"
+        content={<TermsOfUse />}
+        onClose={() => dispatch(hideTermsOfUseModal())}
+      />
 
       <SessionSummary
         isVisible={showSummary}
