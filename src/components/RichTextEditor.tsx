@@ -60,9 +60,11 @@ const ToolbarButton = styled.button<{ $isActive: boolean }>`
 const EditorArea = styled.div`
   width: 100%;
 
-  .tiptap {
+  .tiptap,
+  .ProseMirror {
     min-height: 160px;
     max-width: 100%;
+    width: 100%;
     padding: 16px;
     font-family: inherit;
     font-size: 0.9rem;
@@ -166,7 +168,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class: 'tiptap',
-        style: 'word-wrap: break-word; overflow-wrap: break-word; white-space: normal;',
+        style: 'width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; overflow-x: hidden;',
       },
     },
   });
