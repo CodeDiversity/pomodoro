@@ -98,6 +98,14 @@ const NotesContainer = styled.div`
   background: #f8fafc;
 `
 
+const CharacterCount = styled.div<{ $isOverLimit: boolean }>`
+  font-size: 0.75rem;
+  color: ${({ $isOverLimit }) => $isOverLimit ? '#ef4444' : '#64748b'};
+  text-align: right;
+  padding: 4px 8px 0 0;
+  margin-top: 4px;
+`
+
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -261,6 +269,7 @@ interface NotePanelProps {
   suggestions: string[]
   onTagsChange: (tags: string[]) => void
   onCompleteSession: () => void
+  maxNoteLength: number
 }
 
 // Icons
@@ -311,6 +320,7 @@ export default function NotePanel({
   suggestions,
   onTagsChange,
   onCompleteSession,
+  maxNoteLength,
 }: NotePanelProps) {
   const [tagInput, setTagInput] = useState('')
   const [showTagInput, setShowTagInput] = useState(false)
@@ -378,6 +388,10 @@ export default function NotePanel({
           <NotesContainer>
             <RichTextEditor content={noteText} onChange={onNoteChange} />
           </NotesContainer>
+          <CharacterCount $isOverLimit={noteText.length > maxNoteLength}>
+            {noteText.length} / {maxNoteLength}
+            {noteText.length > maxNoteLength && ' (limit reached)'}
+          </CharacterCount>
         </Section>
 
         <Section>

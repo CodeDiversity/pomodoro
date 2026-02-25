@@ -398,6 +398,7 @@ function App() {
     taskTitle,
     saveStatus,
     lastSaved,
+    maxNoteLength,
     handleNoteChange,
     handleTagsChange,
     handleTaskTitleChange,
@@ -612,6 +613,7 @@ function App() {
                     suggestions={tagSuggestions}
                     onTagsChange={handleTagsChange}
                     onCompleteSession={handleSessionSkip}
+                    maxNoteLength={maxNoteLength}
                   />
                 </RightPane>
               )}
