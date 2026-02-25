@@ -92,3 +92,13 @@
 
 ---
 
+
+## v2.2 Features (Shipped: 2026-02-24)
+
+**Phases completed:** 17 phases, 39 plans, 18 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

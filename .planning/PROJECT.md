@@ -10,7 +10,14 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ## Current Milestone: v2.3 (Planning)
 
-**Next:** Define new requirements for next milestone
+**Goal:** Make session notes rich text features actually work — bold, bullet lists, and clickable links with toolbar UI
+
+**Target features:**
+- Bold text toolbar button
+- Bullet list toolbar button
+- Link toolbar button (inserts clickable URLs)
+- Formatted text displays in session modal
+- Formatted text displays in history details drawer
 
 ---
 
@@ -50,7 +57,10 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ### Active
 
-_TBD — define via /gsd:new-milestone_
+- [ ] Rich text toolbar with Bold, Bullet, Link buttons in session notes
+- [ ] Clickable URLs in session notes display
+- [ ] Formatted notes in session summary modal
+- [ ] Formatted notes in history details drawer
 
 ---
 
@@ -136,4 +146,4 @@ _TBD — define via /gsd:new-milestone_
 
 ---
 
-*Last updated: 2026-02-24 after v2.2 milestone*
+*Last updated: 2026-02-24 after v2.3 milestone started*
