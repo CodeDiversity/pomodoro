@@ -13,6 +13,8 @@ export interface UIState {
   isDrawerOpen: boolean
   selectedSessionId: string | null
   showSummary: boolean
+  showPrivacyPolicy: boolean
+  showTermsOfUse: boolean
 }
 
 /**
@@ -23,6 +25,8 @@ const initialState: UIState = {
   isDrawerOpen: false,
   selectedSessionId: null,
   showSummary: false,
+  showPrivacyPolicy: false,
+  showTermsOfUse: false,
 }
 
 /**
@@ -71,6 +75,34 @@ const uiSlice = createSlice({
     hideSummaryModal(state) {
       state.showSummary = false
     },
+
+    /**
+     * Show the privacy policy modal
+     */
+    showPrivacyPolicyModal(state) {
+      state.showPrivacyPolicy = true
+    },
+
+    /**
+     * Hide the privacy policy modal
+     */
+    hidePrivacyPolicyModal(state) {
+      state.showPrivacyPolicy = false
+    },
+
+    /**
+     * Show the terms of use modal
+     */
+    showTermsOfUseModal(state) {
+      state.showTermsOfUse = true
+    },
+
+    /**
+     * Hide the terms of use modal
+     */
+    hideTermsOfUseModal(state) {
+      state.showTermsOfUse = false
+    },
   },
 })
 
@@ -80,6 +112,10 @@ export const {
   closeDrawer,
   showSummaryModal,
   hideSummaryModal,
+  showPrivacyPolicyModal,
+  hidePrivacyPolicyModal,
+  showTermsOfUseModal,
+  hideTermsOfUseModal,
 } = uiSlice.actions
 
 export default uiSlice.reducer
