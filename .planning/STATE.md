@@ -8,7 +8,7 @@ See: .planning/PROJECT.md
 
 **Milestone:** v2.3 Rich Text Notes
 **Current phase:** Phase 22 - Polish & Validation
-**Status:** Milestone complete
+**Status:** v2.3 milestone complete
 
 ## Session Log
 

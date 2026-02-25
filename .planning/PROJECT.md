@@ -8,16 +8,11 @@ A responsive Pomodoro timer web app with session notes, history tracking, streak
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current Milestone: v2.3 (Planning)
+## Current Milestone: v2.3 (Complete)
 
-**Goal:** Make session notes rich text features actually work — bold, bullet lists, and clickable links with toolbar UI
+**Shipped:** 2026-02-25
 
-**Target features:**
-- Bold text toolbar button
-- Bullet list toolbar button
-- Link toolbar button (inserts clickable URLs)
-- Formatted text displays in session modal
-- Formatted text displays in history details drawer
+Rich text notes with bold, bullet lists, and clickable links now available in session notes and history.
 
 ---
 
@@ -54,13 +49,14 @@ A focused productivity timer that helps users track work sessions with notes, an
 - Daily streak counter with calendar view — v2.2
 - Export history as CSV — v2.2
 - Import CSV files — v2.2
+- Rich text editor with Bold, Bullet, Link toolbar buttons — v2.3
+- Clickable URLs in session notes — v2.3
+- Formatted notes in session summary modal — v2.3
+- Formatted notes in history details drawer — v2.3
 
 ### Active
 
-- [ ] Rich text toolbar with Bold, Bullet, Link buttons in session notes
-- [ ] Clickable URLs in session notes display
-- [ ] Formatted notes in session summary modal
-- [ ] Formatted notes in history details drawer
+(None — start new milestone with `/gsd:new-milestone`)
 
 ---
 
@@ -73,6 +69,7 @@ A focused productivity timer that helps users track work sessions with notes, an
 - v2.0 shipped: 2026-02-21
 - v2.1 shipped: 2026-02-23
 - v2.2 shipped: 2026-02-24
+- v2.3 shipped: 2026-02-25
 
 ---
 
@@ -146,4 +143,41 @@ A focused productivity timer that helps users track work sessions with notes, an
 
 ---
 
-*Last updated: 2026-02-24 after v2.3 milestone started*
+<details>
+<summary><b>v2.3 Shipped (Archived)</b></summary>
+
+## v2.3: Rich Text Notes (Shipped 2026-02-25)
+
+**Goal:** Make session notes rich text — bold, bullet lists, clickable links with toolbar UI
+
+**Accomplishments:**
+- RichTextEditor component with TipTap and functional toolbar (Bold, Bullet, Link)
+- RichTextDisplay component with DOMPurify sanitization for safe HTML rendering
+- NotePanel integration: replaced textarea with RichTextEditor during active sessions
+- SessionSummary modal displays formatted notes
+- HistoryDrawer displays formatted notes in view mode
+- Character counter with plain text length calculation
+- Keyboard shortcuts (Cmd/Ctrl+B) for bold toggle
+- Link security: target="_blank" with rel="noopener noreferrer"
+- Text wrapping with word-break: break-all
+
+**Key Changes:**
+- Added @tiptap/react, @tiptap/starter-kit, @tiptap/extension-link dependencies
+- Added dompurify for XSS sanitization
+- Created RichTextEditor.tsx and RichTextDisplay.tsx components
+- Updated NotePanel.tsx, SessionSummary.tsx, HistoryDrawer.tsx
+
+**Known Gaps (Tech Debt):**
+- RTE-05: Toolbar buttons styling could be improved (functional, not fully styled)
+
+**Key Decisions:**
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| TipTap editor | Headless, React-friendly, extensible | ✅ v2.3 |
+| DOMPurify for sanitization | Trusted, well-maintained XSS library | ✅ v2.3 |
+| word-break: break-all | Force text wrapping in editor | ✅ v2.3 |
+</details>
+
+---
+
+*Last updated: 2026-02-25 after v2.3 milestone completed*

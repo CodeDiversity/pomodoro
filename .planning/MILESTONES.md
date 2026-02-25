@@ -102,3 +102,13 @@
 
 ---
 
+
+## v2.3 Rich Text Notes (Shipped: 2026-02-25)
+
+**Phases completed:** 22 phases, 45 plans, 25 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
