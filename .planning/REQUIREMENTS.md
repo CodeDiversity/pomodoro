@@ -33,16 +33,16 @@ Requirements for v2.4 milestone: Footer with Privacy Policy and Terms of Use.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LEGAL-01 | Phase 1 | Pending |
-| LEGAL-02 | Phase 1 | Pending |
-| LEGAL-03 | Phase 1 | Pending |
-| LEGAL-04 | Phase 1 | Pending |
-| LEGAL-05 | Phase 1 | Pending |
-| LEGAL-06 | Phase 1 | Pending |
-| LEGAL-07 | Phase 1 | Pending |
-| LEGAL-08 | Phase 1 | Pending |
-| LEGAL-09 | Phase 1 | Pending |
-| LEGAL-10 | Phase 1 | Pending |
+| LEGAL-01 | Phase 23 | Pending |
+| LEGAL-02 | Phase 23 | Pending |
+| LEGAL-03 | Phase 23 | Pending |
+| LEGAL-04 | Phase 23 | Pending |
+| LEGAL-05 | Phase 23 | Pending |
+| LEGAL-06 | Phase 23 | Pending |
+| LEGAL-07 | Phase 23 | Pending |
+| LEGAL-08 | Phase 23 | Pending |
+| LEGAL-09 | Phase 23 | Pending |
+| LEGAL-10 | Phase 23 | Pending |
 
 **Coverage:**
 - v2.4 requirements: 10 total
@@ -52,4 +52,4 @@ Requirements for v2.4 milestone: Footer with Privacy Policy and Terms of Use.
 ---
 
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after v2.4 milestone started*
+*Last updated: 2026-02-25 after v2.4 roadmap created*

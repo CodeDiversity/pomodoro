@@ -7,6 +7,7 @@
 - ✅ **v2.1 Features** — Phases 7-12 additions (shipped 2026-02-23)
 - ✅ **v2.2 Features** — Phases 13-17 (shipped 2026-02-24)
 - ✅ **v2.3 Rich Text Notes** — Phases 18-22 (shipped 2026-02-25)
+- [ ] **v2.4 Footer** — Phase 23 (in progress)
 
 ---
 
@@ -17,6 +18,7 @@
 - [x] **Phase 20: NotePanel Integration** — Replace textarea with RichTextEditor
 - [x] **Phase 21: Read-Only Display** — RichTextDisplay in SessionSummary and HistoryDrawer
 - [x] **Phase 22: Polish & Validation** — Keyboard shortcuts, link security, character counter
+- [ ] **Phase 23: Footer with Legal Modals** — Footer component with Privacy Policy and Terms of Use links that open in modals
 
 <details>
 <summary>✅ v2.3 Rich Text Notes (Phases 18-22) — SHIPPED 2026-02-25</summary>
@@ -139,6 +141,31 @@ Plans:
 
 ---
 
+### Phase 23: Footer with Legal Modals
+
+**Goal:** Users can access Privacy Policy and Terms of Use documents from the app footer in modals
+
+**Depends on:** None (first v2.4 phase)
+
+**Requirements:** LEGAL-01, LEGAL-02, LEGAL-03, LEGAL-04, LEGAL-05, LEGAL-06, LEGAL-07, LEGAL-08, LEGAL-09, LEGAL-10
+
+**Success Criteria** (what must be TRUE):
+
+1. Footer displays at bottom of main content area (visible on all screens)
+2. Privacy Policy link opens modal with complete policy content
+3. Terms of Use link opens modal with complete terms content
+4. Legal modals close when user clicks backdrop (outside modal)
+5. Legal modals close when user presses Escape key
+6. Legal modals have visible close button that closes the modal
+7. Copyright notice displays in footer (format: "2026 Pomodoro Timer")
+8. Footer layout adapts properly on mobile devices (375px+)
+9. Privacy Policy content clearly states data is stored locally in IndexedDB (no cloud/remote storage)
+10. Terms of Use content defines user rights and app disclaimers
+
+**Plans:** TBD
+
+---
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -152,7 +179,8 @@ Plans:
 | 20 - NotePanel Integration | 1/1 | Complete    | 2026-02-24 |
 | 21 - Read-Only Display | 1/1 | Complete    | 2026-02-24 |
 | 22 - Polish & Validation | 2/2 | Complete    | 2026-02-25 |
+| 23 - Footer with Legal Modals | 0/1 | Not started | - |
 
 ---
 
-*Next: /gsd:plan-phase 18*
+*Next: /gsd:plan-phase 23*
