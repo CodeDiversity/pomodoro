@@ -8,11 +8,15 @@ A responsive Pomodoro timer web app with session notes, history tracking, streak
 
 A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
 
-## Current Milestone: v2.3 (Complete)
+## Current Milestone: v2.4
 
-**Shipped:** 2026-02-25
+**Goal:** Add footer with Privacy Policy and Terms of Use links that open in modals
 
-Rich text notes with bold, bullet lists, and clickable links now available in session notes and history.
+**Target features:**
+- Footer component with clickable links
+- Privacy Policy modal with content
+- Terms of Use modal with content
+- Consistent styling with existing modal pattern
 
 ---
 
@@ -56,7 +60,7 @@ Rich text notes with bold, bullet lists, and clickable links now available in se
 
 ### Active
 
-(None — start new milestone with `/gsd:new-milestone`)
+- [ ] Footer with Privacy Policy and Terms of Use links
 
 ---
 

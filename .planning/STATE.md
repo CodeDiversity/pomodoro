@@ -1,14 +1,18 @@
-# Session State
+# State
 
 ## Project Reference
 
 See: .planning/PROJECT.md
 
+**Core value:** A focused productivity timer that helps users track work sessions with notes, and review their focus history over time—all without requiring a backend.
+
+**Current milestone:** v2.4 Footer
+
 ## Position
 
-**Milestone:** v2.3 Rich Text Notes
-**Current phase:** Phase 22 - Polish & Validation
-**Status:** v2.3 milestone complete
+**Milestone:** v2.4 Footer
+**Current phase:** Not started (defining requirements)
+**Status:** Defining requirements
 
 ## Session Log
 
@@ -16,14 +20,12 @@ See: .planning/PROJECT.md
 - 2026-02-24: Completed 20-01-PLAN.md - NotePanel Integration with RichTextEditor
 - 2026-02-25: Completed 22-01-PLAN.md - Polish & Validation
 
-## Decisions Made
+## Accumulated Context
 
-- Integrated RichTextEditor component from phase 19 into NotePanel
-- Removed duplicate toolbar/button code since RichTextEditor has its own toolbar
-- [Phase 21-read-only-display]: Integrated RichTextDisplay in SessionSummary and HistoryDrawer
-- [Phase 22-polish-validation]: Added target="_blank" to link configuration, added character counter
+- Tech stack: React 18, TypeScript, Vite, styled-components, Redux Toolkit
+- Persistence: IndexedDB with versioned schema
+- ~7,558 lines of TypeScript code
 
-## Completion
+---
 
-- Phase 20 Plan 01 completed: RichTextEditor integrated in NotePanel
-- Phase 22 Plan 01 completed: Polish & Validation - keyboard shortcuts verified, link security fixed, character counter added
+*Last updated: 2026-02-25*
