@@ -56,8 +56,11 @@ const ToolbarButton = styled.button<{ $isActive: boolean }>`
 `;
 
 const EditorArea = styled.div`
+  width: 100%;
+
   .tiptap {
     min-height: 160px;
+    max-width: 100%;
     padding: 16px;
     font-family: inherit;
     font-size: 0.9rem;
