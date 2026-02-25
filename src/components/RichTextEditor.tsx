@@ -166,6 +166,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class: 'tiptap',
+        style: 'word-wrap: break-word; overflow-wrap: break-word; white-space: normal;',
       },
     },
   });
