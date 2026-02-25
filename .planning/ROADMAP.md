@@ -18,7 +18,7 @@
 - [x] **Phase 20: NotePanel Integration** — Replace textarea with RichTextEditor
 - [x] **Phase 21: Read-Only Display** — RichTextDisplay in SessionSummary and HistoryDrawer
 - [x] **Phase 22: Polish & Validation** — Keyboard shortcuts, link security, character counter
-- [ ] **Phase 23: Footer with Legal Modals** — Footer component with Privacy Policy and Terms of Use links that open in modals
+- [ ] **Phase 23: Footer with Legal Modals** — Footer component with Privacy Policy and Terms of Use links that open in modals (1/1 plans)
 
 <details>
 <summary>✅ v2.3 Rich Text Notes (Phases 18-22) — SHIPPED 2026-02-25</summary>
@@ -162,7 +162,10 @@ Plans:
 9. Privacy Policy content clearly states data is stored locally in IndexedDB (no cloud/remote storage)
 10. Terms of Use content defines user rights and app disclaimers
 
-**Plans:** TBD
+**Plans:** 1/1 plans
+
+Plan:
+- [x] 23-01-PLAN.md — Footer with Privacy Policy and Terms of Use modals
 
 ---
 
@@ -179,7 +182,7 @@ Plans:
 | 20 - NotePanel Integration | 1/1 | Complete    | 2026-02-24 |
 | 21 - Read-Only Display | 1/1 | Complete    | 2026-02-24 |
 | 22 - Polish & Validation | 2/2 | Complete    | 2026-02-25 |
-| 23 - Footer with Legal Modals | 0/1 | Not started | - |
+| 23 - Footer with Legal Modals | 1/1 | Planned | - |
 
 ---
 
