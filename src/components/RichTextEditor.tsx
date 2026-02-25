@@ -69,11 +69,11 @@ const EditorArea = styled.div`
     font-family: inherit;
     font-size: 0.9rem;
     line-height: 1.6;
-    color: ${colors.text};
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    overflow-x: hidden;
+    color: ${colors.text} !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow-x: hidden !important;
 
     &:focus {
       outline: none;
