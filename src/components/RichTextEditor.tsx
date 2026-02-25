@@ -63,6 +63,8 @@ const EditorArea = styled.div`
     font-size: 0.9rem;
     line-height: 1.6;
     color: ${colors.text};
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     &:focus {
       outline: none;
@@ -150,7 +152,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         },
       }),
     ],
-    content,
+    content: content || '<p></p>',
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
