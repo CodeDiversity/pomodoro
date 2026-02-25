@@ -59,6 +59,7 @@ const EditorArea = styled.div`
   .tiptap,
   .ProseMirror {
     min-height: 160px;
+    padding: 16px;
     word-break: break-all !important;
 
     &:focus {
