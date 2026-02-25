@@ -18,8 +18,6 @@ interface RichTextEditorProps {
 }
 
 const EditorWrapper = styled.div`
-  width: 100%;
-  max-width: 100%;
   border: 1px solid ${colors.border};
   border-radius: ${radii.lg};
   overflow: hidden;
@@ -58,22 +56,10 @@ const ToolbarButton = styled.button<{ $isActive: boolean }>`
 `;
 
 const EditorArea = styled.div`
-  width: 100%;
-
   .tiptap,
   .ProseMirror {
     min-height: 160px;
-    max-width: 100%;
-    width: 100%;
-    padding: 16px;
-    font-family: inherit;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: ${colors.text} !important;
-    white-space: pre-wrap !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    overflow-x: hidden !important;
+    word-break: break-all !important;
 
     &:focus {
       outline: none;
@@ -168,7 +154,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class: 'tiptap',
-        style: 'width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; overflow-x: hidden;',
       },
     },
   });
