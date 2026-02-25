@@ -120,10 +120,11 @@ Plan:
 4. Character limit validation works correctly with HTML content
 5. All v2.3 features functional in a clean browser test
 
-**Plans:** 1/1 plans complete
+**Plans:** 2/2 plans (1 original + 1 gap closure)
 
-Plan:
+Plans:
 - [x] 22-01-PLAN.md — Polish & Validation (keyboard shortcuts verified, link security fixed, character counter added)
+- [x] 22-02-PLAN.md — Gap Closure (fix keyboard shortcut on empty editor, fix text wrapping, fix character counter)
 
 ---
 
@@ -139,7 +140,7 @@ Plan:
 | 19 - Editor Component | 1/1 | Complete    | 2026-02-24 |
 | 20 - NotePanel Integration | 1/1 | Complete    | 2026-02-24 |
 | 21 - Read-Only Display | 1/1 | Complete    | 2026-02-24 |
-| 22 - Polish & Validation | 1/1 | Complete    | 2026-02-25 |
+| 22 - Polish & Validation | 2/2 | Complete    | 2026-02-25 |
 
 ---
 
