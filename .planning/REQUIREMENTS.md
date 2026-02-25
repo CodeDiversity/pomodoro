@@ -12,7 +12,7 @@
 - [x] **RTE-01**: User can toggle bold formatting via toolbar button
 - [x] **RTE-02**: User can toggle bullet list formatting via toolbar button
 - [x] **RTE-03**: User can insert links via toolbar button with URL input
-- [ ] **RTE-04**: Rich text editor replaces textarea in NotePanel during active session
+- [x] **RTE-04**: Rich text editor replaces textarea in NotePanel during active session
 - [ ] **RTE-05**: Toolbar buttons (Bold, Bullet, Link) are functional and styled
 
 ### Rich Text Display
