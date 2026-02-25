@@ -169,7 +169,7 @@ Plans:
 9. Privacy Policy content clearly states data is stored locally in IndexedDB (no cloud/remote storage)
 10. Terms of Use content defines user rights and app disclaimers
 
-**Plans:** 1/1 plans complete
+**Plans:** 1/0 plans complete
 
 Plan:
 - [x] 23-01-PLAN.md — Footer with Privacy Policy and Terms of Use modals (completed 2026-02-25)

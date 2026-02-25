@@ -9,16 +9,16 @@ Requirements for v2.4 milestone: Footer with Privacy Policy and Terms of Use.
 
 ### Legal & Footer
 
-- [ ] **LEGAL-01**: Footer component displays at bottom of main content area
-- [ ] **LEGAL-02**: Privacy Policy link in footer opens modal with policy content
-- [ ] **LEGAL-03**: Terms of Use link in footer opens modal with terms content
-- [ ] **LEGAL-04**: Legal modals close on backdrop click
-- [ ] **LEGAL-05**: Legal modals close on Escape key press
-- [ ] **LEGAL-06**: Legal modals have close button
-- [ ] **LEGAL-07**: Copyright notice displays in footer
-- [ ] **LEGAL-08**: Footer is responsive on mobile devices
-- [ ] **LEGAL-09**: Privacy Policy content states data is stored locally in IndexedDB
-- [ ] **LEGAL-10**: Terms of Use content defines user rights and app disclaimers
+- [x] **LEGAL-01**: Footer component displays at bottom of main content area
+- [x] **LEGAL-02**: Privacy Policy link in footer opens modal with policy content
+- [x] **LEGAL-03**: Terms of Use link in footer opens modal with terms content
+- [x] **LEGAL-04**: Legal modals close on backdrop click
+- [x] **LEGAL-05**: Legal modals close on Escape key press
+- [x] **LEGAL-06**: Legal modals have close button
+- [x] **LEGAL-07**: Copyright notice displays in footer
+- [x] **LEGAL-08**: Footer is responsive on mobile devices
+- [x] **LEGAL-09**: Privacy Policy content states data is stored locally in IndexedDB
+- [x] **LEGAL-10**: Terms of Use content defines user rights and app disclaimers
 
 ## Out of Scope
 
@@ -33,16 +33,16 @@ Requirements for v2.4 milestone: Footer with Privacy Policy and Terms of Use.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LEGAL-01 | Phase 23 | Pending |
-| LEGAL-02 | Phase 23 | Pending |
-| LEGAL-03 | Phase 23 | Pending |
-| LEGAL-04 | Phase 23 | Pending |
-| LEGAL-05 | Phase 23 | Pending |
-| LEGAL-06 | Phase 23 | Pending |
-| LEGAL-07 | Phase 23 | Pending |
-| LEGAL-08 | Phase 23 | Pending |
-| LEGAL-09 | Phase 23 | Pending |
-| LEGAL-10 | Phase 23 | Pending |
+| LEGAL-01 | Phase 23 | Complete |
+| LEGAL-02 | Phase 23 | Complete |
+| LEGAL-03 | Phase 23 | Complete |
+| LEGAL-04 | Phase 23 | Complete |
+| LEGAL-05 | Phase 23 | Complete |
+| LEGAL-06 | Phase 23 | Complete |
+| LEGAL-07 | Phase 23 | Complete |
+| LEGAL-08 | Phase 23 | Complete |
+| LEGAL-09 | Phase 23 | Complete |
+| LEGAL-10 | Phase 23 | Complete |
 
 **Coverage:**
 - v2.4 requirements: 10 total
