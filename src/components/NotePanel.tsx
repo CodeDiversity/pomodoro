@@ -388,9 +388,9 @@ export default function NotePanel({
           <NotesContainer>
             <RichTextEditor content={noteText} onChange={onNoteChange} />
           </NotesContainer>
-          <CharacterCount $isOverLimit={noteText.length > maxNoteLength}>
-            {noteText.length} / {maxNoteLength}
-            {noteText.length > maxNoteLength && ' (limit reached)'}
+          <CharacterCount $isOverLimit={noteText.replace(/<[^>]*>/g, '').length >= maxNoteLength}>
+            {noteText.replace(/<[^>]*>/g, '').length} / {maxNoteLength}
+            {noteText.replace(/<[^>]*>/g, '').length >= maxNoteLength && ' (limit reached)'}
           </CharacterCount>
         </Section>
 
