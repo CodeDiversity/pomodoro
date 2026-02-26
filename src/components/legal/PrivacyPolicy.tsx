@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { colors, transitions } from '../ui/theme'
+import { colors } from '../ui/theme'
 
 const PolicyContainer = styled.div`
   padding: 8px 0;
